@@ -2,15 +2,15 @@
 <!DOCTYPE html>
 <html lang="en"><head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-QPHE3BK83R"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-QPHE3BK83R"></script>
+    <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
 
-  gtag('config', 'G-QPHE3BK83R');
-</script>
+    gtag('config', 'G-QPHE3BK83R');
+    </script>
 
   <!-- Basic Page Needs
   –––––––––––––––––––––––––––––––––––––––––––––––––– -->
@@ -26,24 +26,26 @@
   <!-- FONT
   –––––––––––––––––––––––––––––––––––––––––––––––––– -->
   <link href="style.css" rel="stylesheet" type="text/css">
-  <link href="https://fonts.googleapis.com/css?family=Raleway&display=swap" rel="stylesheet">
+  <!-- <link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet"> -->
+  <link href="https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap" rel="stylesheet">
 
   <!-- CSS
   –––––––––––––––––––––––––––––––––––––––––––––––––– -->
-  <link rel="stylesheet" href="normalize.css">
   <link rel="stylesheet" href="skeleton.css">
 
   <!-- Favicn
   –––––––––––––––––––––––––––––––––––––––––––––––––– -->
   <link rel="icon" type="image/png" href="http://www.mit.edu/~bsturt/images/favicon.png">
 
-  <style>
-    ul {
-      padding-left: 20px; /* Adjust the indentation as needed */
-    }
-  </style>
-
+  <!-- my style -->
     <style>
+        ul {
+            padding-left: 5px; /* Adjust the indentation as needed */
+        }
+
+        b {
+            font-weight: 600; 
+        }
         .button-link {
             background-color: transparent;
             color: gray;
@@ -60,25 +62,123 @@
             height: 16px; /* Adjust height as needed */
             margin: 0;
         }
-    </style>
 
+        /* Sidebar styling */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 180px;
+            height: 100%;
+            background-color: #f4f4f4;
+            padding: 20px;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+            z-index: 2000; 
+            overflow-y: auto;
+            transition: transform 0.3s ease;
+            transform: translateX(0);
+        }
+
+        .sidebar a {
+            display: block;
+            color: #13548d;
+            text-decoration: none;
+            padding: 10px;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        .sidebar a:hover {
+            background-color: #ddd;
+        }
+
+        /* Hamburger menu button */
+        .menu-button {
+            display: none;
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            z-index: 3000;
+            background-color: #f4f4f4;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+        }
+
+        /* Content styling */
+        .content {
+            margin-left: 200px;
+            padding: 20px;
+            transition: margin-left 0.3s ease;
+        }
+
+        /* Responsive design */
+        @media (max-width: 1350px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .menu-button {
+                display: block;
+            }
+
+            .content {
+                margin-left: 0;
+                padding-top: 60px; /* Space for the menu button */
+            }
+        }
+    </style>
+    <script>
+        function toggleSidebar() {
+            document.querySelector('.sidebar').classList.toggle('open');
+        }
+    </script>
 </head>
 <body>
+    <!-- Hamburger Menu Button -->
+    <button class="menu-button" onclick="toggleSidebar()">☰</button>
+
+
+    <!-- Sidebar Navigation -->
+    <nav class="sidebar">
+        <a href="#about">About Me</a>
+        <a href="#research">Research</a>
+        <a href="#experience">Experience</a>
+        <a href="#teaching">Teaching and Mentoring</a>
+        <a href="#activities">Professional Activities</a>
+        <a href="#talks">Talks</a>
+        <!-- <a href="#photos">Photos</a> -->
+    </nav>
 
   <!-- Primary Page Layout
   –––––––––––––––––––––––––––––––––––––––––––––––––– -->
-  <div class="container">
-
-    <div class="row" style="margin-top: 10%">
+  <div class="container" style="margin-top: 5%">
+    
+    <h2>Zikai Xiong</h2>
+    <h6 style="color: #527bbd;">I am a 5th (final) year doctoral student at the MIT Operations Research Center</h6>
+    <div class="row" style="margin-top: 0%">
         <div class="seven columns">
-            <h2>Zikai Xiong</h2>
-            <h5>Zikai Xiong <br>
-                熊子恺<br>
-                MIT Operations Research Center<br>
-                zikai@mit.edu   (<a href="mailto:zikai@mit.edu">zikai@mit.edu</a>)<br>
-                <a href="ZikaiCV.pdf">My Curriculum Vitae (CV)</a> <br>
-                <a href="https://scholar.google.com/citations?user=oejoCFAAAAAJ&hl=en">Google Scholar</a>
-            </h5>
+            
+            <span style="font-size: 110%;font-weight: 500;">
+                <br>Ph.D. Operations Research MIT -- June 2025 (expected)
+                <br>B.S. Mathematics Fudan University -- June 2020
+                <br>
+                <br><a href="ZikaiCV.pdf">My Curriculum Vitae (CV)</a> 
+                <br><a href="https://scholar.google.com/citations?user=oejoCFAAAAAJ&hl=en">Google Scholar</a>
+                <br>
+                <br>MIT Operations Research Center
+                <br>77 Massachusetts Ave.
+                <br>Cambridge, MA  02139
+                <br>zikai@mit.edu (<a href="mailto:zikai@mit.edu">zikai@mit.edu</a>)
+            </span>
+            
+
+
             <!-- <p><b>Email</b>: zikai@mit.edu   (<a href="mailto:zikai@mit.edu">zikai@mit.edu</a>)
                 <br>
                 <a href="https://www.linkedin.com/in/zikai-xiong/"">Linkedin profile</a>
@@ -90,32 +190,28 @@
 
             <!-- <p><b>I will be on the Fall 2023 academic job market.</b></p>-->
         </div>
-        <div class="four columns">
-            <img src="zikai-3.jpg" width="150%">
+        <div class="five columns">
+            <img src="zikai-3.jpg" width="300%">
         </div>
     </div>
-    <div class="row" style="margin-top: 5%"> </div>
+    <div class="row" style="margin-top: 2%"> </div>
+    
 
 
-    <h4> About </h4>
-    I am an MIT doctoral student at the MIT <a href="https://orc.mit.edu/about-orc/">Operations Research Center</a>. My advisor is <a href="https://mitmgmtfaculty.mit.edu/rfreund/">Robert M. Freund</a>. 
-    Previously, I obtained my B.S. in Mathematics and Applied Mathematics from <a href="https://www.fudan.edu.cn/en/">Fudan University</a> in 2020.
-    I was a research assistant at <a href="http://riis.shufe.edu.cn/">RIIS</a> where I worked with <a href="https://web.stanford.edu/~yyye/">Yinyu Ye</a> and <a href="http://riis.shufe.edu.cn/english/hospitaldetail.aspx?id=3&amp;category_id=22">Dongdong Ge</a>.</p>
-    <p>My research focuses on <u><b>optimization</b></u>, and its applications in <u><b>operations research</b></u> and <u><b>machine learning</b></u>. My recent research interests include </p>
-    <ul style="padding-left: 20px;">
-    <li><p>Huge-scale linear programming</p>
-    </li>
-    <li><p>First-order methods for optimization, and</p>
-    </li>
-    <li><p>applications in data science and statistical machine learning.</p>
-    </li>
-    </ul>
-    <p><b>I am on the 2024-2025 Academic Job market!</b></p>
-    <hr>
+    <h4 id="about"> About Me</h4>
+    <span style="font-size: 110%;font-weight: 500;">
+    <p>I am a fifth-year Ph.D. student at the <a href="https://www.mit.edu/">MIT</a> <a href="https://orc.mit.edu/about-orc/">Operations Research Center</a>, advised by <a href="https://mitmgmtfaculty.mit.edu/rfreund/">Robert Freund</a>. My current research interests are mainly in optimization and operations research. I’m interested in both theoretical foundations and computational practice.  </p>
+        
+        
+    <p>My research up to now has involved enhancing the scalability of optimization algorithms for solving large-scale linear and conic optimization -- both generically as well as on specific applications. Some of my methods have already been implemented in the state-of-art commercial solvers (<a href="https://www.shanshu.ai/copt-document">COPT</a> in particular) and are designed for newer computational architectures (like GPUs). My overarching aspiration is to extend the capability of modern optimization methods to effectively solve problems arising in operations research, machine learning/AI, and data science.</p>
 
+    <p>In addition to MIT, I have had research experience at <a href="https://www.jpmorgan.com/technology/artificial-intelligence">JPMorgan Chase AI Research</a> (summer 2023), and at <a href="https://www.fudan.edu.cn/en/">Fudan University</a> where I worked on projects supervised by <a href="https://web.stanford.edu/~yyye/">Yinyu Ye</a> (<a href="
+        https://www.stanford.edu/">Stanford</a>) and <a href="https://scholar.google.com/citations?user=Kwvdy78AAAAJ&hl=en">Dongdong Ge</a> (<a href="https://en.sjtu.edu.cn/">STJU</a>); see <a href="#experience">below</a> for details.
+        
 
-    <h4> Research </h4>
-
+    <p><b>I am on the academic job market in AY2024-25.</b></p>
+    </span>
+    <h4 id="research"> Research </h4>
 
     <style>
     /* Define a custom marker for the nested list */
@@ -142,267 +238,211 @@
     }
     </style>
 
-    <h6>Publications and working papers in optimization</h6>
-
-
+    <h6>Published or Under Review at Journals</h6>
     <ul style="padding-left: 20px;">
 
-            <li><p><strong style="font-weight: bold; color: #13548d;">Theoretical Complexity of PDHG for Nondegerate Linear Programs</strong></p>
-            <ul>
-            <li><p><strong style="font-weight: bold; color: #13548d;">Zikai Xiong</strong></p>
-            </li>
-            <li><p>In preparation</p>
-            </li>
-            </ul>
+        <li><a class="hidelink" href="https://epubs.siam.org/doi/full/10.1137/22M1519286" style="font-weight: bold; color: #13548d; font-size:120%">Using Taylor-Approximated Gradients to Improve the Frank-Wolfe Method for Empirical Risk Minimization</a>
+            <br> <b>Zikai Xiong</b> and Robert M. Freund 
+                    <a class="hidelink" href="https://epubs.siam.org/doi/full/10.1137/22M1519286">
+                        <button class="button-link">paper</button>
+                    </a>
+                    <a class="hidelink" href="FrankWolfeERMslides.pdf">
+                        <button class="button-link">slides</button>
+                    </a> 
+                    <a class="hidelink" href="papers/fwErmReport.pdf">
+                        <button class="button-link">additional results and extensions</button>
+                    </a>
+            <br><b><em>SIAM Journal on Optimization</em></b>
+        </li>
+            
+            
+        <li><a class="hidelink" href="https://arxiv.org/abs/2406.01942" style="font-weight: bold; color: #13548d; font-size:120%">The Role of Level-Set Geometry on the Performance of PDHG for Conic Linear Optimization</a>
+            <br><b>Zikai Xiong</b> and Robert M. Freund <a class="hidelink" href="https://arxiv.org/abs/2406.01942"><button class="button-link">paper</button></a>
+            <br>Under review at <b><em>Mathematical Programming</em></b> 
+            <br><span style="color:#13548d;font-weight: 500;"><span class="emoji">⭐</span> Honorable Mention of MIT ORC Best Student Paper Competition<span>
+                <!-- https://emojicopy.com/ -->
+        </li>
 
-            <li><p><strong style="font-weight: bold; color: #13548d;">The Role of Level-Set Geometry on the Performance of PDHG for Conic Linear Optimization</strong></p>
-            <ul>
-            <li><p><strong style="font-weight: bold; color: #13548d;">Zikai Xiong</strong> and Robert M. Freund</p>
-            </li>
-            <li><p>Under review<a class="hidelink" href="https://arxiv.org/abs/2406.01942">
+        <li><a class="hidelink" href="https://arxiv.org/abs/2312.14774" style="font-weight: bold; color: #13548d; font-size:120%">Computational Guarantees for Restarted PDHG for LP based on "Limiting Error Ratios" and LP Sharpness</a>
+            <br><b>Zikai Xiong</b> and Robert M. Freund <a class="hidelink" href="https://arxiv.org/abs/2312.14774"><button class="button-link">paper</button></a>
+            <br>Under review at <b><em>Mathematical Programming</em></b> 
+        </li>
+
+        <li><a class="hidelink" href="https://arxiv.org/abs/2102.09420" style="font-weight: bold; color: #13548d; font-size:120%">From an Interior Point to a Corner Point: Smart Crossover</a>
+            <br> (<u>Alphabetical order</u>) Dongdong Ge, Chengwenjian Wang, <b>Zikai Xiong</b>, and Yinyu Ye <a class="hidelink" href="https://arxiv.org/abs/2102.09420"><button class="button-link">paper</button></a><a class="hidelink" href="https://github.com/wcwj0147/smart-crossover"><button class="button-link">codes</button></a><a class="hidelink" href="crossoverslides.pdf"><button class="button-link">slides</button></a>
+            <br>Major revision at <b><em>INFORMS Journal on Computing</em></b>
+        </li>
+
+        <li><a class="hidelink" href="https://doi.org/10.1016/j.cam.2022.114219" style="font-weight: bold; color: #13548d; font-size:120%">Low-rank Traffic Matrix Completion with Marginal Information</a>
+            <br> <b>Zikai Xiong</b>, Renjie Xu, Yanwei Xu, and Yimin Wei
+            <a class="hidelink" href="https://doi.org/10.1016/j.cam.2022.114219">
                 <button class="button-link">paper</button>
             </a>
-            </p>
-            </li>
-            <li><p>Honorable Mention of MIT ORC Best Student Paper Competition</p>
-            </li>
-            </ul>
+            <br><b><em>Journal of Computational and Applied Mathematics</em></b>
+        </li>
 
-            <li><p><strong style="font-weight: bold; color: #13548d;">On the Relation Between LP Sharpness and Limiting Error Ratio and Complexity Implications for Restarted PDHG</strong></p>
-            <ul>
-            <li><p><strong style="font-weight: bold; color: #13548d;">Zikai Xiong</strong> and Robert M. Freund</p>
-            </li>
-            <li><p>Technical report <a class="hidelink" href="https://arxiv.org/abs/2312.13773">
-                <button class="button-link">paper</button>
-            </a>
-            </p>
-            </li>
-            </ul>
-
-            <li><p><strong style="font-weight: bold; color: #13548d;">Computational Guarantees for Restarted PDHG for LP based on "Limiting Error Ratios" and LP Sharpness</strong></p>
-            <ul>
-            <li><p><strong style="font-weight: bold; color: #13548d;">Zikai Xiong</strong> and Robert M. Freund</p>
-            </li>
-            <li><p>Under review <a class="hidelink" href="https://arxiv.org/abs/2312.14774">
-                <button class="button-link">paper</button>
-            </a>
-            </p>
-            </li>
-            </ul>
-
-            <li><p><strong style="font-weight: bold; color: #13548d;">Fair Wasserstein Coresets</strong></p>
-            <ul>
-            <li><p><strong style="font-weight: bold; color: #13548d;">Zikai Xiong</strong>, Niccolò Dalmasso, Shubham Sharma, Freddy Lecue, Daniele Magazzeni, Vamsi K. Potluru, Tucker Balch, Manuela Veloso</p>
-            </li>
-            <li><p>Under review <a class="hidelink" href="https://arxiv.org/abs/2311.05436">
-                <button class="button-link">paper</button>
-            </a>
-            </p>
-            </li>
-            <li><p>Preliminary version appeared in NeurIPS 2023 workshop in Synthetic Data Generation with Generative AI (Oral Presentation) </p>
-            </li>
-            </ul>
-
-            <li><p><strong style="font-weight: bold; color: #13548d;">FairWASP: Fast and Optimal Fair Wasserstein Pre-processing</strong></p>
-            <ul>
-            <li><p><strong style="font-weight: bold; color: #13548d;">Zikai Xiong</strong>, Niccolo Dalmasso, Alan Mishler, Vamsi Potluru, Tucker Balch, Manuela Veloso</p>
-            </li>
-            <li><p>AAAI Conference on Artificial Intelligence (AAAI 2024)<a class="hidelink" href="https://ojs.aaai.org/index.php/AAAI/article/view/29545/30909">
-                <button class="button-link">paper</button>
-            </a>
-            </p>
-            </li>
-            <!-- <li><p>This is the place for abstract This is the place for abstract This is the place for abstract This is the place for abstract
-                This is the place for abstract This is the place for abstract </p>
-            </li> -->
-            </ul>
-
-            <li><p><strong style="font-weight: bold; color: #13548d;">Using Taylor-Approximated Gradients to Improve the Frank-Wolfe Method for Empirical Risk Minimization</strong></p>
-            <ul>
-            <li><p><strong style="font-weight: bold; color: #13548d;">Zikai Xiong</strong> and Robert M. Freund 
-                <a class="hidelink" href="https://epubs.siam.org/doi/full/10.1137/22M1519286">
-                    <button class="button-link">paper</button>
-                </a>
-                <a class="hidelink" href="FrankWolfeERMslides.pdf">
-                    <button class="button-link">slides</button>
-                </a>
-            </p> 
-            </li>
-            <li><p>SIAM Journal on Optimization</p>
-            </li>
-            <li><p>Additional results and extensions 
-                <a class="hidelink" href="papers/fwErmReport.pdf">
-                    <button class="button-link">technical report</button>
-                </a></p>
-            </li>
-            </ul>
-
-            <li><p><strong style="font-weight: bold; color: #13548d;">From an Interior Point to a Corner Point: Smart Crossover </strong></p>
-            <ul>
-            <li><p>(<u>Alphabetical order</u>) Dongdong Ge, Chengwenjian Wang, <strong style="font-weight: bold; color: #13548d;">Zikai Xiong</strong>, and Yinyu Ye
-                <a class="hidelink" href="https://arxiv.org/abs/2102.09420">
-                    <button class="button-link">paper</button>
-                </a>
-                <a class="hidelink" href="https://github.com/wcwj0147/smart-crossover">
-                    <button class="button-link">codes</button>
-                </a>
-                <a class="hidelink" href="crossoverslides.pdf">
-                    <button class="button-link">slides</button>
-                </a>
-            </p>
-            </li>
-            <li><p>Under revision</p>
-            </li>
-            </ul>
-
-            <li><p><strong style="font-weight: bold; color: #13548d;">Interior-Point Methods Strike Back: Solving the Wasserstein Barycenter Problem</strong></p>
-            <ul>
-            <li><p>(<u>Alphabetical order</u>) Dongdong Ge, Haoyue Wang, <strong style="font-weight: bold; color: #13548d;">Zikai Xiong</strong>, and Yinyu Ye 
-                <a class="hidelink" href="https://proceedings.neurips.cc/paper/2019/hash/0937fb5864ed06ffb59ae5f9b5ed67a9-Abstract.html">
-                    <button class="button-link">paper</button>
-                </a>
-                <a class="hidelink" href="https://gitlab.com/ZXiong/wasserstein-barycenter">
-                    <button class="button-link">codes</button>
-                </a>
-                <a class="hidelink" href="https://gitlab.com/ZXiong/wasserstein-barycenter/-/blob/master/The%20slides/barycenter_slides.pdf">
-                    <button class="button-link">slides</button>
-                </a>
-            </p>
-            </li>
-            <li><p><i>Neural Information Processing Systems (NeurIPS 2020)</i></p>
-            </li>
-            </ul>
-
-            <li><p><strong style="font-weight: bold; color: #13548d;">Low-rank Traffic Matrix Completion with Marginal Information</strong></p>
-            <ul>
-            <li><p><strong style="font-weight: bold; color: #13548d;">Zikai Xiong</strong>, Renjie Xu, Yanwei Xu, and Yimin Wei
-                <a class="hidelink" href="https://doi.org/10.1016/j.cam.2022.114219">
-                    <button class="button-link">paper</button>
-                </a>
-            </p>
-            </li>
-            <li><p><i>Journal of Computational and Applied Mathematics</i></p>
-            </li>
-            </ul>
-
-            <!-- 
-            <li>
-                <a href="https://epubs.siam.org/doi/abs/10.1137/20M1315646">On the length of monotone paths in polyhedra</a>
-                <br>Moïse Blanchard, Jesús A. De Loera, and Quentin Louveaux
-                <br>SIAM Journal on Discrete Mathematics 35 (3), 2021
-                <ul class="square" style="margin: 0; padding: 0;">
-                    <ol>
-                        <strong>Winner of Rivot Medal for outstanding research, French Science Academia, 2019</strong> [<a href="https://www.academie-sciences.fr/fr/Ceremonies/seconde-remise-prix-2019.html">Link</a>]
-                    </ol>
-                </ul>
-            </li>
-            -->
     </ul>
 
-
-    <h6>Other</h6>
-
-
+    <h6>Published or Under Review at Conferences</h6>
     <ul style="padding-left: 20px;">
-            <li><p><strong style="font-weight: bold; color: #13548d;">Learning from Multiple Annotator Noisy Labels via Sample-wise Label Fusion </strong></p> 
-            <ul>
-            <li><p>Zhengqi Gao, Fan-Keng Sun, Mingran Yang, Sucheng Ren, <strong style="font-weight: bold; color: #13548d;">Zikai Xiong</strong>, et al.
-                <a class="hidelink" href="https://arxiv.org/abs/2207.11327">
+
+        <li><a class="hidelink" href="https://ojs.aaai.org/index.php/AAAI/article/view/29545/30909" style="font-weight: bold; color: #13548d; font-size:120%">FairWASP: Fast and Optimal Fair Wasserstein Pre-processing</a>
+            <br><b>Zikai Xiong</b>, Niccolo Dalmasso, Alan Mishler, Vamsi Potluru, Tucker Balch, Manuela Veloso <a class="hidelink" href="https://ojs.aaai.org/index.php/AAAI/article/view/29545/30909"><button class="button-link">paper</button></a>
+            <br><b><em> AAAI Conference on Artificial Intelligence (AAAI 2024) </em></b>
+        </li>
+
+        <li><a class="hidelink" href="https://arxiv.org/abs/2311.05436" style="font-weight: bold; color: #13548d; font-size:120%">Fair Wasserstein Coresets</a>
+            <br><span style="font-size: 100%;"><b>Zikai Xiong</b>, Niccolò Dalmasso, Shubham Sharma, Freddy Lecue, Daniele Magazzeni, Vamsi K. Potluru, Tucker Balch, Manuela Veloso <a class="hidelink" href="https://arxiv.org/abs/2311.05436"><button class="button-link">paper</button></a></span>
+            <br>Submitted
+            <br>Preliminary version appeared in <b><em></em>NeurIPS 2023 Workshopin Synthetic Data Generation with Generative AI (Oral Presentation)</em></b>
+        </li>
+
+
+        <li><a class="hidelink" href="https://link.springer.com/chapter/10.1007/978-3-031-20053-3_24" style="font-weight: bold; color: #13548d; font-size:120%">Learning from Multiple Annotator Noisy Labels via Sample-wise Label Fusion</a>
+                <br>Zhengqi Gao, Fan-Keng Sun, Mingran Yang, Sucheng Ren, <b>Zikai Xiong</b>, et al. <a class="hidelink" href="https://arxiv.org/abs/2207.11327">
                     <button class="button-link">paper</button>
                 </a>
                 <a class="hidelink" href="https://github.com/zhengqigao/Learning-from-Multiple-Annotator-Noisy-Labels?utm_source=catalyzex.com">
                     <button class="button-link">codes</button>
                 </a>
-            </p>
-            </li>
-            <li><p><i>European Conference on Computer Vision (ECCV 2022)</i></p>
-            </li>
-            </ul>
+                <br><b><em>European Conference on Computer Vision (ECCV 2022)</em></b>
+        </li>
 
-           <!-- <li><p><strong style="font-weight: bold; color: #13548d;">Effect of Hidden-city Ticketing in Revenue Management</strong></p>
-            <ul>
-            <li><p><strong style="font-weight: bold; color: #13548d;">Zikai Xiong</strong> and Bo Jiang</p>
+                
+
+        <li><a class="hidelink" href="https://proceedings.neurips.cc/paper/2019/hash/0937fb5864ed06ffb59ae5f9b5ed67a9-Abstract.html" style="font-weight: bold; color: #13548d; font-size:120%">Interior-Point Methods Strike Back: Solving the Wasserstein Barycenter Problem</a>
+        <br> (<u>Alphabetical order</u>) Dongdong Ge, Haoyue Wang, <b>Zikai Xiong</b>, and Yinyu Ye <a class="hidelink" href="https://proceedings.neurips.cc/paper/2019/hash/0937fb5864ed06ffb59ae5f9b5ed67a9-Abstract.html"><button class="button-link">paper</button></a><a class="hidelink" href="https://gitlab.com/ZXiong/wasserstein-barycenter"><button class="button-link">codes</button></a><a class="hidelink" href="https://gitlab.com/ZXiong/wasserstein-barycenter/-/blob/master/The%20slides/barycenter_slides.pdf"><button class="button-link">slides</button></a><br><b><em>Neural Information Processing Systems (NeurIPS 2020)</em></b>
+        </li>
+
+    </ul>
+
+    <h6>Technical Report</h6>
+
+    <ul style="padding-left: 20px;">
+            <li><a class="hidelink" href="https://arxiv.org/abs/2312.13773" style="font-weight: bold; color: #13548d; font-size:120%">On the Relation Between LP Sharpness and Limiting Error Ratio and Complexity Implications for Restarted PDHG</a>
+                <br><b>Zikai Xiong</b> and Robert M. Freund <a class="hidelink" href="https://arxiv.org/abs/2312.13773"><button class="button-link">technical report</button>
+                </a>
             </li>
-            <li><p>In preparation</p>
+    </ul>
+
+    <h6>Work in Progress</h6>
+    <ul style="padding-left: 20px;"> 
+            <!-- <li><strong style="font-weight: bold; color: #13548d">Probabilistic Analysis of PDHG for Linear Programs</strong>
+                <br><b>Zikai Xiong</b>
+                <br>In preparation, 2024
+            </li> -->
+
+            <li><strong style="font-weight: bold; color: #13548d">Theoretical Complexity of PDHG for Linear Programs with Unique Optimum</strong>
+                <br><b>Zikai Xiong</b>
+                <br>In preparation, 2024
             </li>
-            </ul> -->
+
+            <!-- <li><strong style="font-weight: bold; color: #13548d">Advanced Diagonal Preconditioning for the PDHG Method for LP</strong>
+                <br><b>Zikai Xiong</b>, Wenzhi Gao and Yinyu Ye
+                <br>In preparation, 2024
+            </li>
+
+            <li><span style="font-weight: bold; color: #13548d; font-size:120%">Impact of the Hidden City Ticketing in the Presence of Risk-Conscious Customers</span>
+                <br> (<u>Alphabetical order</u>) Jiacheng Guo, Bo Jiang, <b>Zikai Xiong</b> and Nanxi Zhang 
+                <br>In preparation, 2024
+            </li> -->
+ 
     </ul>
 
 
     <hr>
 
-    <h4>Experience</h4>
+    <h4 id="experience">Experience</h4>
     <ul style="padding-left: 20px;">
-        <li><p><b>Research Intern</b>, Summer 2023</p>
-        <ul>
-        <li><p>Optimization in fairness and machine learning.</p>
-        </li>
-        <li><p><a href="https://www.jpmorgan.com/technology/artificial-intelligence">J.P.Morgan Chase AI Research</a></p>
-        </li>
-        </ul>
-
-        <li><p><b>Research Assistant</b>, 2020 - present</p>
-        <ul>
-        <li><p>Supervisor: <a href="https://mitmgmtfaculty.mit.edu/rfreund/">Robert M. Freund</a></p>
-        </li>
-        <li><p>Huge-scale LP and first-order methods for optimization</p>
-        </li>
-        <li><p><a href="https://www.mit.edu/">MIT</a> <a href="https://orc.mit.edu/about-orc/">Operations Research Center</a> </p>
-        </li>
-        </ul>
-
-        <li><p><b>Research Assistant</b>, 2018 - 2020</p>
-        <ul>
-        <li><p>Supervisors: <a href="https://web.stanford.edu/~yyye/">Yinyu Ye</a> (Stanford University), <a href="http://riis.shufe.edu.cn/english/hospitaldetail.aspx?id=3&amp;category_id=22">Dongdong Ge</a></p>
-        </li>
-        <li><p><a href="https://english.sufe.edu.cn/">SUFE</a> <a href="http://riis.shufe.edu.cn/">Research Institute for Interdisciplinary Sciences</a></p>
-        </li>
-        </ul>
+        <li><span style="font-weight: bold; color: #13548d; font-size:120%"<p> Research Assistant, <a href="https://www.mit.edu/">MIT</a> <a href="https://mitsloan.mit.edu/">Sloan School of Management</a>, 2020 - present</span>
+        <br>Supervisor: <a href="https://mitmgmtfaculty.mit.edu/rfreund/">Robert M. Freund</a> 
+        <br>Modern optimization methods for huge-scale operations research and machine learning problems.
+            
+        <li><span style="font-weight: bold; color: #13548d; font-size:120%"<p> Research Associate Intern, <a href="https://www.jpmorgan.com/technology/artificial-intelligence">J.P.Morgan Chase AI Research</a>, Summer 2023 </span>
+        <br>Managers: <a href="https://scholar.google.com/citations?user=hFh64VcAAAAJ&hl=en">Niccolò Dalmasso</a>,  <a href="https://scholar.google.com/citations?user=uC_8kekAAAAJ&hl=en">Vamsi Potluru</a> and <a href="https://www.cc.gatech.edu/people/tucker-balch">Tucker Balch</a>
+        <br>Algorithmic fairness in machine learning and large-scale optimization.
+       
+        <li><span style="font-weight: bold; color: #13548d; font-size:120%"<p> Research Assistant, <a href="https://english.sufe.edu.cn/">SUFE</a> <a href="http://riis.shufe.edu.cn/">Research Institute for Interdisciplinary Sciences</a>, 2019 - 2020</span>
+        <br>Supervisors: <a href="https://web.stanford.edu/~yyye/">Yinyu Ye</a> (<a href="
+        https://www.stanford.edu/">Stanford</a>), <a href="http://riis.shufe.edu.cn/english/hospitaldetail.aspx?id=3&amp;category_id=22">Dongdong Ge</a>
+        <br>Optimization for operations research and machine learning.
+        <br>Developing new algorithms for the state-of-art commercial solver <a href="https://www.shanshu.ai/copt-document">COPT (Cardinal Optimizer)</a>.
     </ul>
 
+
+    
 
     <hr>
 
-    <h4>Teaching</h4>
-    <h6><b>Teaching assistant</b> in <a href="https://www.mit.edu/">MIT</a></h6>
+    <h4 id="teaching">Teaching and Mentoring</h4>
+    <!-- <h6><b>Student research projects</b></h6>
     <ul style="padding-left: 20px;">
-        <li><p>Winter 2024: 15.S60 Computing in Optimization and Statistics</p>
+        <li><a href="https://scholar.google.com/citations?user=aB8q2RYAAAAJ&hl=en">Qiushi Han</a> (undergraduate student at UIUC)
+            <br>First-order methods for identifying optimal basic feasible solutions of linear programs, with applications in first-order integer programming
         </li>
-        <li><p>Fall 2023: 15.081 Introduction to Mathematical Programming</p>
+        <li><a href="https://www.linkedin.com/in/chenghan-xie-a9087a283/">Qiushi Han</a> (incoming PhD student at Stanford) 
+            <br>Computational guarantees and lower bound examples of PDHG for discounted markov decision process (MDP) problems</p>
         </li>
-        <li><p>Fall 2022: 15.081 Introduction to Mathematical Programming</p>
+    </ul> -->
+    <h6 style="font-weight: bold; color: #13548d; font-size:120%">Teaching assistant in <a href="https://www.mit.edu/">MIT</a></h6>
+    <ul style="padding-left: 20px;">
+        <li><p>Winter 2024: 15.S60 Computing in Optimization and Statistics
+            <!-- <br> detailed tasks -->
+        </p>
         </li>
-        <li><p>Summer 2022: 15.077 Statistical Machine Learning and Data Science</p>
+        <li><p>Fall 2023: 15.081 Introduction to Mathematical Programming
+            <!-- <br>detailed tasks -->
+        </p>
         </li>
-        <li><p>Spring 2022: 15.071 The Analytics Edge</p>
+        <li><p>Fall 2022: 15.081 Introduction to Mathematical Programming
+            <!-- <br> detailed tasks -->
+        </p>
+        </li>
+        <li><p>Summer 2022: 15.077 Statistical Machine Learning and Data Science
+            <!-- <br> detailed tasks -->
+        </p>
+        </li>
+        <li><p>Spring 2022: 15.071 The Analytics Edge
+            <!-- <br> detailed tasks -->
+        </p>
         </li>
     </ul>
-    <h6><b>Teaching assistant</b> in <a href="https://english.sufe.edu.cn/">SUFE</a></h6>
+    <h6 style="font-weight: bold; color: #13548d; font-size:120%">Teaching assistant in <a href="https://english.sufe.edu.cn/">SUFE</a></h6>
     <ul style="padding-left: 20px;">
-        <li><p>Summer 2019: Stochastic Modeling (graduate course); From Machine Learning to Decision-making: Bandit Learning and Reinforcement Learning (graduate course); Stochastic Process and Financial Risk Analysis (graduate course)</p>
+        <li><p>Summer 2019: Special Summer Courses of SUFE RIIS
+            <br>Stochastic Modeling
+            <br>Bandit Learning and Reinforcement Learning
+            <br>Stochastic Process and Financial Risk Analysis</p>
         </li>
     </ul>
 
     <hr>
 
-    <h4>Professional Activities</h4>
+    <h4 id="activities">Professional Activities</h4>
     <h6><b>Reviewer</b></h6>
     <ul style="padding-left: 20px;">
     <li><p>Journal: <i>SIAM Journal on Optimization (SIOPT)</i></p>
     </li>
-    <li><p>Conference: <i>ICML (2021,2022)</i>, <i>NeurIPS (2022)</i></p>
+    <li><p>Conference: <i>ICML</i>, <i>NeurIPS</i></p>
     </li>
     </ul>
+    <!-- <h6><b>Session Chair</b></h6>
+    <ul style="padding-left: 20px;">
+    <li>INFORMS Annual Meeting  ...
+    </li>
+    <li>...
+    </li>
+    </ul> -->
 
     <hr>
 
-    <h4>Talks</h4>
+    <h4 id="talks">Talks</h4>
     <ul style="padding-left: 20px;">
         <li><p>Theoretical Complexity of PDHG for Nondegerate Linear Programs</p>
             <ul>
             <li><p>Conference on Intelligent Computing and Decision-Making, Shanghai, China, July. 2024</p>
             </li>
-            <li><p>International Symposium on Mathematical Programming (ISMP), Montréal, Canada, July. 2024 (upcoming)</p>
+            <li><p>International Symposium on Mathematical Programming (ISMP), Montréal, Canada, July. 2024</p>
             </li>
             <li><p>Modeling and Optimization: Theory and Applications (MOPTA), Bethlehem, PA, Aug. 2024 (upcoming)</p>
             </li>
@@ -484,6 +524,12 @@
 
     </ul>
     <hr>
+
+
+    <!-- <h4 id="photos"`>Photos (still working on)</h4>
+    <br> working on (I intend to put some photos of my travels)
+    <hr> -->
+
 
 <!-- 
     <h4> Awards and Honors </h4>

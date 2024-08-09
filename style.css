@@ -8,7 +8,8 @@ table#tlayout {
 
 body {
 	background: white;
-	font-family: "Raleway", "HelveticaNeue", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	/* font-family: "Raleway", "HelveticaNeue", "Helvetica Neue", Helvetica, Arial, sans-serif; */
+	font-family:"Roboto";
 	padding-bottom: 8px;
 	margin: 0;
 }
@@ -112,8 +113,8 @@ em {
 }
 
 strong {
-	font-weight: 900;
-	font-size: 111%;
+	font-weight: 600;
+	font-size: 120%;
 }
 
 
@@ -370,3 +371,4 @@ table.imgtable, table.imgtable td {
     border: none;
     text-align: left;
 }
+
