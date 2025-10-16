@@ -379,3 +379,74 @@ table.imgtable, table.imgtable td {
   height: auto;
 }
 
+ 
+/* 汉堡按钮：固定高宽 + 居中 + 放大图标 + 去掉多余 padding */
+.menu-button {
+  display: none;                 /* 大屏隐藏，小屏通过媒体查询显示 */
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  z-index: 3000;
+  width: 44px;
+  height: 44px;
+  padding: 0;                    /* 关键：避免上下 padding 让图标“下沉” */
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background-color: #f4f4f4;
+  box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+  cursor: pointer;
+
+  /* 关键：用 Flex 把字符☰在盒子里水平+垂直居中 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  /* 放大符号 + 去掉额外行高，避免视觉偏移 */
+  font-size: 22px;
+  line-height: 1;
+
+  /* 避免 Raleway 对 ☰ 的字形不稳定，指定通用系统字体渲染该符号 */
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+}
+
+.menu-button:focus-visible {
+  outline: 2px solid #000;
+  outline-offset: 2px;
+}
+
+ 
+
+
+/* News 滚动容器：设置最大高度和滚动条 */
+.news-scroller {
+  max-height: min(320px, 35vh);   /* 320px 或视口高度的 35%，取较小值 */
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch; /* iOS 惯性滚动 */
+  padding: 8px 12px;
+  border: 1px solid #e6e6e6;
+  border-radius: 8px;
+  background: #fafafa;
+
+  /* 让条目滚动时“贴齐”列表顶部，体验更顺滑（可选） */
+  scroll-snap-type: y proximity;
+}
+
+/* 列表自身的样式（代替你原来直接写在 style="" 的内联样式） */
+.news-list {
+  margin: 0;
+  padding-left: 18px;            /* 保留你原来的缩进 */
+  list-style-type: disc;
+  font-size: 95%;
+}
+
+/* 每条 News 的间距和滚动贴齐点 */
+.news-list > li {
+  margin-bottom: 10px;
+  scroll-snap-align: start;
+}
+
+/* （可选）美化滚动条：仅对 WebKit/Chromium 生效 */
+.news-scroller::-webkit-scrollbar       { width: 8px; }
+.news-scroller::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 8px; }
+.news-scroller::-webkit-scrollbar-thumb { background: #c7c7c7; border-radius: 8px; }
+.news-scroller::-webkit-scrollbar-thumb:hover { background: #b3b3b3; }
