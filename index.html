@@ -64,75 +64,99 @@
             margin: 0;
         }
 
-        /* Sidebar styling */
+        /* === 统一的外观变量：以后只改这里就能改 Sidebar 宽度 === */
+        :root { 
+        --sidebar-w: 150px;            /* 侧边栏宽度（你可改成 160 / 200 等） */
+        --gap: 24px;                   /* 侧边栏和内容的间隔 */
+        --accent: #108b18;             /* 你的绿色主色 */
+        }
+
+        /* Sidebar 固定在左侧 */
         .sidebar {
-            position: fixed;
-            left: 0;
-            top: 0;
-            width: 120px;
-            height: 100%;
-            background-color: #f4f4f4;
-            padding: 20px;
-            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
-            z-index: 2000; 
-            overflow-y: auto;
-            transition: transform 0.3s ease;
+        position: fixed;
+        left: 0;
+        top: 0;
+        width: var(--sidebar-w);
+        height: 100%;
+        background-color: #f4f4f4;
+        padding: 20px;
+        box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+        z-index: 2000;
+        overflow-y: auto;
+        transition: transform 0.3s ease;
+        transform: translateX(0);
+        }
+
+        /* Sidebar 链接样式 */
+        .sidebar a {
+        display: block;
+        color: var(--accent);
+        text-decoration: none;
+        padding: 10px;
+        margin-bottom: 5px;
+        font-weight: 600;
+        }
+        .sidebar a:hover { background-color: #ddd; }
+
+        /* 汉堡按钮：默认隐藏，只在较小屏幕显示；层级高于 Sidebar */
+        .menu-button {
+        display: none;
+        position: fixed;
+        top: 10px;
+        left: 10px;
+        z-index: 3000;              /* 确保永远在 Sidebar 之上 */
+        background-color: #f4f4f4;
+        border: 1px solid #ccc;
+        padding: 10px 12px;
+        cursor: pointer;
+        box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+        }
+
+        /* 内容区：大屏幕时左侧留出 Sidebar + 间隔 */
+        .content {
+        padding-left: calc(var(--sidebar-w) + var(--gap));
+        margin-left: 0;               /* 重要：去掉 margin-left */
+        padding-right: 20px;          /* 可要可不要：和 Skeleton 的左右留白统一 */
+        transition: padding-left 0.3s ease;
+        }
+
+        /* 断点：建议用 1100px（比 1324px 更接近常见笔电宽度） */
+        @media (max-width: 1100px) {
+        .sidebar {
+            transform: translateX(-100%);
+        }
+        .sidebar.open {              /* 打开时滑出 */
             transform: translateX(0);
         }
-
-        .sidebar a {
-            display: block;
-            color: #108b18;
-            text-decoration: none;
-            padding: 10px;
-            margin-bottom: 5px;
-            font-weight: 600;
-        }
-
-        .sidebar a:hover {
-            background-color: #ddd;
-        }
-
-        /* Hamburger menu button */
         .menu-button {
-            display: none;
-            position: fixed;
-            top: 10px;
-            left: 10px;
-            z-index: 3000;
-            background-color: #f4f4f4;
-            border: none;
-            padding: 10px;
-            cursor: pointer;
-            box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+            display: block;            /* 小屏显示汉堡按钮 */
         }
-
-        /* Content styling */
         .content {
-            margin-left: 200px;
-            padding: 20px;
-            transition: margin-left 0.3s ease;
+            padding-left: 0;
+            padding-top: 60px;          /* 保留你原来给汉堡按钮预留的空间 */
+        }
         }
 
-        /* Responsive design */
-        @media (max-width: 1324px) {
-            .sidebar {
-                transform: translateX(-100%);
-            }
-
-            .sidebar.open {
-                transform: translateX(0);
-            }
-
-            .menu-button {
-                display: block;
-            }
-
-            .content {
-                margin-left: 0;
-                padding-top: 60px; /* Space for the menu button */
-            }
+        .content .container {
+            margin-left: auto;
+            margin-right: auto;
         }
+
+
+        /* 自适应：视口宽度 - 侧栏 - 间隔 - Skeleton 左右各 20px 的内边距 */
+        .content .container {
+        max-width: clamp(960px,
+                        calc(100vw - var(--sidebar-w) - var(--gap) - 40px),
+                        1200px);
+        }
+
+
+
+        /* 可选：动效减少时不做动画（提升无障碍） */
+        @media (prefers-reduced-motion: reduce) {
+        .sidebar, .content { transition: none; }
+        }
+
 
     </style>
     <!-- <script>
@@ -141,13 +165,19 @@
         }
     </script> -->
 </head>
+
+
+
 <body>
     <!-- Hamburger Menu Button -->
-    <button class="menu-button">☰</button>
+    <button class="menu-button"
+        aria-label="Open site menu"
+        aria-controls="site-nav"
+        aria-expanded="false">☰</button>
 
 
     <!-- Sidebar Navigation -->
-    <nav class="sidebar">
+        <nav class="sidebar" id="site-nav" aria-label="Section navigation">
         <br>
         <a href="#about">About Me</a>
         <a href="#research">Research</a>
@@ -157,29 +187,45 @@
         <a href="#activities">Service</a>
         <a href="#awards">Awards</a>
         <a href="#photos">Photos</a>
-    </nav>
+        </nav>
+
+
+            <main class="content" id="main">
 
     <!-- JavaScript to handle sidebar behavior -->
     <script>
-        // Function to close the sidebar
+        document.addEventListener('DOMContentLoaded', function() {
+        const sidebar = document.querySelector('.sidebar');
+        const menuBtn = document.querySelector('.menu-button');
+
+        function openSidebar() {
+            sidebar.classList.add('open');
+            menuBtn.setAttribute('aria-expanded', 'true');
+        }
         function closeSidebar() {
-            document.querySelector('.sidebar').classList.remove('open');
+            sidebar.classList.remove('open');
+            menuBtn.setAttribute('aria-expanded', 'false');
+        }
+        function toggleSidebar() {
+            if (sidebar.classList.contains('open')) { closeSidebar(); }
+            else { openSidebar(); }
         }
 
-        // Attach event listeners after the DOM has fully loaded
-        document.addEventListener('DOMContentLoaded', function() {
-            var links = document.querySelectorAll('.sidebar a');
-            links.forEach(function(link) {
-                link.addEventListener('click', function() {
-                    closeSidebar(); // Close the sidebar when any link is clicked
-                });
-            });
+        // 点击按钮切换
+        menuBtn.addEventListener('click', toggleSidebar);
 
-            document.querySelector('.menu-button').addEventListener('click', function() {
-                document.querySelector('.sidebar').classList.toggle('open');
-            });
+        // 点击侧栏链接后自动关闭（便于手机上浏览）
+        sidebar.querySelectorAll('a').forEach(a => {
+            a.addEventListener('click', closeSidebar);
+        });
+
+        // 按 ESC 关闭
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeSidebar();
+        });
         });
     </script>
+
 
   <!-- Primary Page Layout
   –––––––––––––––––––––––––––––––––––––––––––––––––– -->
@@ -190,7 +236,7 @@
     <span style="color: #108b18;font-size: 120%;font-weight: 600;">I am a postdoctoral fellow at Georgia Tech ISyE and an incoming tenure-track Assistant Professor at Northwestern IEMS.</span>
     <div class="row" style="margin-top: 2%">
         <div class="four columns">
-            <img src="Zikai.jpg" width="100%">
+            <img src="Zikai.jpg" alt="Portrait of Zikai Xiong" width="320" height="400" style="max-width:100%; height:auto;">
         </div>
 
         <div class="seven columns">
@@ -221,6 +267,11 @@
         
         
     <p>My research up to now has involved enhancing the scalability of optimization algorithms for solving large-scale linear and convex optimization -- both generically as well as on specific applications. I am delighted that some of my methods have already been implemented in the state-of-art commercial solvers. My overarching aspiration is to extend the capability of modern optimization methods to effectively solve problems arising in operations research, data science, and machine learning/AI.</p>
+
+
+    <p>First-year PhD students at Northwestern who are interested in optimization or related topics are welcome to contact me. Prospective applicants who would like to have potential collaboration should apply to the Northwestern IEMS PhD program and indicate my name in the application materials. I also value collaborations across areas connected to optimization and learning.</p>
+
+
 
     <!-- <p>I have had research experience at <a href="https://www.jpmorgan.com/technology/artificial-intelligence">JPMorgan Chase AI Research</a> (summer 2023), and at <a href="https://www.fudan.edu.cn/en/">Fudan University</a>; at Fudan I worked on projects supervised by Prof.  <a href="https://web.stanford.edu/~yyye/">Yinyu Ye</a> (<a href="
         https://www.stanford.edu/">Stanford</a>) and Prof. <a href="https://scholar.google.com/citations?user=Kwvdy78AAAAJ&hl=en">Dongdong Ge</a> (<a href="https://en.sjtu.edu.cn/">Shanghai Jiao Tong University</a>).  -->
@@ -320,7 +371,7 @@
 
 
         <li><a class="hidelink" href="https://arxiv.org/pdf/2501.00728" style="font-weight: 600; color: #108b18; font-size: 110%">High-Probability Polynomial-Time Complexity of Restarted PDHG for Linear Programming</a> 
-            <br><b>Zikai Xiong</b> <a class="hidelink" href="https://arxiv.org/pdf/2501.00728"><button class="button-link">paper</button>            </a>
+            <br><b>Zikai Xiong</b> <a class="hidelink" href="https://arxiv.org/pdf/2501.00728"><button class="button-link">paper</button></a> 
             <br>Under revision at <em>Mathematics of Operations Research</em> 
         </li>
 
@@ -468,24 +519,48 @@
     <hr>
 
     <h4 id="experience">Work Experience</h4>
-    <ul style="padding-left: 20px;">
-        <li><span style="font-weight: 600; color: #108b18; font-size: 110%"<p> Research Associate Intern, <a href="https://www.jpmorgan.com/technology/artificial-intelligence">J.P.Morgan Chase AI Research</a>, Summer 2023 </span>
-            <br>Managers: <a href="https://scholar.google.com/citations?user=hFh64VcAAAAJ&hl=en">Niccolò Dalmasso</a>,  <a href="https://scholar.google.com/citations?user=uC_8kekAAAAJ&hl=en">Vamsi Potluru</a> and <a href="https://www.cs.cmu.edu/~mmv/">Manuela Veloso</a>
-            <br>Algorithmic fairness in machine learning and large-scale optimization.
-            
-            
-        <li><span style="font-weight: 600; color: #108b18; font-size: 110%"<p> Research Assistant, <a href="https://www.mit.edu/">MIT</a> <a href="https://mitsloan.mit.edu/">Sloan School of Management</a>, 2020 - 2025</span>
-        <br>Supervisor: <a href="https://mitmgmtfaculty.mit.edu/rfreund/">Robert M. Freund</a> 
-        <br>Modern optimization methods for huge-scale operations research and machine learning problems.
-       
-       
-        <li><span style="font-weight: 600; color: #108b18; font-size: 110%"<p> Research Assistant, <a href="https://english.sufe.edu.cn/">Shanghai University of Finance and Economics</a></a>, 2019 - 2020</span>
-        <br>Supervisors: <a href="https://web.stanford.edu/~yyye/">Yinyu Ye</a> (<a href="
-        https://www.stanford.edu/">Stanford</a>), <a href="http://riis.shufe.edu.cn/english/hospitaldetail.aspx?id=3&amp;category_id=22">Dongdong Ge (<a href="https://en.sjtu.edu.cn/">Shanghai Jiao Tong University</a>)</a>
-        <br>Optimization for operations research and machine learning.
-        <br>Developed and improved algorithms for COPT.
-        <!-- <br>Developed and improved algorithms for the commercial solver <a href="https://www.shanshu.ai/copt-document">COPT</a>. -->
-    </ul>
+<ul style="padding-left: 20px;">
+  <li>
+    <p>
+      <span style="font-weight: 600; color: #108b18; font-size: 110%">
+        Research Associate Intern,
+        <a href="https://www.jpmorgan.com/technology/artificial-intelligence" target="_blank" rel="noopener">J.P. Morgan Chase AI Research</a>, Summer 2023
+      </span><br>
+      Managers:
+      <a href="https://scholar.google.com/citations?user=hFh64VcAAAAJ&hl=en" target="_blank" rel="noopener">Niccolò Dalmasso</a>,
+      <a href="https://scholar.google.com/citations?user=uC_8kekAAAAJ&hl=en" target="_blank" rel="noopener">Vamsi Potluru</a>,
+      and <a href="https://www.cs.cmu.edu/~mmv/" target="_blank" rel="noopener">Manuela Veloso</a><br>
+      Algorithmic fairness in machine learning and large-scale optimization.
+    </p>
+  </li>
+
+  <li>
+    <p>
+      <span style="font-weight: 600; color: #108b18; font-size: 110%">
+        Research Assistant,
+        <a href="https://www.mit.edu/" target="_blank" rel="noopener">MIT</a>
+        <a href="https://mitsloan.mit.edu/" target="_blank" rel="noopener">Sloan School of Management</a>, 2020 – 2025
+      </span><br>
+      Supervisor: <a href="https://mitmgmtfaculty.mit.edu/rfreund/" target="_blank" rel="noopener">Robert M. Freund</a><br>
+      Modern optimization methods for huge-scale OR and ML problems.
+    </p>
+  </li>
+
+  <li>
+    <p>
+      <span style="font-weight: 600; color: #108b18; font-size: 110%">
+        Research Assistant,
+        <a href="https://english.sufe.edu.cn/" target="_blank" rel="noopener">Shanghai University of Finance and Economics</a>, 2019 – 2020
+      </span><br>
+      Supervisors:
+      <a href="https://web.stanford.edu/~yyye/" target="_blank" rel="noopener">Yinyu Ye</a> (Stanford),
+      <a href="http://riis.shufe.edu.cn/english/hospitaldetail.aspx?id=3&category_id=22" target="_blank" rel="noopener">Dongdong Ge (Shanghai Jiao Tong University)</a><br>
+      Optimization for operations research and machine learning.<br>
+      Developed and improved algorithms for COPT.
+    </p>
+  </li>
+</ul>
+
 
 
     
@@ -723,5 +798,6 @@
 <!-- End Document
   –––––––––––––––––––––––––––––––––––––––––––––––––– -->
 
-
+  </div>
+</main>
 </body></html>
