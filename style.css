@@ -71,6 +71,12 @@ a:hover {
 	font-size: 110%;
 }
 
+.author-star {
+	font-size: 125%;
+	font-weight: 600;
+	line-height: 0;
+}
+
 #layout-menu a.current:link, #layout-menu a.current:visited {
 	color: #108b18;
 	border-bottom: 1px gray solid;
