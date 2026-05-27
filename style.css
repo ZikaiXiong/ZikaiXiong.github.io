@@ -65,6 +65,12 @@ a:hover {
 	border-bottom: 1px gray dotted;
 }
 
+.paper-title {
+	font-weight: 600;
+	color: #108b18;
+	font-size: 110%;
+}
+
 #layout-menu a.current:link, #layout-menu a.current:visited {
 	color: #108b18;
 	border-bottom: 1px gray solid;
