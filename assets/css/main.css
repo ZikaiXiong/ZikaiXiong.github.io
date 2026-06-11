@@ -10,7 +10,7 @@
   --muted-color: #6c757d;
   --light-muted: #919ba4;
   --border-color: #e9ecef;
-  --bg-color: #ffffff;
+  --bg-color: #FAF9F5;   /* very light warm cream (Claude-like) */
   --max-width: 950px;
   --sans: "Inter", "Helvetica Neue", Helvetica, Arial, sans-serif;
   --serif: "Source Serif 4", Georgia, "Times New Roman", serif;
@@ -57,7 +57,7 @@ hr {
   position: sticky;
   top: 0;
   z-index: 1000;
-  background: rgba(255, 255, 255, 0.96);
+  background: rgba(250, 249, 245, 0.96);
   backdrop-filter: saturate(180%) blur(8px);
   -webkit-backdrop-filter: saturate(180%) blur(8px);
   border-bottom: 1px solid var(--border-color);
