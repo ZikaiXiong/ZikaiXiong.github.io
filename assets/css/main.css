@@ -132,13 +132,18 @@ main.container {
   font-size: 2.1rem;
   font-weight: 600;
   line-height: 1.2;
-  margin: 0 0 0.4rem;
+  margin: 0 0 1.8rem;   /* breathing room when content follows directly */
   color: var(--theme-color);
 }
 
 .page-desc {
   color: var(--muted-color);
   margin: 0 0 2rem;
+}
+
+/* when a subtitle follows the page title, pull it back up close */
+.page-title + .page-desc {
+  margin-top: -1.4rem;
 }
 
 h2.section-title {
