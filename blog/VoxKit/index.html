@@ -11,7 +11,7 @@
     gtag('config', 'G-QPHE3BK83R');
   </script>
 
-  <title>VoxKit: a small detour into AI-built software | Zikai Xiong</title>
+  <title>VoxKit: a small detour into AI-built voice dictation software | Zikai Xiong</title>
   <meta name="description" content="Blog post on VoxKit, a lightweight macOS speech-to-text and text-to-speech app built with an AI model, by Zikai Xiong.">
   <meta name="author" content="Zikai Xiong">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -54,6 +54,11 @@
       font-weight: 600;
       color: var(--theme-color);
       margin: 1.8rem 0 0.8rem;
+    }
+    .post .post-date {
+      color: var(--muted-color);
+      font-size: 0.9rem;
+      margin: -0.4rem 0 1.4rem;
     }
     .post p { margin: 0 0 1rem; }
     .post ul, .post ol { padding-left: 1.4rem; margin: 0 0 1rem; }
@@ -139,6 +144,7 @@
     (function () {
       var article = document.getElementById('post');
       var backLink = '<p class="post-back"><a href="../../blogs.html">&larr; back to blogs</a></p>';
+      var postDate = 'June 11, 2026';   // exact post date; also shown on blogs.html
 
       fetch('blog-post.md')
         .then(function (r) {
@@ -147,6 +153,13 @@
         })
         .then(function (md) {
           article.innerHTML = backLink + marked.parse(md);
+          var h1 = article.querySelector('h1');
+          if (h1 && postDate) {
+            var d = document.createElement('p');
+            d.className = 'post-date';
+            d.textContent = postDate;
+            h1.insertAdjacentElement('afterend', d);
+          }
         })
         .catch(function (err) {
           article.innerHTML = backLink +
