@@ -362,6 +362,7 @@ ul.plain-list {
   padding-left: 1.25rem;
 }
 .plain-list > li { margin-bottom: 0.55rem; }
+.plain-list > li.award-highlight { font-weight: 600; }
 
 .highlight { color: var(--theme-dark); font-weight: 500; }
 
