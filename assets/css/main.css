@@ -254,6 +254,9 @@ h3.subsection-title {
 }
 .news-table tr + tr td { border-top: 1px solid var(--border-color); }
 
+/* milestone news items (e.g. new positions) */
+.news-table td.news-highlight { font-weight: 600; }
+
 .news-date {
   white-space: nowrap;
   color: var(--muted-color);
