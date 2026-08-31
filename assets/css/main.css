@@ -290,7 +290,9 @@ h3.subsection-title {
 .author-star { font-weight: 700; }
 
 ul.pub-list { list-style: none; margin: 0 0 0.5rem; padding: 0; }
-.pub-list > li { margin-bottom: 1.7rem; }
+.pub-list > li { margin-bottom: 1.4rem; }
+/* homepage keeps the roomier spacing */
+#selected-publications .pub-list > li { margin-bottom: 1.7rem; }
 
 .pub-title {
   display: block;
@@ -302,17 +304,13 @@ ul.pub-list { list-style: none; margin: 0 0 0.5rem; padding: 0; }
 .pub-authors { display: block; margin-top: 0.1rem; }
 
 .pub-venue {
-  display: block;
   color: #333740;
-  margin-top: 0.1rem;
 }
 
-.pub-links {
-  margin-top: 0.4rem;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.4rem;
-}
+.pub-links { display: inline; }
+.pub-links .pub-badge { margin-left: 0.3rem; }
+/* when badges start their own line (no venue before them), no leading gap */
+.pub-authors + .pub-links > .pub-badge:first-child { margin-left: 0; }
 
 a.pub-badge {
   display: inline-block;
