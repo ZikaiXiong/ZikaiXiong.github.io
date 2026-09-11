@@ -197,14 +197,13 @@ h3.subsection-title {
   flex-direction: row-reverse;   /* photo (first in DOM) sits on the right */
   gap: 2.2rem;
   align-items: flex-start;
-  margin-top: 1.6rem;
 }
 
 .profile-main { flex: 1 1 auto; min-width: 0; }
 .profile-main p { margin: 0 0 1rem; }
 
 .profile-side {
-  flex: 0 0 215px;
+  flex: 0 0 240px;
   text-align: center;
 }
 .profile-side img {
