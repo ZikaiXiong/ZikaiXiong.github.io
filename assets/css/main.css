@@ -4,8 +4,8 @@
    ========================================================================== */
 
 :root {
-  --theme-color: #1F4E79;      /* site accent: deep navy */
-  --theme-dark: #163A5C;       /* accent hover */
+  --theme-color: #8B1D2C;      /* site accent: deep crimson */
+  --theme-dark: #6A1521;       /* accent hover */
   --text-color: #212529;
   --muted-color: #6c757d;
   --light-muted: #919ba4;
@@ -57,8 +57,8 @@ hr {
   position: sticky;
   top: 0;
   z-index: 1000;
-  background: #ffffff;
-  border-bottom: 1px solid var(--border-color);
+  background: #F7EFF0;
+  border-bottom: 1px solid #E8D6D8;
 }
 
 .navbar {
