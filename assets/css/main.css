@@ -336,6 +336,14 @@ a.pub-badge:hover {
   text-decoration: none;
 }
 
+/* an earlier version of a paper, listed under the current one */
+.pub-earlier {
+  display: block;
+  margin-top: 0.3rem;
+  font-size: 0.95rem;
+  color: #333740;
+}
+
 .pub-award {
   display: block;
   margin-top: 0.3rem;
