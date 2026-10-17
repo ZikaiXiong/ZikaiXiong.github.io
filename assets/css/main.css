@@ -338,7 +338,7 @@ a.pub-badge:hover {
 }
 
 /* interactive demos: filled buttons so they stand out from the outlined badges */
-.news-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.55rem; }
+.news-actions { display: inline; }
 a.demo-btn {
   display: inline-block;
   font-size: 0.85rem;
@@ -351,6 +351,8 @@ a.demo-btn {
   line-height: 1.4;
 }
 a.demo-btn:hover { background: var(--theme-dark); border-color: var(--theme-dark); color: #fff; text-decoration: none; }
+/* in news items: small inline badges right after the text */
+.news-actions a.demo-btn { font-size: 0.74rem; font-weight: 500; letter-spacing: 0.02em; padding: 0.08rem 0.5rem; border-radius: 0.25rem; line-height: 1.5; margin-left: 0.3rem; }
 a.pub-badge.pub-badge-demo { background: var(--theme-color); color: #fff; }
 a.pub-badge.pub-badge-demo:hover { background: var(--theme-dark); border-color: var(--theme-dark); }
 
