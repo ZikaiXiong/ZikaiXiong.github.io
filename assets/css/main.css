@@ -376,6 +376,8 @@ a.pub-badge.pub-badge-demo:hover { background: var(--theme-dark); border-color: 
   background: #f6f4ee;
 }
 .pub-preview-card[data-preview="comparison"] video { aspect-ratio: 1100 / 640; }
+.pub-preview-card[data-preview="rounding"] video { aspect-ratio: 1440 / 640; }
+.pub-preview-card[data-preview="rounding"] { max-width: 720px; }
 .pub-preview-cap { display: block; margin-top: 0.35rem; font-size: 0.88rem; color: #555; line-height: 1.45; }
 .pub-preview-go { color: var(--theme-color); font-weight: 600; white-space: nowrap; }
 .pub-preview-card:hover { text-decoration: none; }
