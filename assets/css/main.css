@@ -337,6 +337,23 @@ a.pub-badge:hover {
   text-decoration: none;
 }
 
+/* interactive demos: filled buttons so they stand out from the outlined badges */
+.news-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.55rem; }
+a.demo-btn {
+  display: inline-block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #fff;
+  background: var(--theme-color);
+  border: 1px solid var(--theme-color);
+  border-radius: 0.3rem;
+  padding: 0.3rem 0.8rem;
+  line-height: 1.4;
+}
+a.demo-btn:hover { background: var(--theme-dark); border-color: var(--theme-dark); color: #fff; text-decoration: none; }
+a.pub-badge.pub-badge-demo { background: var(--theme-color); color: #fff; }
+a.pub-badge.pub-badge-demo:hover { background: var(--theme-dark); border-color: var(--theme-dark); }
+
 .pub-award {
   display: block;
   margin-top: 0.3rem;
