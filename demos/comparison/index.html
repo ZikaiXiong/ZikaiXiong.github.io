@@ -198,7 +198,7 @@ footer{color:var(--muted);font-size:.82rem;margin-top:18px;max-width:110ch}
           <button id="ansS" class="same" aria-label="About the same">Same<kbd>↓</kbd></button>
           <button id="ansB" aria-label="B">B<kbd>→</kbd></button>
         </div>
-        <div class="booth-foot"><span class="booth-count" id="boothCount"></span><button class="btn" id="moreBtn" hidden>20 more comparisons</button><div class="strip" id="strip" title="Iterates x_1, x_2, … (ringed: best so far)"></div></div>
+        <div class="booth-foot"><span class="booth-count" id="boothCount"></span><button class="btn" id="moreBtn" hidden>40 more comparisons</button><div class="strip" id="strip" title="Iterates x_1, x_2, … (ringed: best so far)"></div></div>
       </section>
 
       <section class="card" aria-label="Hidden objective">
@@ -241,7 +241,7 @@ footer{color:var(--muted);font-size:.82rem;margin-top:18px;max-width:110ch}
             <label for="setEta" id="lblEta" hidden><span><span data-tex="\eta"></span> <b id="valEta"></b></span>
               <input type="range" id="setEta" min="0.05" max="0.6" step="0.01" value="0.25"></label>
             <label for="setBudget">Comparison budget
-              <select id="setBudget"><option value="20" selected>20, then reveal</option><option value="40">40, then reveal</option><option value="0">No limit</option></select></label>
+              <select id="setBudget"><option value="20">20, then reveal</option><option value="40" selected>40, then reveal</option><option value="60">60, then reveal</option><option value="100">100, then reveal</option><option value="0">No limit</option></select></label>
             <label for="setSpeed">Computer speed
               <select id="setSpeed"><option value="slow">Slow</option><option value="normal" selected>Normal</option><option value="fast">Fast</option></select></label>
           </div>
@@ -311,9 +311,9 @@ function proj(p){const q=p.slice();const r=Math.hypot(q[0],q[1]);if(r>1){q[0]/=r
 
 /* ---------- state ---------- */
 const S={
-  set:{task:'match',d:2,T:1,h0:0.4,budget:20,radius:'fixed',step:'sqrt',c:0.6,eta:0.25,speed:'normal'},
+  set:{task:'match',d:2,T:1,h0:0.4,budget:40,radius:'fixed',step:'sqrt',c:0.6,eta:0.25,speed:'normal'},
   targetSeed:newSeed(), algoSeed:newSeed(),
-  auto:false, reveal:false, budget:20, atBudget:false, resume:null,
+  auto:false, reveal:false, budget:40, atBudget:false, resume:null,
   token:0, resolver:null, rejecter:null, autoTimer:0,
   answers:[], replay:[],
   geo:{L:0.7,a:0,b:0}, rng:null, target:null, h:0, x:null, best:null, k:0, ncomp:0, iters:[], pending:null, log:[], done:false
@@ -500,7 +500,7 @@ function renderBooth(){
   for(const id of ['ansA','ansS','ansB'])$(id).disabled=!p;
   $('tagA').innerHTML=p?'A':'Best '+M`\hat x`;$('tagB').innerHTML=p?'B':'Best '+M`\hat x`;
   $('boothCount').innerHTML=fin?`${S.ncomp} comparisons`:`Comparison ${S.ncomp+1}${isFinite(S.budget)?' of '+S.budget:''} · ${M`k=${S.k}`}`;
-  $('moreBtn').hidden=!S.atBudget;$('moreBtn').textContent=`${S.set.budget||20} more comparisons`;
+  $('moreBtn').hidden=!S.atBudget;$('moreBtn').textContent=`${S.set.budget||40} more comparisons`;
   const xs=S.iters.map(it=>it.x);
   const last=curIter(); if(last&&last.xnext&&!S.done)xs.push(last.xnext); if(S.done&&S.x)xs.push(S.x);
   const shown=xs.slice(-16);

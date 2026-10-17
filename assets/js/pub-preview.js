@@ -4,6 +4,17 @@ document.addEventListener('DOMContentLoaded', function () {
   if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
   var still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+  // Teaching-tool cards: play the clip while the pointer is over the card.
+  document.querySelectorAll('.tool-card').forEach(function (card) {
+    var video = card.querySelector('video');
+    if (!video || still) return;
+    card.addEventListener('mouseenter', function () {
+      var p = video.play();
+      if (p && p.catch) p.catch(function () {});
+    });
+    card.addEventListener('mouseleave', function () { video.pause(); });
+  });
+
   document.querySelectorAll('.pub-preview').forEach(function (box) {
     var entry = box.closest('li');
     var badges = entry.querySelectorAll('.pub-badge[data-preview]');
