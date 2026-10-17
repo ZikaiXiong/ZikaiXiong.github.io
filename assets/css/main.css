@@ -383,7 +383,8 @@ a.pub-badge.pub-badge-demo:hover { background: var(--theme-dark); border-color: 
 .pub-preview-card:hover { text-decoration: none; }
 .pub-preview-card:hover .pub-preview-go { text-decoration: underline; }
 
-/* interactive teaching tools (teaching page): cards whose clip plays on hover */
+/* interactive demos (research page): cards whose clip plays on hover */
+.section-title[id] { scroll-margin-top: 4.5rem; }
 .tool-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.5rem; margin: 0.8rem 0 1.5rem; }
 .tool-card { display: flex; flex-direction: column; align-items: flex-start; }
 .tool-media { display: block; width: 100%; }
