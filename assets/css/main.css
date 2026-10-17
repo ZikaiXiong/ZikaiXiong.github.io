@@ -354,6 +354,33 @@ a.demo-btn:hover { background: var(--theme-dark); border-color: var(--theme-dark
 a.pub-badge.pub-badge-demo { background: var(--theme-color); color: #fff; }
 a.pub-badge.pub-badge-demo:hover { background: var(--theme-dark); border-color: var(--theme-dark); }
 
+/* hover previews for demo / animation badges (research page) */
+.pub-preview {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  transition: grid-template-rows 0.3s ease, opacity 0.25s ease, margin-top 0.3s ease;
+  margin-top: 0;
+}
+.pub-preview > .pub-preview-card { min-height: 0; overflow: hidden; }
+.pub-preview.is-open { grid-template-rows: 1fr; opacity: 1; margin-top: 0.6rem; }
+.pub-preview-card { display: none; max-width: 560px; color: inherit; }
+.pub-preview-card.is-active { display: block; }
+.pub-preview-card video {
+  display: block;
+  width: 100%;
+  aspect-ratio: 960 / 600;
+  object-fit: cover;
+  border: 1px solid #E8D6D8;
+  border-radius: 0.4rem;
+  background: #f6f4ee;
+}
+.pub-preview-card[data-preview="comparison"] video { aspect-ratio: 1100 / 640; }
+.pub-preview-cap { display: block; margin-top: 0.35rem; font-size: 0.88rem; color: #555; line-height: 1.45; }
+.pub-preview-go { color: var(--theme-color); font-weight: 600; white-space: nowrap; }
+.pub-preview-card:hover { text-decoration: none; }
+.pub-preview-card:hover .pub-preview-go { text-decoration: underline; }
+
 .pub-award {
   display: block;
   margin-top: 0.3rem;
