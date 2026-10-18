@@ -1,0 +1,195 @@
+/* ==========================================================================
+   Website skin for the interactive demos (demos/<name>/index.html).
+   Loaded after each demo's own styles. It brings in the site's navbar, fonts,
+   white page, greys and crimson accent. Colors that carry meaning in a figure
+   (the four ellipses, better/worse, the gray viewing booth, the descent path)
+   are left alone.
+   ========================================================================== */
+
+html.demo-site {
+  --site-crimson: #8B1D2C;
+  --site-serif: "Source Serif 4", Georgia, "Times New Roman", serif;
+  --site-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial,
+               "Noto Sans", "Liberation Sans", sans-serif;
+  --site-nav-h: calc(3.4rem + 1px);
+  --serif: var(--site-serif);
+  --body: var(--site-sans);
+  --ui: var(--site-sans);
+  --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
+
+/* light theme (the default, as on the website) */
+html.demo-site:not([data-theme="dark"]) {
+  --bg: #ffffff; --surface: #ffffff; --ink: #212529; --muted: #6c757d; --rule: #dee2e6;
+  --accent: #8B1D2C; --accent-soft: #F7EFF0; --on-accent: #ffffff;
+  color-scheme: light;
+}
+html.demo-site[data-theme="dark"] { --accent: #E59AA3; --accent-soft: #3A1D22; --on-accent: #1A0B0E; }
+
+/* NDD animation uses its own token names */
+html.demo-ndd:not([data-theme="dark"]) {
+  --panel: #ffffff; --line: #dee2e6; --chip: #f8f9fa; --btn: #ffffff; --btnh: #F7EFF0;
+  --halo: #ffffff; --cap: rgba(255, 255, 255, .95); --shadow: 0 4px 16px rgba(33, 37, 41, .10);
+}
+
+/* symmetry demo: neutral polygon and markers so they do not compete with the red ellipse (a) */
+html.demo-rounding:not([data-theme="dark"]) { --poly: #f1f3f5; --poly-line: #343a40; --glow: rgba(139, 29, 44, .35); }
+html.demo-rounding[data-theme="dark"] { --poly: #2a2a2e; --poly-line: #d0d0d6; --glow: rgba(229, 154, 163, .35); }
+html.demo-rounding .mk, html.demo-rounding .handle,
+html.demo-rounding .legend path[stroke="var(--accent)"] { stroke: var(--ink); }
+html.demo-rounding .xm { color: var(--ink); }
+
+/* --------------------------------------------------------------------------
+   Site navbar and footer (same look as the website)
+   -------------------------------------------------------------------------- */
+
+.site-header {
+  position: relative;
+  z-index: 50;
+  background: #F7EFF0;
+  border-bottom: 1px solid #E8D6D8;
+  font-family: var(--site-sans);
+  line-height: 1.65;
+}
+.site-header .navbar {
+  display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap;
+  box-sizing: border-box;
+  min-height: 3.4rem;
+  max-width: 1440px; margin: 0 auto;
+  padding: 0.35rem max(16px, env(safe-area-inset-left, 0px));
+}
+.site-header a { text-decoration: none; }
+.site-header .navbar-brand {
+  font-family: var(--site-serif); font-size: 1.18rem; font-weight: 600; letter-spacing: 0.01em;
+  color: #8B1D2C;
+}
+.site-header .nav-toggle {
+  display: none; background: none; border: none; font-size: 1.45rem; line-height: 1;
+  color: #212529; cursor: pointer; padding: 0.25rem 0.5rem;
+}
+.site-header .nav-links { display: flex; align-items: center; gap: 1.15rem; list-style: none; margin: 0; padding: 0; }
+.site-header .nav-links a { color: #495057; font-size: 0.95rem; }
+.site-header .nav-links a:hover { color: #8B1D2C; }
+.site-header .nav-links a.active { color: #212529; font-weight: 600; }
+@media (max-width: 900px) {
+  .site-header .nav-toggle { display: block; }
+  .site-header .nav-links { display: none; flex-direction: column; align-items: flex-start; width: 100%; gap: 0.35rem; padding: 0.25rem 0 0.9rem; }
+  .site-header .nav-links.open { display: flex; }
+}
+
+.site-foot {
+  max-width: 1440px; margin: 0 auto;
+  padding: 1.2rem max(16px, env(safe-area-inset-left, 0px)) 2rem;
+  border-top: 1px solid #e9ecef;
+  color: #919ba4; font-family: var(--site-sans); font-size: 0.85rem;
+}
+
+/* NDD fills the window below the navbar */
+html.demo-ndd #app { height: calc(100vh - var(--site-nav-h)); }
+
+/* --------------------------------------------------------------------------
+   Headings: the site's serif in crimson, no small caps
+   -------------------------------------------------------------------------- */
+
+html.demo-site h1 { font-family: var(--site-serif); font-weight: 600; color: var(--accent); }
+html.demo-site .card h3,
+html.demo-site .sl-label,
+html.demo-site details.math > summary,
+html.demo-ndd .ctitle > span,
+html.demo-ndd .lbl {
+  font-family: var(--site-serif); font-size: 1.05rem; font-weight: 600;
+  letter-spacing: 0; text-transform: none; color: var(--accent);
+}
+html.demo-site .panel-head h3 .tag { letter-spacing: 0; }
+html.demo-ndd .ttl { font-family: var(--site-serif); font-size: 1.35rem; font-weight: 600; letter-spacing: 0; color: var(--accent); }
+
+/* --------------------------------------------------------------------------
+   Shapes: small radii like the site's badges instead of pills and big cards
+   -------------------------------------------------------------------------- */
+
+html.demo-site .card { border-radius: 8px; }
+
+/* --------------------------------------------------------------------------
+   Cards: white blocks on a light page, so each part of a demo reads on its own
+   -------------------------------------------------------------------------- */
+
+html.demo-site:not([data-theme="dark"]) { --bg: #f5f5f3; --card-line: #e2e2df; --card-shadow: 0 1px 2px rgba(33, 37, 41, .05), 0 4px 14px rgba(33, 37, 41, .045); }
+html.demo-site:not([data-theme="dark"]) .card { border-color: var(--card-line); box-shadow: var(--card-shadow); }
+/* a thin rule under each card's title */
+html.demo-site .card > h3:first-child,
+html.demo-site .card > .card-head:first-child,
+html.demo-site .card > details > summary {
+  padding-bottom: 8px; margin-bottom: 12px; border-bottom: 1px solid var(--rule);
+}
+/* the symmetry demo's introduction becomes a card with a crimson edge */
+html.demo-rounding .lead {
+  max-width: none; background: var(--surface); border: 1px solid var(--card-line, var(--rule));
+  border-left: 3px solid var(--accent); border-radius: 8px; padding: 12px 18px; box-shadow: var(--card-shadow, none);
+}
+/* NDD: light side panel with white cards and stat tiles */
+html.demo-ndd:not([data-theme="dark"]) { --panel: #f5f5f3; --bg: #ffffff; }
+html.demo-ndd:not([data-theme="dark"]) .card { background: #ffffff; }
+html.demo-ndd:not([data-theme="dark"]) .stat { background: #ffffff; border: 1px solid var(--card-line); }
+html.demo-ndd .ctitle { padding-bottom: 6px; margin-bottom: 8px; border-bottom: 1px solid var(--line); }
+html.demo-site .seg { border-radius: 0.35rem; }
+html.demo-site .seg button { border-radius: 0.25rem; }
+html.demo-site .btn,
+html.demo-site .stat,
+html.demo-site .tick-btn,
+html.demo-site select { border-radius: 0.25rem; }
+html.demo-site .play { border-radius: 0.3rem; }
+html.demo-site .booth { border-radius: 6px; }
+html.demo-site .swatches, html.demo-site .swatches.fav .sw, html.demo-site .pair { border-radius: 4px; }
+html.demo-site .answers button { border-radius: 0.3rem; }
+html.demo-site .tip { border-radius: 4px; }
+html.demo-ndd #methodBar, html.demo-ndd #legend, html.demo-ndd #caption { border-radius: 6px; }
+html.demo-ndd #hudPhase, html.demo-ndd #hudHidden { border-radius: 0.3rem; }
+html.demo-ndd .ib:not(.primary) { border-radius: 0.3rem; }
+
+/* --------------------------------------------------------------------------
+   The two rPDHG demos (pdhg-lp-hardness, pdhg-random-lps)
+   -------------------------------------------------------------------------- */
+
+html.demo-pdhg .cite { color: var(--muted); font-size: .86rem; margin: 4px 0 0; }
+html.demo-pdhg:not([data-theme="dark"]) .story { border-color: var(--card-line); box-shadow: var(--card-shadow); }
+html.demo-pdhg .story { border-radius: 8px; }
+html.demo-pdhg .step-btn { border-radius: 6px; }
+html.demo-pdhg .chip, html.demo-pdhg .lock-msg, html.demo-pdhg .algo,
+html.demo-pdhg pre.tests, html.demo-pdhg .tipbox { border-radius: 6px; }
+html.demo-pdhg .ctl input, html.demo-pdhg details.more select { border-radius: 0.25rem; }
+html.demo-pdhg .go { border-radius: 0.3rem; }
+/* neutral polygon and level lines instead of lavender; the path, near-tie and angle colors keep their meaning */
+html.demo-pdhg-lp-hardness:not([data-theme="dark"]) { --poly: #f1f3f5; --level: #ced4da; }
+/* dots in the site's crimson; LPs stopped at the cap and the slowest LP in orange so they still stand out */
+html.demo-pdhg-random-lps:not([data-theme="dark"]) { --dot: #8B1D2C; --warn: #c2410c; }
+html.demo-pdhg-random-lps[data-theme="dark"] { --dot: #E59AA3; }
+/* the random-LP page is narrower: align the navbar and footer with its content */
+html.demo-pdhg-random-lps .site-header .navbar, html.demo-pdhg-random-lps .site-foot { max-width: 1240px; }
+/* native sliders in the site's crimson */
+html.demo-site input[type=range] { accent-color: var(--accent); }
+
+/* --------------------------------------------------------------------------
+   Comparison demo: the comparison itself is the obvious action
+   -------------------------------------------------------------------------- */
+
+html.demo-comparison .booth h2 { margin-bottom: 4px; }
+html.demo-comparison .booth-hint { margin: 0 0 12px; font-size: 1rem; color: #101010; }
+html.demo-comparison .swatches .sw.pickable { cursor: pointer; transition: box-shadow .15s ease; }
+html.demo-comparison .swatches .sw.pickable:hover { box-shadow: inset 0 0 0 4px rgba(255, 255, 255, .9); }
+html.demo-comparison .swatches.fav .sw.pickable:hover { box-shadow: 0 0 0 1px rgba(0, 0, 0, .18), inset 0 0 0 4px rgba(255, 255, 255, .9); }
+/* "Same" as a real button, kept apart from A and B by its dashed border */
+html.demo-comparison .answers button.same { background: var(--booth-btn); color: var(--booth-btn-ink); border-style: dashed; border-color: rgba(0, 0, 0, .45); }
+html.demo-comparison .answers button.same:hover:not(:disabled) { background: #ffffff; }
+html.demo-comparison .booth-foot #undoBtn { padding: 4px 11px; font-size: .82rem; }
+/* "More options" dropdown at the right of the toolbar */
+html.demo-comparison .more-ctl { position: relative; }
+html.demo-comparison .more-ctl > summary { list-style: none; cursor: pointer; user-select: none; }
+html.demo-comparison .more-ctl > summary::-webkit-details-marker { display: none; }
+html.demo-comparison .more-ctl > summary::after { content: " \25BE"; color: var(--muted); }
+html.demo-comparison .more-row {
+  position: absolute; right: 0; top: calc(100% + 6px); z-index: 30;
+  display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
+  width: max-content; max-width: min(92vw, 560px); padding: 10px;
+  background: var(--surface); border: 1px solid var(--card-line, var(--rule)); border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(33, 37, 41, .12);
+}

@@ -1,0 +1,1137 @@
+<!doctype html>
+<html lang="en" class="demo-site demo-pdhg-random-lps demo-pdhg" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="author" content="Zikai Xiong">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='8' fill='%238B1D2C'/%3E%3Ccircle cx='19' cy='20' r='9' fill='%23fff'/%3E%3Ccircle cx='45' cy='20' r='9' fill='%23fff'/%3E%3Ccircle cx='32' cy='36' r='20' fill='%23fff'/%3E%3Ccircle cx='25' cy='33' r='2.5' fill='%238B1D2C'/%3E%3Ccircle cx='39' cy='33' r='2.5' fill='%238B1D2C'/%3E%3Cellipse cx='32' cy='42' rx='4.5' ry='3.5' fill='%238B1D2C'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&display=swap">
+<link rel="stylesheet" href="../demo-theme.css">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How hard is a random LP?</title>
+<meta name="description" content="Interactive demo: restarted PDHG solves random linear programs in your browser, and each one falls into place as a dot.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
+<style>
+[hidden]{display:none!important}
+:root{
+  --bg:#f2f2f1;--surface:#ffffff;--ink:#19181c;--muted:#5d5b63;--rule:#dcdbe0;
+  --accent:#4e2a84;--accent-soft:#ece6f6;--on-accent:#ffffff;
+  --serif:KaTeX_Main,"Latin Modern Roman","Computer Modern Serif","Times New Roman",serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  --dot:#4e2a84;--warn:#b42318;--grid:#ecebef;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#141416;--surface:#1e1e21;--ink:#ececf0;--muted:#a7a5ae;--rule:#35343b;
+    --accent:#c2aef0;--accent-soft:#2c2442;--on-accent:#1b1033;
+    --dot:#c2aef0;--warn:#f87171;--grid:#2a292f;color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#141416;--surface:#1e1e21;--ink:#ececf0;--muted:#a7a5ae;--rule:#35343b;
+  --accent:#c2aef0;--accent-soft:#2c2442;--on-accent:#1b1033;
+  --dot:#c2aef0;--warn:#f87171;--grid:#2a292f;color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5}
+.wrap{max-width:1240px;margin:0 auto;padding-block:18px 32px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+a{color:var(--accent)}
+header.top{display:flex;flex-wrap:wrap;align-items:flex-start;justify-content:space-between;gap:8px 18px;margin-bottom:14px}
+.titles{min-width:0;flex:1 1 420px}
+h1{font-family:var(--serif);font-weight:700;font-size:clamp(1.6rem,2.4vw,2.2rem);line-height:1.1;margin:0}
+.lede{margin:6px 0 0;font-size:1rem;color:var(--muted);max-width:68ch}
+.toplinks{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.toplinks a{font-size:.9rem;margin-right:6px}
+.btn{border:1px solid var(--rule);background:var(--surface);color:var(--ink);font:500 .88rem var(--body);padding:7px 13px;border-radius:999px;cursor:pointer}
+.btn:hover{border-color:var(--muted)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent)}
+.btn.small{padding:5px 11px;font-size:.84rem}
+.btn.icon{padding:5px 10px;font-size:1rem;line-height:1.1}
+button:focus-visible,select:focus-visible,input:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.card{background:var(--surface);border:1px solid var(--rule);border-radius:16px;padding:16px clamp(14px,1.6vw,20px);min-width:0;margin-bottom:18px}
+.card h3{font:600 .78rem var(--body);letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin:0 0 10px}
+.ctl{display:flex;flex-wrap:wrap;align-items:flex-end;gap:10px 14px}
+.ctl label{display:grid;gap:4px;font:500 .82rem var(--body);color:var(--muted)}
+.ctl input{width:104px;font:600 1.05rem var(--mono);color:var(--ink);background:var(--bg);border:1px solid var(--rule);border-radius:10px;padding:7px 10px}
+.go{border:0;background:var(--accent);color:var(--on-accent);font:600 1.05rem var(--body);padding:11px 24px;border-radius:999px;cursor:pointer;min-width:12em}
+.go:hover{filter:brightness(1.1)}
+.go:disabled{cursor:progress;filter:none;opacity:.85}
+.go.invite{animation:ring 1.8s ease-in-out infinite}
+@keyframes ring{0%,100%{box-shadow:0 0 0 0 var(--accent-soft)}50%{box-shadow:0 0 0 9px var(--accent-soft)}}
+.hint{margin:10px 0 0;color:var(--muted);font-size:.9rem}
+details.more{margin-top:6px}
+details.more summary{cursor:pointer;font:500 .84rem var(--body);color:var(--muted);padding:2px 0}
+details.more label{font-size:.85rem;color:var(--muted)}
+details.more select{font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--rule);border-radius:8px;padding:4px 8px;margin-left:6px}
+.statline{font:500 .95rem var(--mono);font-variant-numeric:tabular-nums;min-height:1.5em;margin:0 0 6px}
+.statline b{color:var(--accent);font-weight:600}
+.rain-box{position:relative}
+#rain{display:block;width:100%;height:330px;touch-action:pan-y}
+@media (max-width:640px){#rain{height:270px}}
+.after{margin:10px 0 0;font:1.05rem/1.5 var(--serif)}
+.after .btn{font-family:var(--body);margin-top:8px}
+.tipbox{position:fixed;z-index:40;max-width:min(320px,calc(100vw - 24px));background:var(--surface);color:var(--ink);border:1px solid var(--rule);border-radius:10px;padding:7px 10px;font:500 .82rem/1.4 var(--body);box-shadow:0 8px 28px rgba(0,0,0,.16);pointer-events:none}
+.plot{display:block;width:100%;height:auto}
+.plot .ax{stroke:var(--rule);stroke-width:1;fill:none}
+.plot .gridl{stroke:var(--grid);stroke-width:1;fill:none}
+.plot .tk{fill:var(--muted);font:11px var(--mono)}
+.plot .lbl{fill:var(--muted);font:11px var(--body)}
+.phi-grid{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:8px 24px;align-items:center}
+@media (max-width:860px){.phi-grid{grid-template-columns:minmax(0,1fr)}}
+.phi-grid .note{font-size:.95rem}
+.note{color:var(--muted);font-size:.86rem;margin:6px 0 0}
+.math{font-size:.95rem}
+.math h4{font:600 .86rem var(--body);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:16px 0 6px}
+.math h4:first-child{margin-top:0}
+.math p,.math li{max-width:110ch}
+.math ul{padding-left:1.2em;margin:4px 0}
+.math-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:4px 32px}
+.refs li{margin:3px 0}
+pre.tests{font:12px/1.45 var(--mono);background:var(--bg);border:1px solid var(--rule);border-radius:10px;padding:10px;white-space:pre-wrap;max-height:320px;overflow:auto;margin:8px 0 0}
+footer{color:var(--muted);font-size:.82rem;margin-top:4px;max-width:110ch}
+@media (prefers-reduced-motion:reduce){.go.invite{animation:none}}
+</style>
+</head>
+<body>
+<header class="site-header">
+  <nav class="navbar" aria-label="Site navigation">
+    <a class="navbar-brand" href="../../index.html">Zikai&nbsp;Xiong</a>
+    <button class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false" aria-controls="nav-menu">&#9776;</button>
+    <ul class="nav-links" id="nav-menu">
+      <li><a href="../../index.html">about</a></li>
+      <li><a href="../../research.html" class="active">research</a></li>
+      <li><a href="../../news.html">news</a></li>
+      <li><a href="../../cv/" target="_blank" rel="noopener">cv</a></li>
+      <li><a href="../../awards.html">awards</a></li>
+      <li><a href="../../teaching.html">teaching</a></li>
+      <li><a href="../../talks.html">talks</a></li>
+      <li><a href="../../blogs.html">blogs</a></li>
+      <li><a href="../../gallery.html">photos</a></li>
+    </ul>
+  </nav>
+</header>
+<div class="wrap">
+  <header class="top">
+    <div class="titles">
+      <h1>How hard is a random LP?</h1>
+      <p class="cite">Created by Zikai Xiong · Based on Xiong, <a href="https://arxiv.org/abs/2501.00728" target="_blank" rel="noopener">arXiv:2501.00728</a> and <a href="https://arxiv.org/abs/2410.04043" target="_blank" rel="noopener">arXiv:2410.04043</a></p>
+      <p class="lede">Restarted PDHG (rPDHG) is a first-order method for linear programs. Pick a size, press the button, and watch it solve random LPs in your browser. Each LP drops in as a dot, placed by how many iterations it took.</p>
+    </div>
+    <nav class="toplinks">
+      <a href="../pdhg-lp-hardness/index.html">One LP up close →</a>
+      <button class="btn small" id="mathBtn" title="M" aria-expanded="false" aria-controls="math">The math</button>
+      <button class="btn small icon" id="themeBtn" title="Dark theme (D)" aria-label="Toggle dark theme">◐</button>
+    </nav>
+  </header>
+
+  <section class="card" aria-label="Start here">
+    <div class="ctl">
+      <label>Variables (n)<input id="inN" type="number" inputmode="numeric" min="4" max="200" step="1" value="30"></label>
+      <label>Constraints (m)<input id="inM" type="number" inputmode="numeric" min="1" max="199" step="1" value="15"></label>
+      <label>Random LPs<input id="inK" type="number" inputmode="numeric" min="10" max="2000" step="10" value="200"></label>
+      <button class="go invite" id="goBtn">▶ Solve them</button>
+      <button class="btn small" id="stopBtn" hidden>Stop</button>
+    </div>
+    <p class="hint" id="hint">The defaults take a few seconds. Larger LPs take longer.</p>
+    <details class="more">
+      <summary>More options</summary>
+      <label>Random matrix A <select id="inDist"><option value="gauss" selected>Gaussian entries</option><option value="pm1">±1 entries</option></select></label>
+    </details>
+  </section>
+
+  <section class="card" id="rainCard">
+    <h3 id="rainTitle">Each dot is one random LP</h3>
+    <p class="statline" id="statline" aria-live="polite"></p>
+    <div class="rain-box"><canvas id="rain" role="img" aria-label="Each random LP as a dot, placed by the number of iterations rPDHG needs"></canvas></div>
+    <div class="after" id="after" hidden>
+      <p id="afterText"></p>
+      <button class="btn" id="phiBtn">Check the bound of [A] on these LPs →</button>
+    </div>
+  </section>
+
+  <section class="card" id="phiCard" hidden>
+    <h3>Checking the bound of [A]</h3>
+    <div class="phi-grid">
+      <svg id="phiPlot" class="plot" viewBox="0 0 560 300" role="img" aria-label="Iterations against kappa times Phi"></svg>
+      <p class="note" id="phiNote"></p>
+    </div>
+  </section>
+
+  <section class="card math" id="math" hidden>
+    <div class="math-grid">
+      <div>
+        <h4>The random LPs</h4>
+        <p>Standard form $\min\, c^\top x$ subject to $Ax=b,\ x\ge 0$, from the model used in the experiments of [A] and [H]:</p>
+        <ul>
+          <li>$A\in\mathbb{R}^{m\times n}$ has i.i.d. $N(0,1)$ entries (or $\pm1$ entries);</li>
+          <li>$\hat x=(|u_1|,\dots,|u_m|,0,\dots,0)$ and $\hat s=(0,\dots,0,|u_{m+1}|,\dots,|u_n|)$ with $u\sim N(0,I)$;</li>
+          <li>$b=A\hat x$, and $c=\hat s+A^\top\hat y$ with $\hat y$ chosen so that $Ac=0$.</li>
+        </ul>
+        <p>Then $x^\star=\hat x$ and $s^\star=\hat s$ are known, so $\Phi$ comes from its closed form.</p>
+        <h4>rPDHG</h4>
+        <p>The method of the <a href="../pdhg-lp-hardness/index.html">one-LP page</a> (Algorithm 1 of [A] and [H]), started at $0$. An LP counts as solved when $\|(x,s)-(x^\star,s^\star)\|_2\le 10^{-4}$, as in the experiments of [A]. A run stops after $\min\{10^6,\max\{10^5,\ 4\cdot10^9/(mn)\}\}$ iterations; such LPs are hollow dots.</p>
+      </div>
+      <div>
+        <h4>What the papers prove</h4>
+        <ul>
+          <li>[H] With probability at least $1-\delta$, rPDHG finds the optimal basis within $\widetilde O(n^{2.5}m^{0.5}/\delta)$ iterations ($\widetilde O(n^{2.5}/\delta)$ for Gaussian $A$), and then an $\varepsilon$-optimal solution within $O\big(\frac{\sqrt{nm}}{\delta}\ln\frac1\varepsilon\big)$ more; this holds for sub-Gaussian $A$ with $n/(n-m+1)$ bounded and $\delta$ not exponentially small. The factor $1/\delta$ leaves room for a few slow LPs.</li>
+          <li>[A] With a unique optimum, rPDHG needs at most $O\big(\kappa\Phi\ln(\kappa\Phi\|w^\star\|/\varepsilon)\big)$ iterations, where $\kappa$ is the condition number of $A$ and $\Phi=(\|x^\star\|_1+\|s^\star\|_1)\cdot\max\Big\{\max_j \frac{\sqrt{\|T_{:,j}\|^2+1}}{s^\star_{N_j}},\ \max_i \frac{\sqrt{\|T_{i,:}\|^2+1}}{x^\star_{B_i}}\Big\}$ with $T=B^{-1}N$.</li>
+        </ul>
+        <p>Both are $O(\cdot)$ bounds; the dashed line in the chart has only their slope.</p>
+        <h4>Sources</h4>
+        <ul class="refs">
+          <li>[A] Z. Xiong. Accessible complexity bounds for restarted PDHG on linear programs with a unique optimizer. Mathematics of Operations Research, 2026. <a href="https://arxiv.org/abs/2410.04043">arXiv:2410.04043</a></li>
+          <li>[H] Z. Xiong. High-probability polynomial-time complexity of restarted PDHG for linear programming. Mathematics of Operations Research, forthcoming. <a href="https://arxiv.org/abs/2501.00728">arXiv:2501.00728</a></li>
+        </ul>
+        <h4>Self-tests</h4>
+        <button class="btn" id="testBtn">Run self-tests</button>
+        <pre class="tests" id="testOut" hidden></pre>
+      </div>
+    </div>
+  </section>
+
+  <footer>Everything is computed in your browser, on <span id="nWorkers">several</span> threads. Hover over a dot for its details. Keys: Enter or S solve · M the math · D dark theme.</footer>
+</div>
+<div class="tipbox" id="tip" role="tooltip" hidden></div>
+
+<script id="mathcore">
+/* =====================================================================
+   RLPCore: random LPs (Todd's model), Phi from the optimal basis, and restarted PDHG.
+   Pure functions, no DOM. Shared by the page, the Web Workers and tests.
+   The linear algebra and the normalized duality gap are copied verbatim from
+   "Why is this LP hard?" (pdhg-lp-hardness/index.html), where they are tested.
+   ===================================================================== */
+(function (root) {
+  'use strict';
+
+  // ---------- random numbers (seeded) ----------
+  function rng32(seed) {
+    let a = seed >>> 0;
+    return function () {
+      a = (a + 0x6D2B79F5) >>> 0;
+      let t = a;
+      t = Math.imul(t ^ (t >>> 15), t | 1);
+      t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+  function gauss(rand) {
+    let u = rand();
+    while (u <= 0) u = rand();
+    return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * rand());
+  }
+
+  // ---------- small dense linear algebra (matrices: arrays of Float64Array rows) ----------
+  function dot(a, b) { let s = 0; for (let i = 0; i < a.length; i++) s += a[i] * b[i]; return s; }
+  function nrm(a) { return Math.sqrt(dot(a, a)); }
+  function nrm1(a) { let s = 0; for (let i = 0; i < a.length; i++) s += Math.abs(a[i]); return s; }
+  function matVec(A, x) { const y = new Float64Array(A.length); for (let i = 0; i < A.length; i++) y[i] = dot(A[i], x); return y; }
+  function matTVec(A, y) {
+    const n = A[0].length, x = new Float64Array(n);
+    for (let i = 0; i < A.length; i++) { const yi = y[i], Ai = A[i]; for (let j = 0; j < n; j++) x[j] += Ai[j] * yi; }
+    return x;
+  }
+  function identity(m) { const I = []; for (let i = 0; i < m; i++) { const r = new Float64Array(m); r[i] = 1; I.push(r); } return I; }
+  function colsOf(A, idx) { return A.map(row => Float64Array.from(idx, j => row[j])); }
+
+  // Solve M X = R with partial pivoting. R is a vector or a matrix (array of rows). Returns null if singular.
+  function solve(M, R) {
+    const n = M.length;
+    const isVec = !(R.length && R[0] && R[0].length !== undefined);
+    const a = M.map(r => Float64Array.from(r));
+    const k = isVec ? 1 : R[0].length;
+    const B = isVec ? Array.from(R, v => Float64Array.of(v)) : R.map(r => Float64Array.from(r));
+    let scale = 0;
+    for (const r of a) for (const v of r) scale = Math.max(scale, Math.abs(v));
+    if (scale === 0) return null;
+    for (let col = 0; col < n; col++) {
+      let p = col;
+      for (let i = col + 1; i < n; i++) if (Math.abs(a[i][col]) > Math.abs(a[p][col])) p = i;
+      if (Math.abs(a[p][col]) <= 1e-13 * scale) return null;
+      if (p !== col) { let t = a[p]; a[p] = a[col]; a[col] = t; t = B[p]; B[p] = B[col]; B[col] = t; }
+      for (let i = col + 1; i < n; i++) {
+        const f = a[i][col] / a[col][col];
+        if (f === 0) continue;
+        for (let j = col; j < n; j++) a[i][j] -= f * a[col][j];
+        for (let j = 0; j < k; j++) B[i][j] -= f * B[col][j];
+      }
+    }
+    for (let col = n - 1; col >= 0; col--) {
+      for (let j = 0; j < k; j++) {
+        let s = B[col][j];
+        for (let i = col + 1; i < n; i++) s -= a[col][i] * B[i][j];
+        B[col][j] = s / a[col][col];
+      }
+    }
+    return isVec ? Float64Array.from(B, r => r[0]) : B;
+  }
+
+  // Eigenvalues of a symmetric matrix (cyclic Jacobi), sorted in decreasing order.
+  function symEigvals(S) {
+    const n = S.length, a = S.map(r => Float64Array.from(r));
+    let fro = 0;
+    for (const r of a) for (const v of r) fro += v * v;
+    for (let sweep = 0; sweep < 100; sweep++) {
+      let off = 0;
+      for (let i = 0; i < n; i++) for (let j = i + 1; j < n; j++) off += a[i][j] * a[i][j];
+      if (off <= 1e-30 * fro) break;
+      for (let p = 0; p < n; p++) for (let q = p + 1; q < n; q++) {
+        if (a[p][q] === 0) continue;
+        const th = (a[q][q] - a[p][p]) / (2 * a[p][q]);
+        const t = (th >= 0 ? 1 : -1) / (Math.abs(th) + Math.sqrt(th * th + 1));
+        const c = 1 / Math.sqrt(t * t + 1), s = t * c;
+        for (let k = 0; k < n; k++) { const kp = a[k][p], kq = a[k][q]; a[k][p] = c * kp - s * kq; a[k][q] = s * kp + c * kq; }
+        for (let k = 0; k < n; k++) { const pk = a[p][k], qk = a[q][k]; a[p][k] = c * pk - s * qk; a[q][k] = s * pk + c * qk; }
+      }
+    }
+    const ev = [];
+    for (let i = 0; i < n; i++) ev.push(a[i][i]);
+    return ev.sort((x, y) => y - x);
+  }
+  // Singular values of A (decreasing), via the smaller Gram matrix.
+  function svals(A) {
+    const m = A.length, n = A[0].length;
+    let G;
+    if (m <= n) G = A.map(r => Float64Array.from(A, s => dot(r, s)));
+    else { const At = []; for (let j = 0; j < n; j++) At.push(Float64Array.from(A, r => r[j])); G = At.map(r => Float64Array.from(At, s => dot(r, s))); }
+    return symEigvals(G).map(v => Math.sqrt(Math.max(0, v)));
+  }
+
+  // Orthonormalize a list of vectors (modified Gram-Schmidt, twice).
+  function orthonormalize(vecs) {
+    const out = [];
+    for (const v of vecs) {
+      const w = Float64Array.from(v);
+      for (let pass = 0; pass < 2; pass++) for (const b of out) { const d = dot(w, b); for (let j = 0; j < w.length; j++) w[j] -= d * b[j]; }
+      const nw = nrm(w);
+      if (nw > 1e-10) { for (let j = 0; j < w.length; j++) w[j] /= nw; out.push(w); }
+    }
+    return out;
+  }
+  // Complete orthonormal vectors `vecs` (in R^n) to a basis of R^n; return only the new vectors.
+  function completeBasis(vecs, n) {
+    const basis = orthonormalize(vecs), extra = [];
+    while (basis.length < n) {
+      let best = null, bestN = -1;
+      for (let i = 0; i < n; i++) {
+        const w = new Float64Array(n); w[i] = 1;
+        for (let pass = 0; pass < 2; pass++) for (const b of basis) { const d = dot(w, b); for (let j = 0; j < n; j++) w[j] -= d * b[j]; }
+        const nw = nrm(w);
+        if (nw > bestN) { bestN = nw; best = w; }
+      }
+      for (let j = 0; j < n; j++) best[j] /= bestN;
+      basis.push(best); extra.push(best);
+    }
+    return extra;
+  }
+
+
+  // ---------- normalized duality gap (N-norm version, appendix of [L]) ----------
+  // rho^N(r; z) = (1/r) max { h'(zt - z) : xt >= 0, ||zt - z||_N <= r },  h = (A'y - c, b - Ax),
+  // ||z||_N^2 = ||x||^2/tau + ||y||^2/sigma. The maximizer is z(t) = (max(0, x + t tau h1/2), y + t sigma h2/2)
+  // with ||z(t) - z||_N = r. ||z(t) - z||_N^2 is piecewise quadratic in t, so the root is found exactly.
+  function makeRho(n) {
+    const bpT = new Float64Array(n), bpJ = new Int32Array(n);
+    return function rhoN(r, x, h1, h2, m, tau, sigma) {
+      if (!(r > 0)) return 0;
+      let h2sq = 0;
+      for (let i = 0; i < m; i++) h2sq += h2[i] * h2[i];
+      let alpha = sigma / 4 * h2sq, beta = 0, nb = 0;
+      for (let j = 0; j < n; j++) {
+        const h = h1[j];
+        if (h >= 0) alpha += tau / 4 * h * h;
+        else if (x[j] > 0) {
+          alpha += tau / 4 * h * h;
+          const T = 2 * x[j] / (tau * -h);
+          let p = nb++;
+          while (p > 0 && bpT[p - 1] > T) { bpT[p] = bpT[p - 1]; bpJ[p] = bpJ[p - 1]; p--; }
+          bpT[p] = T; bpJ[p] = j;
+        }
+      }
+      const r2 = r * r;
+      let t = Infinity;
+      for (let q = 0; q <= nb; q++) {
+        const tNext = q < nb ? bpT[q] : Infinity;
+        if (alpha > 0) {
+          const tt = Math.sqrt(Math.max(0, (r2 - beta) / alpha));
+          if (tt <= tNext) { t = tt; break; }
+        }
+        if (q === nb) break;
+        const j = bpJ[q], h = h1[j];
+        alpha -= tau / 4 * h * h;
+        if (alpha < 0) alpha = 0;
+        beta += x[j] * x[j] / tau;
+      }
+      let val = 0;
+      if (t === Infinity) {
+        for (let j = 0; j < n; j++) if (h1[j] < 0) val -= h1[j] * x[j];
+        return val / r;
+      }
+      const ct = t * tau / 2;
+      for (let j = 0; j < n; j++) {
+        const h = h1[j];
+        let d = ct * h;
+        if (h < 0 && d < -x[j]) d = -x[j];
+        val += h * d;
+      }
+      val += t * sigma / 2 * h2sq;
+      return val / r;
+    };
+  }
+
+
+  // ---------- random LPs (Todd's model, as in the experiments of [A] and [H]) ----------
+  // A has i.i.d. N(0,1) (or +-1) entries; xhat = (|u|, 0), shat = (0, |u|) with u ~ N(0,1);
+  // b = A xhat; c = shat + A'yhat with yhat = argmin ||shat + A'y|| (so Ac = 0).
+  // Then x* = xhat, s* = shat, y* = yhat, and the optimal basis is {0, ..., m-1}.
+  function toddLP(n, m, seed, dist) {
+    const rand = rng32(seed);
+    const A = new Float64Array(m * n), rows = [];
+    for (let i = 0; i < m; i++) rows.push(A.subarray(i * n, (i + 1) * n));
+    // The model needs A of full row rank and a nonsingular optimal basis B (probability 1 for Gaussian A;
+    // a small +-1 matrix can fail this, and is then drawn again).
+    let AAt, tries = 0;
+    for (;;) {
+      for (let k = 0; k < m * n; k++) A[k] = dist === 'pm1' ? (rand() < 0.5 ? -1 : 1) : gauss(rand);
+      AAt = rows.map(r => Float64Array.from(rows, q => dot(r, q)));
+      const Bm = rows.map(r => Float64Array.from(r.subarray(0, m)));
+      if ((solve(AAt, new Float64Array(m).fill(1)) && solve(Bm, new Float64Array(m).fill(1))) || ++tries > 50) break;
+    }
+    const xstar = new Float64Array(n), sstar = new Float64Array(n);
+    for (let j = 0; j < n; j++) { const u = Math.abs(gauss(rand)); if (j < m) xstar[j] = u; else sstar[j] = u; }
+    const b = matVec(rows, xstar);
+    const w = solve(AAt, matVec(rows, sstar));           // (AA')^{-1} A shat
+    const ystar = Float64Array.from(w, v => -v);
+    const c = Float64Array.from(sstar);
+    const Atw = matTVec(rows, w);
+    for (let j = 0; j < n; j++) c[j] -= Atw[j];
+    const ev = symEigvals(AAt);
+    const lmax = Math.sqrt(Math.max(0, ev[0])), lmin = Math.sqrt(Math.max(0, ev[m - 1]));
+    const kappa = lmax / lmin;
+    return {
+      n, m, seed, dist: dist || 'gauss', A, rows, b, c, xstar, sstar, ystar, AAt,
+      lmax, lmin, kappa, tau: 1 / (2 * kappa), sigma: 1 / (2 * lmax * lmin),
+      basis: Array.from({ length: m }, (_, i) => i)
+    };
+  }
+  // Phi of [A] and the Stage II quantity ||B^{-1}|| ||A||, from the known optimal basis.
+  function phiInfo(P) {
+    const { n, m, rows, xstar, sstar } = P;
+    const B = rows.map(r => Float64Array.from(r.subarray(0, m)));
+    const N = rows.map(r => Float64Array.from(r.subarray(m, n)));
+    const T = solve(B, N);
+    if (!T) return { Phi: Infinity };
+    let zp = Infinity, zd = Infinity;
+    for (let j = 0; j < n - m; j++) {
+      let cs = 1;
+      for (let i = 0; i < m; i++) cs += T[i][j] * T[i][j];
+      zp = Math.min(zp, sstar[m + j] / Math.sqrt(cs));
+    }
+    for (let i = 0; i < m; i++) {
+      let rs = 1;
+      for (let j = 0; j < n - m; j++) rs += T[i][j] * T[i][j];
+      zd = Math.min(zd, xstar[i] / Math.sqrt(rs));
+    }
+    const l1 = nrm1(xstar) + nrm1(sstar), Phi = l1 / Math.min(zp, zd);
+    const svB = svals(B);
+    const kp = P.kappa * Phi;
+    return { Phi, zetaP: zp, zetaD: zd, l1, kPhi: kp, kpl: kp * Math.log(Math.max(Math.E, kp)), BinvA: P.lmax / svB[m - 1] };
+  }
+
+  // ---------- restarted PDHG, two matrix-vector products per iteration ----------
+  // Same algorithm as rpdhg in "Why is this LP hard?": z = (0,0), tau = 1/(2 kappa), sigma = 1/(2 lmax lmin),
+  // beta-restart (beta = 1/e) on rho^N with the M-norm radius. Here Ax and A'y are carried along, and the
+  // averages of Ax and A'y are kept as running sums, so each iteration needs only A x+ and A'y+.
+  // stop 'dist': the current iterate (x, s = c - A'y) is within tol of (x*, s*), as in [A] and [H].
+  // stop 'kkt' : the average iterate is eps-optimal (the rule of the one-LP page; used for cross-checks).
+  function rpdhgFast(P, opts) {
+    opts = opts || {};
+    const stop = opts.stop || 'dist', tol = opts.tol != null ? opts.tol : 1e-4;
+    const maxIter = opts.maxIter != null ? opts.maxIter : 1000000, beta = opts.beta != null ? opts.beta : Math.exp(-1);
+    const { n, m, A, b, c, tau, sigma } = P;
+    const xstar = P.xstar, sstar = P.sstar;
+    let Minv = null;
+    if (stop === 'kkt') Minv = solve(P.AAt, Array.from({ length: m }, (_, i) => { const r = new Float64Array(m); r[i] = 1; return r; }));
+    const inB = new Uint8Array(n);
+    for (const j of P.basis) inB[j] = 1;
+    const rhoN = makeRho(n);
+    let x = new Float64Array(n), xn = new Float64Array(n), Ax = new Float64Array(m), Axn = new Float64Array(m);
+    const y = new Float64Array(m), Aty = new Float64Array(n);
+    const xs = new Float64Array(n), ys = new Float64Array(m), Axs = new Float64Array(m), Atys = new Float64Array(n);
+    const xb = new Float64Array(n), yb = new Float64Array(m), Axb = new Float64Array(m), Atyb = new Float64Array(n);
+    const x0 = new Float64Array(n), y0 = new Float64Array(m), Ax0 = new Float64Array(m);
+    const h1 = new Float64Array(n), h2 = new Float64Array(m);
+    let it = 0, k = 0, ell = 0, rho0 = 0, converged = false;
+    const restarts = [], restartOk = [];
+    const supportOk = xx => { for (let j = 0; j < n; j++) if ((xx[j] > 0) !== (inB[j] === 1)) return false; return true; };
+    while (it < maxIter) {
+      // OnePDHG
+      for (let j = 0; j < n; j++) { const v = x[j] - tau * (c[j] - Aty[j]); xn[j] = v > 0 ? v : 0; }
+      for (let i = 0; i < m; i++) {
+        let s = 0;
+        const o = i * n;
+        for (let j = 0; j < n; j++) s += A[o + j] * xn[j];
+        Axn[i] = s;
+        y[i] += sigma * (b[i] - (2 * s - Ax[i]));
+      }
+      let t = x; x = xn; xn = t;
+      t = Ax; Ax = Axn; Axn = t;
+      Aty.fill(0);
+      for (let i = 0; i < m; i++) { const yi = y[i], o = i * n; for (let j = 0; j < n; j++) Aty[j] += A[o + j] * yi; }
+      it++; k++;
+      const inv = 1 / k;
+      for (let j = 0; j < n; j++) { xs[j] += x[j]; xb[j] = xs[j] * inv; Atys[j] += Aty[j]; Atyb[j] = Atys[j] * inv; }
+      for (let i = 0; i < m; i++) { ys[i] += y[i]; yb[i] = ys[i] * inv; Axs[i] += Ax[i]; Axb[i] = Axs[i] * inv; }
+      // stopping
+      if (stop === 'dist') {
+        let d2 = 0;
+        for (let j = 0; j < n; j++) { const dx = x[j] - xstar[j], ds = c[j] - Aty[j] - sstar[j]; d2 += dx * dx + ds * ds; }
+        if (d2 <= tol * tol) { converged = true; break; }
+      } else {
+        let dist2 = 0;
+        for (let i = 0; i < m; i++) { let s = 0; for (let l = 0; l < m; l++) s += Minv[i][l] * (Axb[l] - b[l]); dist2 += (Axb[i] - b[i]) * s; }
+        let neg2 = 0, cx = 0, by = 0;
+        for (let j = 0; j < n; j++) { const sj = c[j] - Atyb[j]; if (sj < 0) neg2 += sj * sj; cx += c[j] * xb[j]; }
+        for (let i = 0; i < m; i++) by += b[i] * yb[i];
+        const gap = cx - by;
+        if (Math.max(Math.sqrt(dist2 > 0 ? dist2 : 0), Math.sqrt(neg2), gap > 0 ? gap : 0) <= tol) { converged = true; break; }
+      }
+      // beta-restart test
+      let restart = false, rhoBar = 0;
+      if (ell === 0) restart = (k === 1);
+      else {
+        let dxx = 0, dyy = 0, cross = 0;
+        for (let j = 0; j < n; j++) { const d = xb[j] - x0[j]; dxx += d * d; h1[j] = Atyb[j] - c[j]; }
+        for (let i = 0; i < m; i++) { const d = yb[i] - y0[i]; dyy += d * d; cross += d * (Axb[i] - Ax0[i]); h2[i] = b[i] - Axb[i]; }
+        rhoBar = rhoN(Math.sqrt(Math.max(0, dxx / tau + dyy / sigma - 2 * cross)), xb, h1, h2, m, tau, sigma);
+        restart = rhoBar <= beta * rho0;
+      }
+      if (restart) {
+        if (ell === 0) {
+          let dxx = 0, dyy = 0, cross = 0;
+          for (let j = 0; j < n; j++) { const d = xb[j] - x0[j]; dxx += d * d; h1[j] = Atyb[j] - c[j]; }
+          for (let i = 0; i < m; i++) { const d = yb[i] - y0[i]; dyy += d * d; cross += d * (Axb[i] - Ax0[i]); h2[i] = b[i] - Axb[i]; }
+          rho0 = rhoN(Math.sqrt(Math.max(0, dxx / tau + dyy / sigma - 2 * cross)), xb, h1, h2, m, tau, sigma);
+        } else rho0 = rhoBar;
+        for (let j = 0; j < n; j++) { x0[j] = xb[j]; x[j] = xb[j]; Aty[j] = Atyb[j]; xs[j] = 0; Atys[j] = 0; }
+        for (let i = 0; i < m; i++) { y0[i] = yb[i]; y[i] = yb[i]; Ax0[i] = Axb[i]; Ax[i] = Axb[i]; ys[i] = 0; Axs[i] = 0; }
+        k = 0; ell++;
+        restarts.push(it);
+        restartOk.push(supportOk(x0));
+      }
+    }
+    // Stage I as in the two-stage theorem of [A]: the first restart after which every restart point
+    // (and the output) is positive exactly on the optimal basis.
+    const out = stop === 'dist' ? x : xb;
+    let tBasis = null;
+    if (supportOk(out)) {
+      tBasis = it;
+      for (let q = restarts.length - 1; q >= 0 && restartOk[q]; q--) tBasis = restarts[q];
+    }
+    return { iters: it, converged, restarts: restarts.length, tBasis, stageI: tBasis, stageII: tBasis != null ? it - tBasis : null };
+  }
+  // One LP of the model, solved: the record used by the page.
+  function solveRandomLP(spec) {
+    const P = toddLP(spec.n, spec.m, spec.seed, spec.dist);
+    const info = phiInfo(P);
+    const r = rpdhgFast(P, { stop: 'dist', tol: spec.tol != null ? spec.tol : 1e-4, maxIter: spec.maxIter });
+    return { n: spec.n, m: spec.m, seed: spec.seed, dist: P.dist, iters: r.iters, converged: r.converged, stageI: r.stageI, stageII: r.stageII,
+      restarts: r.restarts, Phi: info.Phi, kappa: P.kappa, kpl: info.kpl, BinvA: info.BinvA };
+  }
+  // Standard-form version of the regular pentagon of "Why is this LP hard?" (for cross-checks).
+  function pentagonLP(offset) {
+    const n = 5, m = 3, U = [];
+    for (let j = 0; j < n; j++) { const t = Math.PI / 2 + 2 * Math.PI * j / n; U.push([Math.sqrt(2 / n) * Math.cos(t), Math.sqrt(2 / n) * Math.sin(t)]); }
+    const colU = [Float64Array.from(U, r => r[0]), Float64Array.from(U, r => r[1])];
+    const basisVecs = orthonormalize(colU), Wv = [];
+    while (basisVecs.length < n) {
+      let best = null, bestN = -1;
+      for (let i = 0; i < n; i++) {
+        const w = new Float64Array(n); w[i] = 1;
+        for (let pass = 0; pass < 2; pass++) for (const q of basisVecs) { const d = dot(w, q); for (let j = 0; j < n; j++) w[j] -= d * q[j]; }
+        const nw = nrm(w);
+        if (nw > bestN) { bestN = nw; best = w; }
+      }
+      for (let j = 0; j < n; j++) best[j] /= bestN;
+      basisVecs.push(best); Wv.push(best);
+    }
+    const rows = Wv.map(w => Float64Array.from(w)), A = new Float64Array(m * n);
+    for (let i = 0; i < m; i++) A.set(rows[i], i * n);
+    const g = new Float64Array(n).fill(1), b = matVec(rows, g);
+    const q = matTVec(rows, b), qn = nrm(q), phi = Math.PI / 2 + offset;
+    const c = Float64Array.from(U, r => qn * (r[0] * Math.cos(phi) + r[1] * Math.sin(phi)));
+    const AAt = rows.map(r => Float64Array.from(rows, s => dot(r, s)));
+    const ev = symEigvals(AAt), lmax = Math.sqrt(ev[0]), lmin = Math.sqrt(ev[m - 1]), kappa = lmax / lmin;
+    return { n, m, A, rows, b, c, AAt, lmax, lmin, kappa, tau: 1 / (2 * kappa), sigma: 1 / (2 * lmax * lmin), basis: [] };
+  }
+
+  root.RLPCore = { rng32, gauss, dot, nrm, nrm1, matVec, matTVec, solve, svals, symEigvals, orthonormalize, makeRho,
+    toddLP, phiInfo, rpdhgFast, solveRandomLP, pentagonLP };
+})(typeof self !== 'undefined' ? self : globalThis);
+</script>
+
+<script id="selftests">
+/* =====================================================================
+   RLPTests: checks of the math core. In the browser console: RLPTests.run().
+   ===================================================================== */
+(function (root) {
+  'use strict';
+  const C = root.RLPCore;
+  const fmt = (v, d) => (v === Infinity ? '∞' : Number(v).toPrecision(d || 3));
+  function run(opts) {
+    opts = opts || {};
+    const log = opts.log || console.log;
+    const report = { pass: true, numbers: {} };
+    const check = (name, ok, detail) => { if (!ok) report.pass = false; log((ok ? 'PASS  ' : 'FAIL  ') + name + (detail ? '  (' + detail + ')' : '')); };
+
+    // 1. the generated (x*, y*, s*) is optimal: feasibility and complementary slackness
+    let worst = 0, count = 0;
+    for (const [n, m] of [[8, 4], [20, 10], [40, 20], [60, 30]]) for (const dist of ['gauss', 'pm1']) for (let s = 0; s < 5; s++) {
+      const P = C.toddLP(n, m, 900 + 17 * s + n, dist);
+      const Ax = C.matVec(P.rows, P.xstar), Aty = C.matTVec(P.rows, P.ystar);
+      let e = 0;
+      for (let i = 0; i < m; i++) e = Math.max(e, Math.abs(Ax[i] - P.b[i]));
+      for (let j = 0; j < n; j++) e = Math.max(e, Math.abs(P.c[j] - Aty[j] - P.sstar[j]), -P.xstar[j], -P.sstar[j], Math.abs(P.xstar[j] * P.sstar[j]));
+      let ac = 0;
+      for (let i = 0; i < m; i++) { let t = 0; for (let j = 0; j < n; j++) t += P.A[i * n + j] * P.c[j]; ac = Math.max(ac, Math.abs(t)); }
+      worst = Math.max(worst, e, ac); count++;
+    }
+    check('the generated x*, y*, s* are optimal and Ac = 0 (' + count + ' LPs, Gaussian and ±1)', worst < 1e-9, 'worst residual ' + fmt(worst, 2));
+
+    // 2. Phi: the two closed forms of [A] agree
+    let worstPhi = 0;
+    for (let s = 0; s < 20; s++) {
+      const P = C.toddLP(30, 15, 77 + s, s % 2 ? 'pm1' : 'gauss'), f = C.phiInfo(P);
+      const B = P.rows.map(r => Float64Array.from(r.subarray(0, 15))), N = P.rows.map(r => Float64Array.from(r.subarray(15, 30)));
+      const T = C.solve(B, N);
+      let mx = 0;
+      for (let j = 0; j < 15; j++) { let cs = 1; for (let i = 0; i < 15; i++) cs += T[i][j] * T[i][j]; mx = Math.max(mx, Math.sqrt(cs) / P.sstar[15 + j]); }
+      for (let i = 0; i < 15; i++) { let rs = 1; for (let j = 0; j < 15; j++) rs += T[i][j] * T[i][j]; mx = Math.max(mx, Math.sqrt(rs) / P.xstar[i]); }
+      worstPhi = Math.max(worstPhi, Math.abs(f.Phi - f.l1 * mx) / f.Phi);
+    }
+    check('Φ = (‖x*‖₁ + ‖s*‖₁)/min(ζp, ζd) equals the max form of [A]', worstPhi < 1e-9, 'worst rel. error ' + fmt(worstPhi, 2));
+
+    // 3. this implementation reproduces the iteration counts of the one-LP page (pentagon, eps = 1e-6)
+    const ref = [[0.3, 195], [0.003, 1267], [0.0003, 12255], [0, 168]];
+    const got = ref.map(([off]) => C.rpdhgFast(C.pentagonLP(off), { stop: 'kkt', tol: 1e-6 }).iters);
+    check('two-product rPDHG reproduces the rPDHG of the one-LP page on a regular pentagon', ref.every((r, i) => r[1] === got[i]), 'expected ' + ref.map(r => r[1]).join(', ') + '; got ' + got.join(', '));
+
+    // 4. runs reach (x*, s*) and identify the optimal basis
+    let bad = 0, noBasis = 0, runs = 0;
+    const pairs = [];
+    for (let s = 0; s < (opts.nRun || 60); s++) {
+      const r = C.solveRandomLP({ n: 40, m: 20, seed: 5000 + s, dist: 'gauss', maxIter: 400000 });
+      runs++;
+      if (!r.converged) { bad++; continue; }
+      if (r.stageI == null) noBasis++;
+      else pairs.push([Math.log(r.kpl), Math.log(Math.max(1, r.stageI))]);
+    }
+    check('rPDHG reaches distance 1e-4 to (x*, s*) within 400,000 iterations on at least 90% of ' + runs + ' random LPs (n = 40)', bad <= 0.1 * runs, bad + ' runs hit the cap; the tail is heavy, as [H] predicts');
+    check('Stage I ends (the restart points carry the optimal basis) in every run', noBasis === 0, noBasis + ' runs without it');
+    const mean = a => a.reduce((p, q) => p + q, 0) / a.length;
+    const mx = mean(pairs.map(p => p[0])), my = mean(pairs.map(p => p[1]));
+    let sxy = 0, sxx = 0, syy = 0;
+    for (const p of pairs) { sxy += (p[0] - mx) * (p[1] - my); sxx += (p[0] - mx) ** 2; syy += (p[1] - my) ** 2; }
+    report.numbers.corr = sxy / Math.sqrt(sxx * syy);
+    log('INFO  correlation of log(Stage I) with log(κΦ·ln κΦ) over ' + pairs.length + ' LPs: ' + report.numbers.corr.toFixed(3));
+    return report;
+  }
+  root.RLPTests = { run };
+})(typeof self !== 'undefined' ? self : globalThis);
+</script>
+
+<script id="ui">
+/* =====================================================================
+   The page: inputs, the worker pool, the falling dots, the optional Φ chart.
+   ===================================================================== */
+(function () {
+  'use strict';
+  const C = window.RLPCore;
+  const $ = id => document.getElementById(id);
+
+  // ---------- formatting ----------
+  const SUPS = { '-': '⁻', '0': '⁰', '1': '¹', '2': '²', '3': '³', '4': '⁴', '5': '⁵', '6': '⁶', '7': '⁷', '8': '⁸', '9': '⁹' };
+  const sup = k => String(k).split('').map(ch => SUPS[ch] || ch).join('');
+  const fmtInt = v => Math.round(v).toLocaleString('en-US');
+  function fmtNum(v, d) {
+    d = d || 3;
+    if (v === Infinity) return '∞';
+    if (v == null || !isFinite(v)) return '–';
+    const a = Math.abs(v);
+    if (a === 0) return '0';
+    if (a >= 1e6 || a < 1e-3) { const e = Math.floor(Math.log10(a)); return (v / Math.pow(10, e)).toFixed(d - 1) + '×10' + sup(e); }
+    if (a >= 1000) return fmtInt(v);
+    return String(Number(v.toPrecision(d)));
+  }
+  const tickLabel = v => v < 1e4 ? fmtInt(v) : (Math.abs(v / Math.pow(10, Math.round(Math.log10(v))) - 1) < 1e-9 ? '10' + sup(Math.round(Math.log10(v))) : fmtNum(v, 1));
+  const ordinal = k => k + (k % 100 >= 11 && k % 100 <= 13 ? 'th' : ['th', 'st', 'nd', 'rd'][k % 10] || 'th');
+  const f1 = v => v.toFixed(1);
+  const L10 = v => Math.log10(Math.max(1, v));
+  function quantile(sorted, q) {
+    if (!sorted.length) return NaN;
+    const pos = (sorted.length - 1) * q, lo = Math.floor(pos), hi = Math.ceil(pos);
+    return sorted[lo] + (sorted[hi] - sorted[lo]) * (pos - lo);
+  }
+  function corrLog(pts) {
+    if (pts.length < 3) return NaN;
+    const mx = pts.reduce((a, p) => a + p[0], 0) / pts.length, my = pts.reduce((a, p) => a + p[1], 0) / pts.length;
+    let sxy = 0, sxx = 0, syy = 0;
+    for (const p of pts) { sxy += (p[0] - mx) * (p[1] - my); sxx += (p[0] - mx) ** 2; syy += (p[1] - my) ** 2; }
+    return sxy / Math.sqrt(sxx * syy);
+  }
+  // Each SVG chart's coordinate width follows its rendered width, so text stays near its CSS size.
+  function fitBox(svg, maxW, Hc) { const w = svg.getBoundingClientRect().width || maxW; const Wc = Math.round(Math.max(340, Math.min(maxW, w))); svg.setAttribute('viewBox', '0 0 ' + Wc + ' ' + Hc); return Wc; }
+  const axisFrame = (Wc, Hc, Lm, Rm, Tm, Bm) => '<rect x="' + Lm + '" y="' + Tm + '" width="' + (Wc - Lm - Rm) + '" height="' + (Hc - Tm - Bm) + '" class="ax"/>';
+
+  // ---------- state ----------
+  const S = {
+    key: '', recs: [], issued: 0, base: 0, cap: 1000000, n: 30, m: 15, dist: 'gauss',
+    computing: false, phiOpen: false, mathRendered: false,
+    seed: ((Date.now() % 1000000007) | 1) >>> 0
+  };
+  function nextSeed() { S.seed = (Math.imul(S.seed, 1103515245) + 12345) >>> 0; return S.seed % 1000000000; }
+
+  // ---------- worker pool (workers built from this page's own scripts) ----------
+  const NW = Math.max(1, Math.min(6, (navigator.hardwareConcurrency || 4) - 1));
+  const WORKER_URL = (function () {
+    try {
+      const handler = function (e) {
+        const msg = e.data;
+        try {
+          if (msg.type === 'lp') self.postMessage({ type: 'lp', k: msg.k, r: self.RLPCore.solveRandomLP(msg.spec) });
+          else if (msg.type === 'tests') {
+            const rep = self.RLPTests.run({ log: line => self.postMessage({ type: 'tests', line }) });
+            self.postMessage({ type: 'tests', done: true, pass: rep.pass });
+          }
+        } catch (err) { self.postMessage({ type: 'error', k: msg.k, message: String((err && err.stack) || err), done: true }); }
+      };
+      const src = $('mathcore').textContent + '\n' + $('selftests').textContent + '\nself.onmessage = ' + handler.toString() + ';\n';
+      return URL.createObjectURL(new Blob([src], { type: 'text/javascript' }));
+    } catch (e) { return null; }
+  })();
+  const pool = { workers: [], gen: 0 };
+  pool.cancel = function () { for (const w of pool.workers) w.terminate(); pool.workers = []; pool.gen++; };
+  pool.run = function (specs, onResult, onDone) {
+    pool.cancel();
+    const gen = pool.gen;
+    let next = 0, done = 0, canWork = !!WORKER_URL;
+    const finish = () => { if (gen !== pool.gen) return; for (const w of pool.workers) w.terminate(); pool.workers = []; onDone(); };
+    if (canWork) {
+      try {
+        for (let w = 0; w < Math.min(NW, specs.length); w++) {
+          const wk = new Worker(WORKER_URL);
+          pool.workers.push(wk);
+          const feed = () => { if (gen === pool.gen && next < specs.length) { const k = next++; wk.postMessage({ type: 'lp', k, spec: specs[k] }); } };
+          wk.onmessage = ev => {
+            if (gen !== pool.gen) return;
+            const d = ev.data;
+            if (d.type === 'error') console.error(d.message); else onResult(d.r);
+            if (++done === specs.length) finish(); else feed();
+          };
+          feed();
+        }
+      } catch (e) { canWork = false; for (const w of pool.workers) w.terminate(); pool.workers = []; }
+    }
+    if (!canWork) {
+      (function local() {
+        if (gen !== pool.gen) return;
+        if (next >= specs.length) return finish();
+        onResult(C.solveRandomLP(specs[next++]));
+        setTimeout(local, 0);
+      })();
+    }
+  };
+  $('nWorkers').textContent = WORKER_URL ? String(NW) : 'one';
+
+  // ---------- the falling dots ----------
+  const rain = (function () {
+    const cv = $('rain'), ctx = cv.getContext('2d');
+    const PAD = { l: 18, r: 18, t: 40, b: 34 };
+    const RATE = 70;                       // at most this many dots start falling per second
+    let Wc = 600, Hc = 330, lo = 2, hi = 4.5, r = 4, dots = [], queue = [], plan = 200, raf = 0, last = 0, acc = 0, col = null, started = false;
+    function colors() {
+      const cs = getComputedStyle(document.documentElement), v = n => cs.getPropertyValue(n).trim();
+      col = { dot: v('--dot'), warn: v('--warn'), ink: v('--ink'), muted: v('--muted'), rule: v('--rule'), grid: v('--grid'), surface: v('--surface'), mono: v('--mono'), body: v('--body') };
+    }
+    const X = lv => PAD.l + (Wc - PAD.l - PAD.r) * (lv - lo) / (hi - lo);
+    function setRadius() {
+      const N = Math.max(plan, dots.length + queue.length);
+      let rr = N <= 120 ? 5 : N <= 300 ? 4 : N <= 700 ? 3.2 : N <= 1500 ? 2.6 : 2.1;
+      if (Wc < 520) rr *= 0.8;
+      r = rr;
+    }
+    // Bins of BW decades (about 20 across the axis, 16 on a phone); inside a bin the dots stack several to a row.
+    function binWidth() {
+      const target = (hi - lo) / (Wc < 520 ? 16 : 20);
+      let best = 0.1;
+      const ws = [0.05, 0.1, 0.125, 0.2, 0.25, 0.5];
+      for (const w of ws) if (Math.abs(Math.log(w / target)) < Math.abs(Math.log(best / target))) best = w;
+      // at least two dots per row in a bin
+      const pxPerDec = (Wc - PAD.l - PAD.r) / (hi - lo), dia = 2 * r + 0.8;
+      for (const w of ws) if (w > best && best * pxPerDec < 2 * dia + 3) best = w;
+      return best;
+    }
+    function relayout(snap) {
+      const dia = 2 * r + 0.8, base = Hc - PAD.b, counts = new Map(), BW = binWidth();
+      const colPx = BW * (Wc - PAD.l - PAD.r) / (hi - lo), per = Math.max(1, Math.floor((colPx - 3) / dia));
+      for (const d of dots) {
+        const b = Math.floor(d.lv / BW + 1e-9), c = counts.get(b) || 0;
+        counts.set(b, c + 1); d.bin = b; d.slot = c;
+      }
+      let maxRows = 1;
+      counts.forEach(v => { maxRows = Math.max(maxRows, Math.ceil(v / per)); });
+      const dy = Math.min(dia, (base - PAD.t - 2 * r) / maxRows);
+      for (const d of dots) {
+        const row = Math.floor(d.slot / per), inRow = Math.min(per, counts.get(d.bin) - row * per), k = d.slot % per;
+        const x0 = X((d.bin + 0.5) * BW) - (inRow - 1) * dia / 2;
+        d.tx = Math.max(PAD.l + r, Math.min(Wc - PAD.r - r, x0 + k * dia));
+        d.ty = base - r - row * dy;
+        if (snap) { d.x = d.tx; if (d.landed) d.y = d.ty; }
+      }
+    }
+    // The axis only widens, in half-decade steps, so the dots already landed glide to their new places.
+    function fitDomain(lv) {
+      if (!started) { lo = Math.floor((lv - 0.5) * 2) / 2; hi = Math.max(lo + 2, Math.ceil((lv + 1.2) * 2) / 2); started = true; return; }
+      if (lv < lo + 0.1) lo = Math.floor((lv - 0.4) * 2) / 2;
+      if (lv > hi - 0.1) hi = Math.ceil((lv + 0.4) * 2) / 2;
+    }
+    function release(rec) {
+      const lv = L10(rec.iters);
+      fitDomain(lv);
+      const d = { rec, lv, x: 0, y: 4, vy: 0, landed: false, bounced: false };
+      dots.push(d);
+      setRadius();
+      relayout(false);
+      d.x = d.tx;
+      onShown(dots.length);
+    }
+    function step(dt) {
+      let moving = false;
+      acc += dt * RATE;
+      while (queue.length && acc >= 1) { release(queue.shift()); acc -= 1; }
+      if (!queue.length) acc = Math.min(acc, 1);
+      for (const d of dots) {
+        if (!d.landed) {
+          moving = true;
+          d.vy += 2400 * dt; d.y += d.vy * dt;
+          d.x += (d.tx - d.x) * Math.min(1, dt * 12);
+          if (d.y >= d.ty) {
+            d.y = d.ty;
+            if (!d.bounced && d.vy > 260) { d.vy = -d.vy * 0.26; d.bounced = true; }
+            else { d.landed = true; d.vy = 0; }
+          }
+        } else {
+          const ex = d.tx - d.x, ey = d.ty - d.y;
+          if (Math.abs(ex) > 0.05 || Math.abs(ey) > 0.05) { const k = Math.min(1, dt * 9); d.x += ex * k; d.y += ey * k; moving = true; }
+          else { d.x = d.tx; d.y = d.ty; }
+        }
+      }
+      return moving || queue.length > 0;
+    }
+    function draw() {
+      if (!col) colors();
+      ctx.clearRect(0, 0, Wc, Hc);
+      const base = Hc - PAD.b;
+      ctx.lineWidth = 1;
+      ctx.strokeStyle = col.rule;
+      ctx.beginPath(); ctx.moveTo(PAD.l, base + 0.5); ctx.lineTo(Wc - PAD.r, base + 0.5); ctx.stroke();
+      if (!dots.length) {
+        ctx.fillStyle = col.muted; ctx.textAlign = 'center'; ctx.font = '15px ' + col.body;
+        ctx.fillText(S.computing ? 'Solving the first LPs…' : 'Press ▶ Solve them above.', Wc / 2, (PAD.t + base) / 2);
+        return;
+      }
+      // ticks: decades, plus 3 x 10^k when the range is short
+      ctx.font = '500 11px ' + col.mono; ctx.textAlign = 'center';
+      const ticks = [];
+      for (let k = Math.ceil(lo); k <= Math.floor(hi); k++) ticks.push([k, true]);
+      if (hi - lo <= 3.2) for (let k = Math.floor(lo); k <= Math.ceil(hi); k++) { const v = k + Math.log10(3); if (v > lo && v < hi) ticks.push([v, false]); }
+      for (const [v, major] of ticks) {
+        const x = Math.round(X(v)) + 0.5;
+        ctx.strokeStyle = col.grid; ctx.beginPath(); ctx.moveTo(x, PAD.t); ctx.lineTo(x, base); ctx.stroke();
+        ctx.fillStyle = major ? col.muted : col.muted;
+        ctx.globalAlpha = major ? 1 : 0.7;
+        ctx.fillText(tickLabel(Math.pow(10, v)), x, base + 15);
+        ctx.globalAlpha = 1;
+      }
+      ctx.textAlign = 'right'; ctx.font = '11px ' + col.body; ctx.fillStyle = col.muted;
+      ctx.fillText('iterations of rPDHG (log scale)', Wc - PAD.r, Hc - 4);
+      // median
+      const its = dots.map(d => d.rec.iters).sort((a, b) => a - b), med = quantile(its, 0.5), xm = Math.round(X(L10(med))) + 0.5;
+      ctx.strokeStyle = col.ink; ctx.setLineDash([4, 3]); ctx.beginPath(); ctx.moveTo(xm, PAD.t - 6); ctx.lineTo(xm, base); ctx.stroke(); ctx.setLineDash([]);
+      ctx.fillStyle = col.ink; ctx.font = '500 12px ' + col.mono;
+      const medRight = xm > Wc - 160;
+      ctx.textAlign = medRight ? 'right' : 'left';
+      ctx.fillText('median ' + fmtInt(med), xm + (medRight ? -5 : 5), PAD.t - 10);
+      // dots
+      ctx.globalAlpha = 0.88;
+      for (const d of dots) {
+        ctx.beginPath(); ctx.arc(d.x, d.y, r, 0, 2 * Math.PI);
+        if (d.rec.converged) { ctx.fillStyle = col.dot; ctx.fill(); }
+        else { ctx.strokeStyle = col.warn; ctx.lineWidth = 1.5; ctx.stroke(); ctx.lineWidth = 1; }
+      }
+      ctx.globalAlpha = 1;
+      // the slowest one so far
+      let s = dots[0];
+      for (const d of dots) if (d.rec.iters > s.rec.iters) s = d;
+      ctx.strokeStyle = col.warn; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.arc(s.x, s.y, r + 4.5, 0, 2 * Math.PI); ctx.stroke();
+      const ly = PAD.t + 8, right = s.x > Wc - 200;
+      ctx.lineWidth = 1; ctx.setLineDash([2, 3]);
+      ctx.beginPath(); ctx.moveTo(s.x, ly + 4); ctx.lineTo(s.x, Math.max(ly + 4, s.y - r - 6)); ctx.stroke(); ctx.setLineDash([]);
+      ctx.fillStyle = col.warn; ctx.font = '600 12px ' + col.mono; ctx.textAlign = right ? 'right' : 'left';
+      ctx.fillText((S.computing || queue.length ? 'slowest so far: ' : 'slowest: ') + (s.rec.converged ? '' : '≥ ') + fmtInt(s.rec.iters), s.x + (right ? -6 : 6), ly);
+    }
+    function frame(t) {
+      const dt = last ? Math.min(0.05, (t - last) / 1000) : 0.016;
+      last = t;
+      const moving = step(dt);
+      draw();
+      if (moving) raf = requestAnimationFrame(frame); else { raf = 0; last = 0; onIdle(); }
+    }
+    function kick() { if (!raf) raf = requestAnimationFrame(frame); }
+    let onShown = () => {}, onIdle = () => {};
+    return {
+      push(rec) { queue.push(rec); kick(); },
+      reset(N) { dots = []; queue = []; plan = N; started = false; acc = 0; setRadius(); draw(); },
+      grow(N) { plan = N; setRadius(); relayout(false); kick(); },
+      flush() { while (queue.length) release(queue.shift()); kick(); },
+      settle() {
+        if (!dots.length) return;
+        let a = Infinity, b = -Infinity;
+        for (const d of dots) { a = Math.min(a, d.lv); b = Math.max(b, d.lv); }
+        const nlo = Math.floor((a - 0.25) * 4) / 4, nhi = Math.max(nlo + 1.5, Math.ceil((b + 0.25) * 4) / 4);
+        if (nlo !== lo || nhi !== hi) { lo = nlo; hi = nhi; relayout(false); kick(); }
+      },
+      pending: () => queue.length,
+      shown: () => dots.length,
+      resize() {
+        const rect = cv.getBoundingClientRect(), dpr = window.devicePixelRatio || 1;
+        Wc = Math.max(260, rect.width); Hc = Math.max(200, rect.height);
+        cv.width = Math.round(Wc * dpr); cv.height = Math.round(Hc * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        setRadius(); relayout(true); draw();
+      },
+      recolor() { colors(); draw(); },
+      hit(px, py) {
+        let best = null, bd = (r + 5) * (r + 5);
+        for (const d of dots) { const dd = (d.x - px) * (d.x - px) + (d.y - py) * (d.y - py); if (dd < bd) { bd = dd; best = d; } }
+        return best;
+      },
+      on(evShown, evIdle) { onShown = evShown; onIdle = evIdle; },
+      draw
+    };
+  })();
+
+  // ---------- inputs and the button ----------
+  const clampInt = (v, a, b, def) => { v = Math.round(+v); return isFinite(v) ? Math.max(a, Math.min(b, v)) : def; };
+  function readInputs(write) {
+    const n = clampInt($('inN').value, 4, 200, 30);
+    let m = clampInt($('inM').value, 1, 199, 15);
+    if (m >= n) m = n - 1;
+    const K = clampInt($('inK').value, 10, 2000, 200);
+    if (write) { $('inN').value = n; $('inM').value = m; $('inK').value = K; }
+    return { n, m, K, dist: $('inDist').value };
+  }
+  const keyOf = p => p.n + ':' + p.m + ':' + p.dist;
+  const capFor = (n, m) => Math.round(Math.min(1e6, Math.max(1e5, 4e9 / (n * m))));
+  function estimateSeconds(p) {
+    const perLP = 0.03 * Math.pow(p.n * p.m / 450, 1.25);   // seconds per LP on one thread, rough
+    return 1.3 * p.K * perLP / (WORKER_URL ? NW : 1);
+  }
+  function syncUI() {
+    const p = readInputs(false), busy = S.computing || rain.pending() > 0, same = S.recs.length > 0 && keyOf(p) === S.key;
+    const go = $('goBtn');
+    go.disabled = busy;
+    go.textContent = busy ? 'Solving… ' + fmtInt(rain.shown()) + ' / ' + fmtInt(S.issued) : (same ? '▶ Add ' + fmtInt(p.K) + ' more' : '▶ Solve them');
+    go.classList.toggle('invite', !busy && S.recs.length === 0);
+    $('stopBtn').hidden = !S.computing;
+    let hint = '';
+    if (busy) {
+      $('hint').textContent = 'Solving on ' + (WORKER_URL ? NW + ' threads' : 'one thread') + '. The quick LPs arrive first; watch for the slow ones dropping in last, far to the right.';
+      return;
+    }
+    const m0 = +$('inM').value;
+    if (m0 >= +$('inN').value) hint = 'Use fewer constraints than variables. ';
+    const sec = estimateSeconds(p);
+    hint += sec > 12 ? 'Rough estimate for this size: ' + (sec < 90 ? Math.round(sec / 5) * 5 + ' seconds' : Math.round(sec / 60) + ' minutes') + '. You can stop at any time.'
+      : (same ? 'The new LPs drop onto the same chart.' : 'Each LP is drawn at random and solved in your browser. The defaults take a few seconds.');
+    $('hint').textContent = hint;
+  }
+  for (const id of ['inN', 'inM', 'inK', 'inDist']) { $(id).addEventListener('input', syncUI); $(id).addEventListener('change', syncUI); }
+  for (const id of ['inN', 'inM', 'inK']) $(id).addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); go(); } });
+
+  function go() {
+    if (S.computing || rain.pending() > 0) return;
+    const p = readInputs(true), key = keyOf(p);
+    if (key !== S.key || !S.recs.length) {
+      S.key = key; S.recs = []; S.issued = 0; S.base = nextSeed(); S.cap = capFor(p.n, p.m); S.n = p.n; S.m = p.m; S.dist = p.dist;
+      rain.reset(p.K);
+      $('after').hidden = true;
+      $('rainTitle').textContent = 'Each dot is one random LP with ' + p.n + ' variables and ' + p.m + ' constraints';
+    } else rain.grow(S.issued + p.K);
+    const specs = [];
+    for (let k = 0; k < p.K; k++) specs.push({ n: p.n, m: p.m, seed: S.base + S.issued + k, dist: p.dist, maxIter: S.cap });
+    S.issued += p.K;
+    S.computing = true;
+    syncUI(); updateStats();
+    pool.run(specs, rec => { rec.idx = S.recs.length; S.recs.push(rec); rain.push(rec); }, () => { S.computing = false; syncUI(); rain.draw(); });
+  }
+  $('goBtn').addEventListener('click', go);
+  $('stopBtn').addEventListener('click', () => {
+    pool.cancel();
+    S.computing = false;
+    S.issued = S.recs.length;
+    rain.flush();
+    syncUI();
+  });
+  let settled = false;
+  rain.on(() => { settled = false; updateStats(); syncUI(); if (S.phiOpen) schedulePhi(); }, () => {
+    if (S.computing) return;
+    if (!settled) { settled = true; rain.settle(); }     // one last glide to fit the axis
+    finishBatch(); syncUI();
+  });
+
+  function stats() {
+    const shown = S.recs.slice(0, Math.max(1, rain.shown()));   // the dots on screen (released in arrival order)
+    const its = shown.map(r => r.iters).sort((a, b) => a - b);
+    let slow = shown[0];
+    for (const r of shown) if (r.iters > slow.iters) slow = r;
+    return { med: quantile(its, 0.5), slow, capped: shown.filter(r => !r.converged).length };
+  }
+  function updateStats() {
+    const shown = rain.shown();
+    if (!shown) { $('statline').textContent = S.computing ? 'Solving…' : ''; return; }
+    const st = stats(), busy = S.computing || rain.pending() > 0;
+    $('statline').innerHTML = '<b>' + fmtInt(shown) + '</b> of ' + fmtInt(S.issued) + ' solved · median <b>' + fmtInt(st.med) + '</b> iterations · slowest ' + (busy ? 'so far ' : '') + '<b>' + (st.slow.converged ? '' : '≥ ') + fmtInt(st.slow.iters) + '</b>' +
+      (busy ? '' : ' (' + (st.slow.converged ? '' : 'at least ') + Math.round(st.slow.iters / st.med) + '× the median)');
+  }
+  function finishBatch() {
+    if (!S.recs.length) return;
+    updateStats();
+    const st = stats(), ratio = Math.round(st.slow.iters / st.med);
+    $('afterText').textContent = 'Most of these LPs needed about ' + fmtInt(st.med) + ' iterations; the slowest needed ' + (st.slow.converged ? '' : 'at least ') + ratio +
+      ' times as many' + (st.capped ? ' (hollow dots hit the cap of ' + fmtInt(S.cap) + ' iterations)' : '') + '. ' +
+      'This is what [H] proves: on random LPs, rPDHG runs in polynomial time with high probability, which leaves room for a few slow ones.';
+    $('after').hidden = false;
+    if (S.phiOpen) schedulePhi();
+  }
+
+  // ---------- can Φ tell the slow ones in advance? ----------
+  let phiPending = false;
+  function schedulePhi() { if (!phiPending) { phiPending = true; requestAnimationFrame(() => { phiPending = false; drawPhi(); }); } }
+  function drawPhi() {
+    const svg = $('phiPlot'), Hc = 300, Wc = fitBox(svg, 640, Hc), Lm = 50, Rm = 14, Tm = 24, Bm = 36;
+    const recs = S.recs.filter(r => isFinite(r.Phi));
+    if (recs.length < 3) { svg.innerHTML = axisFrame(Wc, Hc, Lm, Rm, Tm, Bm); $('phiNote').textContent = ''; return; }
+    const xs = recs.map(r => L10(r.kappa * r.Phi)), ys = recs.map(r => L10(r.iters));
+    const xlo = Math.floor(Math.min.apply(null, xs)), xhi = Math.ceil(Math.max.apply(null, xs)), ylo = Math.floor(Math.min.apply(null, ys)), yhi = Math.ceil(Math.max.apply(null, ys));
+    const X = v => Lm + (Wc - Lm - Rm) * (v - xlo) / Math.max(1, xhi - xlo), Y = v => Tm + (Hc - Tm - Bm) * (yhi - v) / Math.max(1, yhi - ylo);
+    let s = '';
+    for (let k = xlo; k <= xhi; k++) s += '<line class="gridl" x1="' + f1(X(k)) + '" x2="' + f1(X(k)) + '" y1="' + Tm + '" y2="' + (Hc - Bm) + '"/><text class="tk" x="' + f1(X(k)) + '" y="' + (Hc - Bm + 16) + '" text-anchor="middle">' + tickLabel(Math.pow(10, k)) + '</text>';
+    for (let k = ylo; k <= yhi; k++) s += '<line class="gridl" x1="' + Lm + '" x2="' + (Wc - Rm) + '" y1="' + f1(Y(k)) + '" y2="' + f1(Y(k)) + '"/><text class="tk" x="' + (Lm - 6) + '" y="' + f1(Y(k) + 4) + '" text-anchor="end">' + tickLabel(Math.pow(10, k)) + '</text>';
+    const conv = recs.filter(r => r.converged), pts = conv.map(r => [L10(r.kappa * r.Phi), L10(r.iters)]);
+    const c0 = pts.reduce((a, p) => a + p[1] - p[0], 0) / Math.max(1, pts.length);
+    s += '<clipPath id="phiClip"><rect x="' + Lm + '" y="' + Tm + '" width="' + (Wc - Lm - Rm) + '" height="' + (Hc - Tm - Bm) + '"/></clipPath>';
+    s += '<line clip-path="url(#phiClip)" x1="' + f1(X(xlo)) + '" y1="' + f1(Y(xlo + c0)) + '" x2="' + f1(X(xhi)) + '" y2="' + f1(Y(xhi + c0)) + '" stroke="var(--muted)" stroke-dasharray="5 4" stroke-width="1.5"/>';
+    let slow = recs[0];
+    for (const r of recs) if (r.iters > slow.iters) slow = r;
+    for (const r of recs) {
+      const x = X(L10(r.kappa * r.Phi)), y = Y(L10(r.iters));
+      const tip = 'LP ' + (r.idx + 1) + ': ' + (r.converged ? '' : '≥ ') + fmtInt(r.iters) + ' iterations; κΦ = ' + fmtNum(r.kappa * r.Phi);
+      s += r.converged ? '<circle cx="' + f1(x) + '" cy="' + f1(y) + '" r="3.2" fill="var(--dot)" opacity=".7"><title>' + tip + '</title></circle>'
+        : '<circle cx="' + f1(x) + '" cy="' + f1(y) + '" r="3.2" fill="none" stroke="var(--warn)" stroke-width="1.4"><title>' + tip + '</title></circle>';
+    }
+    s += '<circle cx="' + f1(X(L10(slow.kappa * slow.Phi))) + '" cy="' + f1(Y(L10(slow.iters))) + '" r="8" fill="none" stroke="var(--warn)" stroke-width="2"/>';
+    s += axisFrame(Wc, Hc, Lm, Rm, Tm, Bm);
+    s += '<text class="lbl" x="' + (Wc - Rm) + '" y="' + (Hc - 4) + '" text-anchor="end">κΦ, the condition number in the bound of [A] (log scale)</text>';
+    s += '<text class="lbl" x="' + Lm + '" y="15">iterations of rPDHG (log scale)</text>';
+    svg.innerHTML = s;
+    const c = corrLog(pts);
+    const rank = recs.slice().sort((a, b) => b.kappa * b.Phi - a.kappa * a.Phi).indexOf(slow) + 1;
+    $('phiNote').innerHTML = 'Each dot is one LP from above. [A] proves that rPDHG needs at most O(κΦ·log(…)) iterations, where Φ is a condition number of the LP and κ that of A. ' +
+      'On these LPs the iterations follow κΦ: the correlation of the logarithms is <b>' + (isFinite(c) ? c.toFixed(2) : '–') + '</b>, and the slowest LP (circled) has the ' + (rank === 1 ? '' : ordinal(rank) + ' ') + 'largest κΦ of all ' + fmtInt(recs.length) + '. The dashed line has slope 1. ' +
+      'What makes Φ large? <a href="../pdhg-lp-hardness/index.html">See one LP up close →</a>';
+  }
+  $('phiBtn').addEventListener('click', () => {
+    S.phiOpen = true;
+    $('phiCard').hidden = false;
+    drawPhi();
+    $('phiCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+
+  // ---------- tooltips on the dots ----------
+  const tip = $('tip'), cv = $('rain');
+  function showDot(e) {
+    const r = cv.getBoundingClientRect(), d = rain.hit(e.clientX - r.left, e.clientY - r.top);
+    if (!d) { tip.hidden = true; return; }
+    const q = d.rec;
+    tip.textContent = 'LP ' + (q.idx + 1) + ': ' + (q.converged ? '' : '≥ ') + fmtInt(q.iters) + ' iterations' + (q.converged ? '' : ' (stopped at the cap)') + ' · κΦ = ' + fmtNum(q.kappa * q.Phi);
+    tip.hidden = false;
+    const tw = tip.offsetWidth, vw = document.documentElement.clientWidth;
+    tip.style.left = Math.max(8, Math.min(vw - tw - 8, e.clientX + 12)) + 'px';
+    tip.style.top = (e.clientY + 14) + 'px';
+  }
+  cv.addEventListener('pointermove', showDot);
+  cv.addEventListener('pointerdown', showDot);
+  cv.addEventListener('pointerleave', () => { tip.hidden = true; });
+
+  // ---------- theme, math, tests, keys ----------
+  function effectiveDark() { const a = document.documentElement.getAttribute('data-theme'); return a ? a === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches; }
+  function toggleTheme() { document.documentElement.setAttribute('data-theme', effectiveDark() ? 'light' : 'dark'); $('themeBtn').setAttribute('aria-pressed', String(effectiveDark())); rain.recolor(); }
+  $('themeBtn').addEventListener('click', toggleTheme);
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => rain.recolor());
+  function renderMath() {
+    if (S.mathRendered || !window.renderMathInElement) return;
+    window.renderMathInElement($('math'), { delimiters: [{ left: '$$', right: '$$', display: true }, { left: '$', right: '$', display: false }], throwOnError: false });
+    S.mathRendered = true;
+  }
+  function toggleMath() {
+    const el = $('math'), open = el.hidden;
+    el.hidden = !open;
+    $('mathBtn').setAttribute('aria-expanded', String(open));
+    $('mathBtn').setAttribute('aria-pressed', String(open));
+    if (open) { renderMath(); el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+  }
+  $('mathBtn').addEventListener('click', toggleMath);
+  $('testBtn').addEventListener('click', () => {
+    const out = $('testOut');
+    out.hidden = false; out.textContent = 'Running…\n';
+    $('testBtn').disabled = true;
+    const fin = pass => { out.textContent += pass ? 'All checks passed.\n' : 'SOME CHECKS FAILED\n'; $('testBtn').disabled = false; };
+    if (!WORKER_URL) { const rep = window.RLPTests.run({ log: l => { out.textContent += l + '\n'; } }); fin(rep.pass); return; }
+    const w = new Worker(WORKER_URL);
+    w.onmessage = ev => {
+      const d = ev.data;
+      if (d.line) out.textContent += d.line + '\n';
+      if (d.type === 'error') out.textContent += 'Error: ' + d.message + '\n';
+      if (d.done) { fin(d.pass === true); w.terminate(); }
+      out.scrollTop = out.scrollHeight;
+    };
+    w.postMessage({ type: 'tests' });
+  });
+  document.addEventListener('keydown', e => {
+    const tag = (e.target && e.target.tagName) || '';
+    if (/^(INPUT|SELECT|TEXTAREA|BUTTON)$/.test(tag) || e.metaKey || e.ctrlKey || e.altKey) return;
+    if (e.key === 'Enter' || e.key === 's' || e.key === 'S') go();
+    else if (e.key === 'm' || e.key === 'M') toggleMath();
+    else if (e.key === 'd' || e.key === 'D') toggleTheme();
+  });
+  let resizeTimer = 0;
+  window.addEventListener('resize', () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(() => { rain.resize(); if (S.phiOpen) drawPhi(); }, 120); });
+
+  // ---------- start ----------
+  rain.resize();
+  syncUI();
+  window.RLPDemo = { S, go, pool, rain };
+})();
+</script>
+<div class="site-foot">&copy; 2026 Zikai Xiong &middot; <a href="../../research.html#demos">All interactive demos</a></div>
+<script src="../../assets/js/nav.js"></script>
+</body>
+</html>

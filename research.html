@@ -58,7 +58,14 @@
         <span class="pub-links">
           <a class="pub-badge" href="https://arxiv.org/abs/2501.00728">arXiv</a>
           <a class="pub-badge" href="https://arxiv.org/pdf/2501.00728">pdf</a>
+          <a class="pub-badge pub-badge-demo" href="demos/pdhg-random-lps/" data-preview="pdhg-random-lps">demo</a>
         </span>
+        <div class="pub-preview" hidden>
+          <a class="pub-preview-card" data-preview="pdhg-random-lps" href="demos/pdhg-random-lps/">
+            <video muted loop playsinline preload="none" poster="demos/pdhg-random-lps/preview.jpg"><source src="demos/pdhg-random-lps/preview.mp4" type="video/mp4"></video>
+            <span class="pub-preview-cap"><b>How hard is a random LP?</b> Solve hundreds of random LPs in your browser and watch the slow ones arrive last. <span class="pub-preview-go">Try the demo &rarr;</span></span>
+          </a>
+        </div>
       </li>
 
       <li>
@@ -71,7 +78,14 @@
           <a class="pub-badge" href="https://arxiv.org/pdf/2410.04043">pdf</a>
           <a class="pub-badge" href="https://github.com/ZikaiXiong/PDLP-complexity-bound">code</a>
           <a class="pub-badge" href="https://drive.google.com/file/d/1LZlvZiHQHL5W9m1XZt4X3VIHnz8lViNx/view?usp=sharing">slides</a>
+          <a class="pub-badge pub-badge-demo" href="demos/pdhg-lp-hardness/" data-preview="pdhg-lp-hardness">demo</a>
         </span>
+        <div class="pub-preview" hidden>
+          <a class="pub-preview-card" data-preview="pdhg-lp-hardness" href="demos/pdhg-lp-hardness/">
+            <video muted loop playsinline preload="none" poster="demos/pdhg-lp-hardness/preview.jpg"><source src="demos/pdhg-lp-hardness/preview.mp4" type="video/mp4"></video>
+            <span class="pub-preview-cap"><b>Why is this LP hard?</b> Turn the objective by less than 0.02&deg; and watch rPDHG need 80 times as many iterations. <span class="pub-preview-go">Try the demo &rarr;</span></span>
+          </a>
+        </div>
         <span class="pub-award"><span class="emoji">&#11088;</span> <a href="https://www.informs.org/Recognizing-Excellence/Community-Prizes/Optimization-Society/Optimization-Society-Student-Paper-Prize">Winner, 2025 INFORMS Optimization Society Student Paper Prize</a></span>
       </li>
 
@@ -106,7 +120,7 @@
             <video muted loop playsinline preload="none" poster="demos/comparison/preview.jpg">
               <source src="demos/comparison/preview.mp4" type="video/mp4">
             </video>
-            <span class="pub-preview-cap"><b>Optimizing by Comparison.</b> Answer only &ldquo;which one is better?&rdquo; and watch the algorithm find a color. <span class="pub-preview-go">Try the demo &rarr;</span></span>
+            <span class="pub-preview-cap"><b>Color Picking by Comparison Feedback.</b> Answer only &ldquo;which one is better?&rdquo; and watch the algorithm find a color. <span class="pub-preview-go">Try the demo &rarr;</span></span>
           </a>
           <a class="pub-preview-card" data-preview="ndd" href="demos/ndd/">
             <video muted loop playsinline preload="none" poster="demos/ndd/preview.jpg">
@@ -343,7 +357,7 @@
             <source src="demos/comparison/preview.mp4" type="video/mp4">
           </video>
         </a>
-        <span class="tool-title">Optimizing by Comparison</span>
+        <span class="tool-title">Color Picking by Comparison Feedback</span>
         <p class="tool-desc">Find a color by answering only &ldquo;which one is better?&rdquo;</p>
         <span class="tool-paper">Paper: <a href="https://arxiv.org/abs/2604.26867">Function-Free Optimization via Comparison Oracles</a></span>
         <a class="demo-btn" href="demos/comparison/">&#9654; Try the demo</a>
@@ -369,6 +383,24 @@
         <p class="tool-desc">How the symmetry of a shape limits how well an ellipse can fit it.</p>
         <span class="tool-paper">Paper: <a href="https://arxiv.org/abs/2608.30876">Symmetry-dependence in Rounding of a Convex Body</a></span>
         <a class="demo-btn" href="demos/rounding/">&#9654; Try the demo</a>
+      </div>
+      <div class="tool-card">
+        <a class="tool-media" href="demos/pdhg-lp-hardness/">
+          <video muted loop playsinline preload="none" poster="demos/pdhg-lp-hardness/preview.jpg"><source src="demos/pdhg-lp-hardness/preview.mp4" type="video/mp4"></video>
+        </a>
+        <span class="tool-title">Why Is This LP Hard?</span>
+        <p class="tool-desc">How a near tie in the LP or its dual makes restarted PDHG slow.</p>
+        <span class="tool-paper">Paper: <a href="https://arxiv.org/abs/2410.04043">Accessible Complexity Bounds for Restarted PDHG on Linear Programs with a Unique Optimizer</a></span>
+        <a class="demo-btn" href="demos/pdhg-lp-hardness/">&#9654; Try the demo</a>
+      </div>
+      <div class="tool-card">
+        <a class="tool-media" href="demos/pdhg-random-lps/">
+          <video muted loop playsinline preload="none" poster="demos/pdhg-random-lps/preview.jpg"><source src="demos/pdhg-random-lps/preview.mp4" type="video/mp4"></video>
+        </a>
+        <span class="tool-title">How Hard Is a Random LP?</span>
+        <p class="tool-desc">Solve hundreds of random LPs in your browser and see how the iteration counts spread out.</p>
+        <span class="tool-paper">Paper: <a href="https://arxiv.org/abs/2501.00728">High-Probability Polynomial-Time Complexity of Restarted PDHG for Linear Programming</a></span>
+        <a class="demo-btn" href="demos/pdhg-random-lps/">&#9654; Try the demo</a>
       </div>
     </div>
 

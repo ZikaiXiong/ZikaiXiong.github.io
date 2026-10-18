@@ -1,0 +1,2247 @@
+<!doctype html>
+<html lang="en" class="demo-site demo-pdhg-lp-hardness demo-pdhg" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="author" content="Zikai Xiong">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='8' fill='%238B1D2C'/%3E%3Ccircle cx='19' cy='20' r='9' fill='%23fff'/%3E%3Ccircle cx='45' cy='20' r='9' fill='%23fff'/%3E%3Ccircle cx='32' cy='36' r='20' fill='%23fff'/%3E%3Ccircle cx='25' cy='33' r='2.5' fill='%238B1D2C'/%3E%3Ccircle cx='39' cy='33' r='2.5' fill='%238B1D2C'/%3E%3Cellipse cx='32' cy='42' rx='4.5' ry='3.5' fill='%238B1D2C'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&display=swap">
+<link rel="stylesheet" href="../demo-theme.css">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Why is this LP hard?</title>
+<meta name="description" content="Interactive demo: how hard an LP is for restarted PDHG depends on how close it is to a tie, in the LP or in its dual.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
+<style>
+[hidden]{display:none!important}
+:root{
+  --bg:#f2f2f1;--surface:#ffffff;--ink:#19181c;--muted:#5d5b63;--rule:#dcdbe0;
+  --accent:#4e2a84;--accent-soft:#ece6f6;--on-accent:#ffffff;--hl:#fff1a8;--hl-ink:#19181c;
+  --serif:KaTeX_Main,"Latin Modern Roman","Computer Modern Serif","Times New Roman",serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  --poly:#f5f1fb;--edge:#2b2933;--level:#c9c3d8;
+  --path:#0f766e;--warn:#be123c;--theta:#c2410c;--grid:#ecebef;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#141416;--surface:#1e1e21;--ink:#ececf0;--muted:#a7a5ae;--rule:#35343b;
+    --accent:#c2aef0;--accent-soft:#2c2442;--on-accent:#1b1033;--hl:#4b4122;--hl-ink:#fff5cc;
+    --poly:#251f33;--edge:#dcd8e6;--level:#4f4864;
+    --path:#2dd4bf;--warn:#fb7185;--theta:#fb923c;--grid:#2a292f;color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#141416;--surface:#1e1e21;--ink:#ececf0;--muted:#a7a5ae;--rule:#35343b;
+  --accent:#c2aef0;--accent-soft:#2c2442;--on-accent:#1b1033;--hl:#4b4122;--hl-ink:#fff5cc;
+  --poly:#251f33;--edge:#dcd8e6;--level:#4f4864;
+  --path:#2dd4bf;--warn:#fb7185;--theta:#fb923c;--grid:#2a292f;color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5}
+.wrap{max-width:1440px;margin:0 auto;padding-block:18px 32px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+a{color:var(--accent)}
+header.top{display:flex;flex-wrap:wrap;align-items:flex-start;justify-content:space-between;gap:8px 18px;margin-bottom:14px}
+.titles{min-width:0;flex:1 1 420px}
+h1{font-family:var(--serif);font-weight:700;font-size:clamp(1.6rem,2.4vw,2.2rem);line-height:1.1;margin:0}
+.lede{margin:6px 0 0;font-size:1rem;color:var(--muted);max-width:74ch}
+.toplinks{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.toplinks a{font-size:.9rem;margin-right:6px}
+.btn{border:1px solid var(--rule);background:var(--surface);color:var(--ink);font:500 .88rem var(--body);padding:7px 13px;border-radius:999px;cursor:pointer}
+.btn:hover{border-color:var(--muted)}
+.btn[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--ink)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.small{padding:5px 11px;font-size:.84rem}
+.btn.icon{padding:5px 10px;font-size:1rem;line-height:1.1}
+button:focus-visible,select:focus-visible,input:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.story{background:var(--surface);border:1px solid var(--rule);border-radius:16px;padding:12px;margin-bottom:18px}
+.steps{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.steps li{min-width:0}
+.step-btn{width:100%;height:100%;display:grid;grid-template-columns:auto minmax(0,1fr);column-gap:12px;row-gap:2px;align-items:center;text-align:left;border:1px solid var(--rule);background:var(--bg);color:var(--ink);border-radius:14px;padding:12px 14px;cursor:pointer;font:inherit}
+.step-btn:hover{border-color:var(--accent)}
+.step-btn .num{grid-row:1 / span 2;width:36px;height:36px;border-radius:50%;display:grid;place-items:center;background:var(--surface);border:2px solid var(--accent);color:var(--accent);font:600 1.02rem var(--mono)}
+.step-btn .txt b{display:block;font:600 1.04rem var(--body)}
+.step-btn .txt small{display:block;color:var(--muted);font-size:.85rem;line-height:1.35}
+.step-btn .res{grid-column:2;font:600 .95rem var(--mono);color:var(--accent);min-height:1.25em}
+.step-btn.next{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.step-btn.next .num{background:var(--accent);color:var(--on-accent);animation:ring 1.8s ease-in-out infinite}
+.step-btn.busy{opacity:.75;cursor:progress}
+@keyframes ring{0%,100%{box-shadow:0 0 0 0 var(--accent-soft)}50%{box-shadow:0 0 0 8px var(--accent-soft)}}
+.story-out{font:1.05rem/1.5 var(--serif);margin:12px 4px 2px}
+.pics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;align-items:start}
+@media (max-width:920px){.pics{grid-template-columns:minmax(0,1fr)}}
+.card{background:var(--surface);border:1px solid var(--rule);border-radius:16px;padding:16px clamp(14px,1.6vw,20px);min-width:0}
+.card h3{font:600 .78rem var(--body);letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin:0 0 10px}
+.card h3 .nt{text-transform:none;letter-spacing:0;font-size:.86rem}
+.card-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:4px 12px}
+.card-head h3{margin-bottom:6px}
+.formula{font:400 .98rem var(--serif);color:var(--ink);white-space:nowrap}
+.stat{font:500 .8rem var(--body);color:var(--muted);background:var(--bg);border:1px solid var(--rule);border-radius:999px;padding:1px 10px;white-space:nowrap}
+.plane-box{position:relative;line-height:0}
+.plane{display:block;width:100%;height:auto;user-select:none;-webkit-user-select:none;touch-action:pan-y}
+.plane .handle,.plane .dial-hit{cursor:grab;touch-action:none}
+.plane text{font-family:var(--body)}
+.counter{position:absolute;left:12px;top:10px;line-height:1.05;pointer-events:none;font:600 clamp(1.2rem,2.6vw,1.9rem) var(--mono);font-variant-numeric:tabular-nums;color:var(--ink);text-shadow:0 0 6px var(--surface),0 0 3px var(--surface)}
+.counter small{display:block;font:500 .74rem var(--body);color:var(--muted);margin-top:3px;letter-spacing:.02em}
+.counter small.ratio{color:var(--theta);font-weight:600;font-size:.8rem}
+.fine{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center;font-size:.84rem;color:var(--muted);margin:8px 0 0;border-top:1px solid var(--rule);padding-top:8px}
+.fine input[type=range]{flex:1 1 140px;min-width:110px}
+.fine b{color:var(--ink);font:500 .84rem var(--mono);min-width:7ch}
+.pic-bar{margin-top:18px;display:grid;gap:8px}
+.pic-bar .row{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center}
+.pic-bar .lab{font-size:.84rem;color:var(--muted)}
+.spacer{flex:1 1 auto}
+.spd{display:inline-flex;align-items:center;gap:6px;font-size:.85rem;color:var(--muted)}
+.spd input{width:90px}
+.spd b{color:var(--ink);font:500 .82rem var(--mono);min-width:3.2ch}
+.legend{list-style:none;padding:0;margin:0;display:flex;flex-wrap:wrap;gap:4px 16px;font-size:.82rem;color:var(--muted)}
+.legend li{display:flex;align-items:center;gap:6px}
+.legend svg{flex:0 0 auto}
+.caption{font:1.02rem/1.5 var(--serif);margin:0}
+.bench{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px;align-items:start;margin-top:18px}
+.col{display:grid;gap:18px;min-width:0}
+@media (max-width:920px){.bench{grid-template-columns:minmax(0,1fr)}}
+.note{color:var(--muted);font-size:.84rem;margin:6px 0 0}
+.bignum{font:600 clamp(2.1rem,4.6vw,3rem)/1.05 var(--mono);font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.bignum.pending{color:var(--muted)}
+.why{font:1.03rem/1.5 var(--serif);margin:12px 0 0;border-top:1px solid var(--rule);padding-top:10px}
+.phi-eq{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:10px 14px;margin:8px 0 6px;font:1.2rem var(--serif)}
+.phi-frac{display:inline-grid;justify-items:center;gap:6px;min-width:0}
+.phi-num{padding-bottom:6px;border-bottom:1.5px solid var(--ink);width:100%;text-align:center}
+.phi-den{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:4px 6px}
+.chip{display:inline-grid;justify-items:center;row-gap:1px;border:1px solid var(--rule);background:var(--bg);border-radius:10px;padding:4px 10px;cursor:help;font:inherit;color:inherit;min-width:0}
+.chip .k{font:500 .8rem var(--body);color:var(--muted);white-space:nowrap}
+.chip b{font:600 1.04rem var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+.chip.bind{border-color:var(--theta);box-shadow:inset 0 0 0 1px var(--theta)}
+.chip.bind b{color:var(--theta)}
+.phi-val{font:600 clamp(1.5rem,3vw,2rem) var(--mono);font-variant-numeric:tabular-nums}
+.tip{position:absolute;z-index:40;max-width:min(320px,calc(100vw - 32px));background:var(--surface);color:var(--ink);border:1px solid var(--rule);border-radius:10px;padding:8px 11px;font-size:.84rem;line-height:1.45;box-shadow:0 8px 28px rgba(0,0,0,.16)}
+.plot{display:block;width:100%;height:auto}
+.plot .ax{stroke:var(--rule);stroke-width:1;fill:none}
+.plot .gridl{stroke:var(--grid);stroke-width:1;fill:none}
+.plot .tk{fill:var(--muted);font:11px var(--mono)}
+.plot .lbl{fill:var(--muted);font:11px var(--body)}
+.plot .ttl{fill:var(--ink);font:500 12px var(--body)}
+.chart-legend{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:.8rem;color:var(--muted)}
+.chart-legend span{display:inline-flex;align-items:center;gap:6px}
+.lands{display:grid;gap:4px}
+.lands .plot{cursor:crosshair}
+#landCard{position:relative}
+#landCard.locked .lands,#landCard.locked .chart-legend,#landCard.locked #landNote{filter:blur(3px);opacity:.3;pointer-events:none;user-select:none}
+.lock-msg{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(340px,86%);text-align:center;background:var(--surface);border:1px solid var(--rule);border-radius:12px;padding:12px 14px;font-size:.92rem;box-shadow:0 6px 24px rgba(0,0,0,.10)}
+.lock-msg p{margin:0 0 8px}
+#landCard:not(.locked) .lock-msg{display:none}
+.wide{margin-top:18px}
+.math{font-size:.95rem}
+.math h4{font:600 .86rem var(--body);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:16px 0 6px}
+.math h4:first-child{margin-top:0}
+.math p,.math li{max-width:110ch}
+.math ul{padding-left:1.2em;margin:4px 0}
+.math-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:4px 32px}
+.algo{font:.98rem/1.55 var(--serif);margin:0;background:var(--bg);border:1px solid var(--rule);border-radius:12px;padding:10px 12px}
+.algo .ln{padding:1px 8px;border-radius:6px;margin-left:.2em}
+.algo .ln.ind1{margin-left:1.6em}
+.algo .ln.ind2{margin-left:3em}
+.algo .ln.on{background:var(--hl);color:var(--hl-ink)}
+.algo .cnt{font:500 .82rem var(--mono);color:var(--muted);margin-top:6px}
+.refs li{margin:3px 0}
+pre.tests{font:12px/1.45 var(--mono);background:var(--bg);border:1px solid var(--rule);border-radius:10px;padding:10px;white-space:pre-wrap;max-height:320px;overflow:auto;margin:8px 0 0}
+footer{color:var(--muted);font-size:.82rem;margin-top:18px;max-width:110ch}
+@keyframes pulse{50%{opacity:.25}}
+.pulse{animation:pulse .9s ease-in-out infinite}
+@media (max-width:640px){
+  .steps{gap:6px}
+  .story{padding:8px}
+  .step-btn{grid-template-columns:minmax(0,1fr);padding:8px;row-gap:3px;align-content:start}
+  .step-btn .num{grid-row:auto;width:26px;height:26px;font-size:.86rem}
+  .step-btn .txt b{font-size:.88rem;line-height:1.25}
+  .step-btn .txt small{font-size:.74rem}
+  .step-btn .res{grid-column:auto;font-size:.8rem}
+  .phi-eq{font-size:1.05rem}
+  .chip{padding:3px 7px}
+  .chip .k{font-size:.74rem}
+  .chip b{font-size:.95rem}
+}
+@media (max-width:520px){.counter{left:8px;top:6px}.counter small{font-size:.68rem}.counter small.ratio{font-size:.72rem}}
+@media (prefers-reduced-motion:reduce){.pulse,.step-btn.next .num{animation:none}}
+</style>
+</head>
+<body>
+<header class="site-header">
+  <nav class="navbar" aria-label="Site navigation">
+    <a class="navbar-brand" href="../../index.html">Zikai&nbsp;Xiong</a>
+    <button class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false" aria-controls="nav-menu">&#9776;</button>
+    <ul class="nav-links" id="nav-menu">
+      <li><a href="../../index.html">about</a></li>
+      <li><a href="../../research.html" class="active">research</a></li>
+      <li><a href="../../news.html">news</a></li>
+      <li><a href="../../cv/" target="_blank" rel="noopener">cv</a></li>
+      <li><a href="../../awards.html">awards</a></li>
+      <li><a href="../../teaching.html">teaching</a></li>
+      <li><a href="../../talks.html">talks</a></li>
+      <li><a href="../../blogs.html">blogs</a></li>
+      <li><a href="../../gallery.html">photos</a></li>
+    </ul>
+  </nav>
+</header>
+<div class="wrap">
+  <header class="top">
+    <div class="titles">
+      <h1>Why is this LP hard?</h1>
+      <p class="cite">Created by Zikai Xiong · Based on Xiong, <a href="https://arxiv.org/abs/2410.04043" target="_blank" rel="noopener">arXiv:2410.04043</a></p>
+      <p class="lede">Restarted PDHG (rPDHG) is a first-order method for linear programs. Here it solves a tiny LP (4 variables, 2 constraints) and its dual at the same time. Start with the three steps below.</p>
+    </div>
+    <nav class="toplinks">
+      <a href="../pdhg-random-lps/index.html">Many random LPs →</a>
+      <button class="btn small" id="mathBtn" title="M" aria-expanded="false" aria-controls="math">The math</button>
+      <button class="btn small icon" id="themeBtn" title="Dark theme (D)" aria-label="Toggle dark theme">◐</button>
+    </nav>
+  </header>
+
+  <section class="story" id="story" aria-label="Start here">
+    <ol class="steps">
+      <li><button class="step-btn next" id="step1"><span class="num">1</span><span class="txt"><b>Solve the LP</b><small>Watch rPDHG find x* and y* at once.</small></span><span class="res" id="res1"></span></button></li>
+      <li><button class="step-btn" id="step2"><span class="num">2</span><span class="txt"><b>Turn the arrow −c</b><small>to 0.017° from straight down. Watch the dual.</small></span><span class="res" id="res2"></span></button></li>
+      <li><button class="step-btn" id="step3"><span class="num">3</span><span class="txt"><b>Turn the arrow b</b><small>to 0.017° from straight up. Watch the LP.</small></span><span class="res" id="res3"></span></button></li>
+    </ol>
+    <p class="story-out" id="storyOut" hidden></p>
+  </section>
+
+  <div class="pics">
+    <section class="card" id="cardP">
+      <div class="card-head"><h3>The LP</h3><span class="formula">min c<sup>⊤</sup>x &nbsp;s.t.&nbsp; Ax = b, x ≥ 0</span></div>
+      <div class="plane-box">
+        <svg id="planeP" class="plane" viewBox="0 0 640 540" role="img" aria-label="The feasible polygon of the LP, the arrow −c, and the primal path of rPDHG"></svg>
+        <div class="counter" id="counterP" aria-live="off"></div>
+      </div>
+      <div class="fine">
+        <label for="fineC">Angle θ<sub>p</sub> to the nearest tie</label>
+        <input id="fineC" type="range" min="-4" max="1.4" step="0.01" value="1.3">
+        <b id="fineCVal">–</b>
+        <button class="btn small" id="tieC">Exact tie</button>
+      </div>
+    </section>
+    <section class="card" id="cardD">
+      <div class="card-head"><h3>Its dual</h3><span class="formula">max b<sup>⊤</sup>y &nbsp;s.t.&nbsp; A<sup>⊤</sup>y ≤ c</span></div>
+      <div class="plane-box">
+        <svg id="planeD" class="plane" viewBox="0 0 640 540" role="img" aria-label="The feasible region of the dual, the arrow b, and the dual path of rPDHG"></svg>
+        <div class="counter" id="counterD" aria-live="off"></div>
+      </div>
+      <div class="fine">
+        <label for="fineB">Angle θ<sub>d</sub> to the nearest tie</label>
+        <input id="fineB" type="range" min="-4" max="1.4" step="0.01" value="1.3">
+        <b id="fineBVal">–</b>
+        <button class="btn small" id="tieB">Exact tie</button>
+      </div>
+    </section>
+  </div>
+
+  <section class="card pic-bar" aria-label="Playback and legend">
+    <ul class="legend" id="legend"></ul>
+    <p class="caption" id="caption"></p>
+    <div class="row">
+      <button class="btn small" id="runBtn" title="Space">Replay</button>
+      <button class="btn small" id="stepBtn" title="Right arrow">Step</button>
+      <label class="spd">Speed <input id="speed" type="range" min="-2" max="2" step="1" value="0" aria-label="Animation speed"><b id="speedVal">1×</b></label>
+      <span class="spacer"></span>
+      <button class="btn small" id="randomBtn">New random LP</button>
+      <button class="btn small" id="startOver">Start over</button>
+    </div>
+  </section>
+
+  <div class="bench">
+    <div class="col">
+      <section class="card" id="iterCard">
+        <h3>Iterations of <span class="nt">rPDHG</span> to reach <span class="nt">ε = 10⁻⁶</span></h3>
+        <div class="bignum" id="iterNum">–</div>
+        <p class="why" id="why"></p>
+      </section>
+      <section class="card" id="phiCard">
+        <h3>What makes it hard: <span class="nt">Φ</span></h3>
+        <div class="phi-eq">
+          <span>Φ =</span>
+          <span class="phi-frac">
+            <span class="phi-num"><button type="button" class="chip" id="chL1" data-tip="Size of the optimal solution x* and of the optimal dual slack s* = c − Aᵀy*: the numerator of Φ."><span class="k">‖x*‖₁ + ‖s*‖₁</span><b id="vL1">–</b></button></span>
+            <span class="phi-den">min{ <button type="button" class="chip" id="chC" data-tip="ζp of [A]: the smallest change ‖Δc‖ that changes the optimal basis. In the LP’s picture it is ‖c‖ sin θp, where θp is the angle between the level line through x* and the nearest edge."><span class="k">‖c‖ sin θ<sub>p</sub></span><b id="vC">–</b></button> , <button type="button" class="chip" id="chB" data-tip="ζd of [A]: the smallest change ‖Δb‖ that changes the optimal basis (here AAᵀ = I). In the dual’s picture it is ‖b‖ sin θd, where θd is the angle between the level line through y* and the nearest edge."><span class="k">‖b‖ sin θ<sub>d</sub></span><b id="vB">–</b></button> }</span>
+          </span>
+          <span>= <b class="phi-val" id="vPhi">–</b></span>
+        </div>
+        <p class="note" id="phiNote">θ<sub>p</sub> and θ<sub>d</sub> are the angles marked in the two pictures (here ‖c‖ = ‖b‖ = 1). The iteration bound of [A] grows with Φ. Hover over a term for its meaning.</p>
+      </section>
+    </div>
+    <div class="col">
+      <section class="card locked" id="landCard">
+        <div class="card-head"><h3>Every direction of the arrows</h3>
+          <span class="chart-legend"><span><svg width="18" height="8"><line x1="0" y1="4" x2="18" y2="4" stroke="var(--ink)" stroke-width="2"/></svg>iterations</span><span><svg width="18" height="8"><line x1="0" y1="4" x2="18" y2="4" stroke="var(--accent)" stroke-width="2" stroke-dasharray="4 3"/></svg>Φ</span><span><svg width="12" height="12"><circle cx="6" cy="6" r="4" fill="var(--surface)" stroke="var(--path)" stroke-width="2"/></svg>exact tie</span></span></div>
+        <div class="lands">
+          <svg id="landC" class="plot" viewBox="0 0 520 190" role="img" aria-label="Iterations against the direction of −c"></svg>
+          <svg id="landB" class="plot" viewBox="0 0 520 190" role="img" aria-label="Iterations against the direction of b"></svg>
+        </div>
+        <p class="note" id="landNote"></p>
+        <div class="lock-msg"><p>After step 3, these charts show the iterations for every direction of each arrow.</p><button class="btn small" id="unlockLand">Show them now</button></div>
+      </section>
+      <section class="card" id="convCard">
+        <div class="card-head"><h3>Convergence of this run</h3>
+          <span class="chart-legend"><span><svg width="18" height="8"><line x1="0" y1="4" x2="18" y2="4" stroke="var(--path)" stroke-width="2.2"/></svg>error</span><span><svg width="10" height="10"><line x1="5" y1="1" x2="5" y2="9" stroke="var(--muted)" stroke-width="1.5"/></svg>restart</span></span></div>
+        <svg id="conv" class="plot" viewBox="0 0 520 200" role="img" aria-label="Error of the average iterate against the iteration count"></svg>
+        <p class="note">The error of rPDHG’s average iterate; ticks mark restarts. Near a tie, each restart cycle takes longer.</p>
+      </section>
+    </div>
+  </div>
+
+  <section class="card wide math" id="math" hidden>
+    <div class="math-grid">
+      <div>
+        <h4>The LP, its dual and the two pictures</h4>
+        <p>The LP is $\min\, c^\top x$ subject to $Ax=b,\ x\ge 0$ with $A\in\mathbb{R}^{2\times 4}$; its dual is $\max\, b^\top y$ subject to $A^\top y+s=c,\ s\ge 0$.</p>
+        <p>Take a $4\times4$ orthogonal matrix $Q=[U\ W]$ with rows $(u_j^\top, w_j^\top)$, and let $A=W^\top$ and $c=U\gamma$. Then $AA^\top=I$ (so $\kappa=1$) and $Ac=0$, as [A] assumes. Here $\|c\|=\|b\|=1$.</p>
+        <ul>
+          <li>The LP’s picture: $x=Wb+Uv$ with $v\in\mathbb{R}^2$. Edge $j$ is where $x_j=w_j^\top b+u_j^\top v=0$, and $c^\top x=\gamma^\top v$. The path shows $U^\top x$ for rPDHG’s iterates $x$, which are generally not on the plane $Ax=b$.</li>
+          <li>The dual’s picture: $y$ itself. Edge $j$ is where $s_j=u_j^\top\gamma-w_j^\top y=0$. The path shows rPDHG’s iterates $y$.</li>
+        </ul>
+        <p>Both pictures are exact, with true distances and angles. Changing $c$ moves the dual’s edges, and changing $b$ moves the LP’s edges, so a tie in one picture is a degenerate vertex in the other. The LP is feasible only when $b$ lies in the cone of the columns of $A$, marked by the arc on the dial of $b$.</p>
+        <h4>rPDHG (Algorithm 1 of [A])</h4>
+        <div class="algo" id="algo">
+          <div class="ln" id="alg0">Input: $z^{0,0}=(0,0)$, $\tau=\frac{1}{2\kappa}$, $\sigma=\frac{1}{2\lambda_{\max}\lambda_{\min}}$, $\beta=1/e$.</div>
+          <div class="ln">repeat (outer loop $\ell=0,1,\dots$)</div>
+          <div class="ln ind1">repeat (inner loop $k=0,1,\dots$)</div>
+          <div class="ln ind2" id="alg1">$x^{+}=\max\{0,\,x-\tau(c-A^\top y)\}$, $\ y^{+}=y+\sigma\,(b-A(2x^{+}-x))$</div>
+          <div class="ln ind2" id="alg2">$\bar z^{\ell,k+1}=$ average of $z^{\ell,1},\dots,z^{\ell,k+1}$</div>
+          <div class="ln ind1" id="alg3">until the $\beta$-restart condition holds</div>
+          <div class="ln ind1" id="alg4">restart: $z^{\ell+1,0}\leftarrow \bar z^{\ell,k}$</div>
+          <div class="ln" id="alg5">until the average iterate is $\varepsilon$-optimal</div>
+          <div class="cnt" id="algCnt"></div>
+        </div>
+        <p><b>Restart</b> when the normalized duality gap of the average has dropped by the factor $\beta$ since the last restart. <b>Stop</b> when the average iterate has primal residual, dual infeasibility and duality gap all at most $\varepsilon=10^{-6}$.</p>
+      </div>
+      <div>
+        <h4>The condition number Φ of [A]</h4>
+        <p>With the optimal basis $B$, the other indices $N$ and $T=B^{-1}N$:</p>
+        <ul>
+          <li>$\Phi=(\|x^\star\|_1+\|s^\star\|_1)/\min\{\zeta_p,\zeta_d\}$, where $\zeta_p=\min_j s^\star_{N_j}/\sqrt{\|T_{:,j}\|^2+1}$ is the smallest $\|\Delta c\|$ that changes the optimal basis, and $\zeta_d=\min_i x^\star_{B_i}/\sqrt{\|T_{i,:}\|^2+1}$ is the smallest $\|\Delta b\|_{(AA^\top)^{-1}}$ that does.</li>
+          <li>In the two pictures, $\zeta_p=\|c\|\sin\theta_p$ and $\zeta_d=\|b\|\sin\theta_d$, where $\theta_p$ and $\theta_d$ are the marked angles between the level line and the nearest edge at $x^\star$ and at $y^\star$.</li>
+          <li>As $\theta_p\to0$, the reduced cost $s^\star_k$ of a nonbasic variable tends to $0$, so edge $s_k$ passes closer and closer to $y^\star$. As $\theta_d\to0$, a basic variable $x^\star_l$ tends to $0$, so edge $x_l$ passes closer and closer to $x^\star$.</li>
+        </ul>
+        <h4>What [A] proves</h4>
+        <p>With $Ac=0$, a unique optimum and the step sizes above, rPDHG reaches $\varepsilon$-optimality within $O\big(\kappa\Phi\ln(\kappa\Phi\|w^\star\|/\varepsilon)\big)$ iterations, where $w^\star=(x^\star,s^\star)$. This is an $O(\cdot)$ bound: the charts draw $\Phi$ next to the iteration counts without any fitted constant, and the page never treats it as a prediction of exact counts.</p>
+        <h4>Source</h4>
+        <ul class="refs">
+          <li>[A] Z. Xiong. Accessible complexity bounds for restarted PDHG on linear programs with a unique optimizer. Mathematics of Operations Research, 2026. <a href="https://arxiv.org/abs/2410.04043">arXiv:2410.04043</a></li>
+        </ul>
+        <h4>Self-tests</h4>
+        <button class="btn" id="testBtn">Run self-tests</button>
+        <pre class="tests" id="testOut" hidden></pre>
+      </div>
+    </div>
+  </section>
+
+  <footer>Next: <a href="../pdhg-random-lps/index.html">how hard is a random LP?</a> · All numbers are computed in your browser: both pictures and Φ by exact vertex enumeration, and rPDHG exactly as analyzed in the papers. Keys: Space replay/pause · → step · R rewind · [ ] turn −c · , . turn b · M the math · D dark theme.</footer>
+</div>
+
+<div class="tip" id="tip" role="tooltip" hidden></div>
+
+<script id="mathcore">
+/* =====================================================================
+   LPCore: exact LP geometry, condition measures and restarted PDHG.
+   Pure functions, no DOM. Shared by the page, the Web Worker and tests.
+   Notation follows Xiong & Freund (arXiv:2312.14774, 2609.19097) and
+   Xiong (arXiv:2410.04043, 2501.00728).
+   ===================================================================== */
+(function (root) {
+  'use strict';
+
+  // ---------- random numbers (seeded) ----------
+  function rng32(seed) {
+    let a = seed >>> 0;
+    return function () {
+      a = (a + 0x6D2B79F5) >>> 0;
+      let t = a;
+      t = Math.imul(t ^ (t >>> 15), t | 1);
+      t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+  function gauss(rand) {
+    let u = rand();
+    while (u <= 0) u = rand();
+    return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * rand());
+  }
+
+  // ---------- small dense linear algebra (matrices: arrays of Float64Array rows) ----------
+  function dot(a, b) { let s = 0; for (let i = 0; i < a.length; i++) s += a[i] * b[i]; return s; }
+  function nrm(a) { return Math.sqrt(dot(a, a)); }
+  function nrm1(a) { let s = 0; for (let i = 0; i < a.length; i++) s += Math.abs(a[i]); return s; }
+  function matVec(A, x) { const y = new Float64Array(A.length); for (let i = 0; i < A.length; i++) y[i] = dot(A[i], x); return y; }
+  function matTVec(A, y) {
+    const n = A[0].length, x = new Float64Array(n);
+    for (let i = 0; i < A.length; i++) { const yi = y[i], Ai = A[i]; for (let j = 0; j < n; j++) x[j] += Ai[j] * yi; }
+    return x;
+  }
+  function identity(m) { const I = []; for (let i = 0; i < m; i++) { const r = new Float64Array(m); r[i] = 1; I.push(r); } return I; }
+  function colsOf(A, idx) { return A.map(row => Float64Array.from(idx, j => row[j])); }
+
+  // Solve M X = R with partial pivoting. R is a vector or a matrix (array of rows). Returns null if singular.
+  function solve(M, R) {
+    const n = M.length;
+    const isVec = !(R.length && R[0] && R[0].length !== undefined);
+    const a = M.map(r => Float64Array.from(r));
+    const k = isVec ? 1 : R[0].length;
+    const B = isVec ? Array.from(R, v => Float64Array.of(v)) : R.map(r => Float64Array.from(r));
+    let scale = 0;
+    for (const r of a) for (const v of r) scale = Math.max(scale, Math.abs(v));
+    if (scale === 0) return null;
+    for (let col = 0; col < n; col++) {
+      let p = col;
+      for (let i = col + 1; i < n; i++) if (Math.abs(a[i][col]) > Math.abs(a[p][col])) p = i;
+      if (Math.abs(a[p][col]) <= 1e-13 * scale) return null;
+      if (p !== col) { let t = a[p]; a[p] = a[col]; a[col] = t; t = B[p]; B[p] = B[col]; B[col] = t; }
+      for (let i = col + 1; i < n; i++) {
+        const f = a[i][col] / a[col][col];
+        if (f === 0) continue;
+        for (let j = col; j < n; j++) a[i][j] -= f * a[col][j];
+        for (let j = 0; j < k; j++) B[i][j] -= f * B[col][j];
+      }
+    }
+    for (let col = n - 1; col >= 0; col--) {
+      for (let j = 0; j < k; j++) {
+        let s = B[col][j];
+        for (let i = col + 1; i < n; i++) s -= a[col][i] * B[i][j];
+        B[col][j] = s / a[col][col];
+      }
+    }
+    return isVec ? Float64Array.from(B, r => r[0]) : B;
+  }
+
+  // Eigenvalues of a symmetric matrix (cyclic Jacobi), sorted in decreasing order.
+  function symEigvals(S) {
+    const n = S.length, a = S.map(r => Float64Array.from(r));
+    let fro = 0;
+    for (const r of a) for (const v of r) fro += v * v;
+    for (let sweep = 0; sweep < 100; sweep++) {
+      let off = 0;
+      for (let i = 0; i < n; i++) for (let j = i + 1; j < n; j++) off += a[i][j] * a[i][j];
+      if (off <= 1e-30 * fro) break;
+      for (let p = 0; p < n; p++) for (let q = p + 1; q < n; q++) {
+        if (a[p][q] === 0) continue;
+        const th = (a[q][q] - a[p][p]) / (2 * a[p][q]);
+        const t = (th >= 0 ? 1 : -1) / (Math.abs(th) + Math.sqrt(th * th + 1));
+        const c = 1 / Math.sqrt(t * t + 1), s = t * c;
+        for (let k = 0; k < n; k++) { const kp = a[k][p], kq = a[k][q]; a[k][p] = c * kp - s * kq; a[k][q] = s * kp + c * kq; }
+        for (let k = 0; k < n; k++) { const pk = a[p][k], qk = a[q][k]; a[p][k] = c * pk - s * qk; a[q][k] = s * pk + c * qk; }
+      }
+    }
+    const ev = [];
+    for (let i = 0; i < n; i++) ev.push(a[i][i]);
+    return ev.sort((x, y) => y - x);
+  }
+  // Singular values of A (decreasing), via the smaller Gram matrix.
+  function svals(A) {
+    const m = A.length, n = A[0].length;
+    let G;
+    if (m <= n) G = A.map(r => Float64Array.from(A, s => dot(r, s)));
+    else { const At = []; for (let j = 0; j < n; j++) At.push(Float64Array.from(A, r => r[j])); G = At.map(r => Float64Array.from(At, s => dot(r, s))); }
+    return symEigvals(G).map(v => Math.sqrt(Math.max(0, v)));
+  }
+
+  // Orthonormalize a list of vectors (modified Gram-Schmidt, twice).
+  function orthonormalize(vecs) {
+    const out = [];
+    for (const v of vecs) {
+      const w = Float64Array.from(v);
+      for (let pass = 0; pass < 2; pass++) for (const b of out) { const d = dot(w, b); for (let j = 0; j < w.length; j++) w[j] -= d * b[j]; }
+      const nw = nrm(w);
+      if (nw > 1e-10) { for (let j = 0; j < w.length; j++) w[j] /= nw; out.push(w); }
+    }
+    return out;
+  }
+  // Complete orthonormal vectors `vecs` (in R^n) to a basis of R^n; return only the new vectors.
+  function completeBasis(vecs, n) {
+    const basis = orthonormalize(vecs), extra = [];
+    while (basis.length < n) {
+      let best = null, bestN = -1;
+      for (let i = 0; i < n; i++) {
+        const w = new Float64Array(n); w[i] = 1;
+        for (let pass = 0; pass < 2; pass++) for (const b of basis) { const d = dot(w, b); for (let j = 0; j < n; j++) w[j] -= d * b[j]; }
+        const nw = nrm(w);
+        if (nw > bestN) { bestN = nw; best = w; }
+      }
+      for (let j = 0; j < n; j++) best[j] /= bestN;
+      basis.push(best); extra.push(best);
+    }
+    return extra;
+  }
+
+  // ---------- instances ----------
+  // An instance is the standard-form LP  min c'x  s.t.  Ax = b, x >= 0  with n - m = 2.
+  // The plane {Ax = b} is parametrized isometrically as x = g + U v (U'U = I, AU = 0),
+  // and c = U gamma, so Ac = 0 and the arrow gamma on screen is exactly c.
+  function finalize(inst) {
+    const { n, m, A, U, g, gamma } = inst;
+    inst.b = matVec(A, g);
+    const c = new Float64Array(n);
+    for (let j = 0; j < n; j++) c[j] = U[j][0] * gamma[0] + U[j][1] * gamma[1];
+    inst.c = c;
+    inst.cnorm = Math.hypot(gamma[0], gamma[1]);
+    if (!inst.AAtInv) {
+      const AAt = A.map(r => Float64Array.from(A, s => dot(r, s)));
+      inst.AAtInv = solve(AAt, identity(m));
+      const sv = svals(A);
+      inst.lmax = sv[0]; inst.lmin = sv[m - 1];
+      inst.kappa = inst.lmax / inst.lmin;
+      // Step sizes of Theorem 3.1 in [A]: tau = 1/(2 kappa), sigma = 1/(2 lmax lmin).
+      inst.tau = 1 / (2 * inst.kappa);
+      inst.sigma = 1 / (2 * inst.lmax * inst.lmin);
+      const Af = new Float64Array(m * n);
+      for (let i = 0; i < m; i++) for (let j = 0; j < n; j++) Af[i * n + j] = A[i][j];
+      inst.Aflat = Af;
+    }
+    inst.q = matTVec(A, matVec(inst.AAtInv, inst.b));   // q = A'(AA')^{-1} b, the point of the plane closest to 0
+    inst.qnorm = nrm(inst.q);
+    let gmax = 0;
+    for (let j = 0; j < n; j++) gmax = Math.max(gmax, Math.abs(g[j]));
+    inst.scale = 1 + gmax;
+    return inst;
+  }
+  function cloneInst(inst) {
+    const o = Object.assign({}, inst);
+    o.g = Float64Array.from(inst.g);
+    o.gamma = inst.gamma.slice();
+    return o;
+  }
+  // Regular n-gon: u_j = sqrt(2/n) (cos t_j, sin t_j), t_j = pi/2 + 2 pi j/n; A = W' with [U W] orthogonal.
+  function regularInstance(n, offsets, phi, cnorm) {
+    const U = [];
+    for (let j = 0; j < n; j++) {
+      const t = Math.PI / 2 + 2 * Math.PI * j / n;
+      U.push(Float64Array.of(Math.sqrt(2 / n) * Math.cos(t), Math.sqrt(2 / n) * Math.sin(t)));
+    }
+    const colU = [Float64Array.from(U, r => r[0]), Float64Array.from(U, r => r[1])];
+    const A = completeBasis(colU, n).map(w => Float64Array.from(w));
+    const g = Float64Array.from(offsets || new Array(n).fill(1));
+    const inst = { kind: 'regular', n, m: n - 2, U, A, g, gamma: [Math.cos(phi), Math.sin(phi)] };
+    finalize(inst);
+    const cn = cnorm != null ? cnorm : inst.qnorm;
+    inst.gamma = [cn * Math.cos(phi), cn * Math.sin(phi)];
+    return finalize(inst);
+  }
+  // Random LP of [H]: A Gaussian, xhat = (u1, 0), shat = (0, u2), u_i ~ U(0,1), b = A xhat,
+  // c = projection of shat onto Null(A), random column permutation.
+  function randomInstance(n, seed) {
+    const rand = rng32(seed), m = n - 2;
+    const A0 = [];
+    for (let i = 0; i < m; i++) { const r = new Float64Array(n); for (let j = 0; j < n; j++) r[j] = gauss(rand); A0.push(r); }
+    const xh0 = new Float64Array(n), sh0 = new Float64Array(n);
+    for (let j = 0; j < n; j++) { const u = rand(); if (j < m) xh0[j] = u; else sh0[j] = u; }
+    const perm = [];
+    for (let j = 0; j < n; j++) perm.push(j);
+    for (let j = n - 1; j > 0; j--) { const k = Math.floor(rand() * (j + 1)); const t = perm[j]; perm[j] = perm[k]; perm[k] = t; }
+    const A = A0.map(r => Float64Array.from(perm, p => r[p]));
+    const xhat = Float64Array.from(perm, p => xh0[p]), shat = Float64Array.from(perm, p => sh0[p]);
+    const Nb = completeBasis(orthonormalize(A), n);             // orthonormal basis of Null(A)
+    const U = [];
+    for (let j = 0; j < n; j++) U.push(Float64Array.of(Nb[0][j], Nb[1][j]));
+    const gamma = [dot(Nb[0], shat), dot(Nb[1], shat)];        // c = U U' shat
+    return finalize({ kind: 'random', seed, n, m, U, A, g: Float64Array.from(xhat), gamma, xhat, shat });
+  }
+  function withAngle(inst, phi) {
+    const o = cloneInst(inst), cn = inst.cnorm;
+    o.gamma = [cn * Math.cos(phi), cn * Math.sin(phi)];
+    return finalize(o);
+  }
+  function withOffset(inst, j, gj) {
+    const o = cloneInst(inst);
+    o.g[j] = gj;
+    return finalize(o);
+  }
+  function withG(inst, g) {
+    const o = cloneInst(inst);
+    o.g = Float64Array.from(g);
+    return finalize(o);
+  }
+  function angleOf(inst) { return Math.atan2(inst.gamma[1], inst.gamma[0]); }
+
+  // ---------- an LP and its dual as two pictures (n = 4, m = 2) ----------
+  // Q = [U W] is a 4x4 orthogonal matrix with rows (u_j, w_j). The LP is  min c'x  s.t.  Ax = b, x >= 0  with
+  // A = W' (orthonormal rows, so kappa = 1), b in R^2 and c = U gamma (so Ac = 0).
+  //   primal picture: x = W b + U v, and c'x = gamma'v;
+  //   dual picture:   s = c - A'y = U gamma - W y, and the dual objective is b'y. The dual iterate y is drawn as is.
+  // The dual  max b'y  s.t.  s = U gamma + (-W) y >= 0  is an instance of the same form, with U <- -W, g <- c, gamma <- -b,
+  // so the same code draws and measures both pictures.
+  function pairInstance(Urows, Wrows, gamma, b) {
+    const n = Urows.length;
+    const U = Urows.map(r => Float64Array.from(r));
+    const A = [0, 1].map(k => Float64Array.from(Wrows, r => r[k]));
+    const g = Float64Array.from(Wrows, r => r[0] * b[0] + r[1] * b[1]);
+    return finalize({ kind: 'pair', n, m: 2, U, A, g, gamma: gamma.slice() });
+  }
+  function withB(P, b) { return withG(P, Float64Array.from(P.A[0], (a0, j) => a0 * b[0] + P.A[1][j] * b[1])); }
+  function bAngleOf(P) { return Math.atan2(P.b[1], P.b[0]); }
+  function dualOf(P) {
+    const n = P.n;
+    const U = [];
+    for (let j = 0; j < n; j++) U.push(Float64Array.of(-P.A[0][j], -P.A[1][j]));
+    const A = [Float64Array.from(P.U, r => r[0]), Float64Array.from(P.U, r => r[1])];
+    return finalize({ kind: 'dual', n, m: 2, U, A, g: Float64Array.from(P.c), gamma: [-P.b[0], -P.b[1]] });
+  }
+  // The page's LP. Rows of U and W, turned so that edge x2 is horizontal at the bottom of the primal picture and edge s4
+  // is horizontal at the top of the dual picture. aC is the direction of the arrow -c in the primal picture and aB the
+  // direction of b in the dual picture, in degrees; ||c|| = ||b|| = 1. Here -c is 20 degrees from straight down (a tie
+  // along x2) and b is 22 degrees from straight up (a tie along s4).
+  const PAIR = {
+    U: [[-0.7010660420139461, 0.3170115457157718], [0, 0.6488859209351062], [-0.23084862623965768, -0.6851498039026399], [0.6746964624912173, 0.09497624812167757]],
+    W: [[-0.20464861138794968, 0.605085969490932], [0.7562128867447762, -0.08419698054759182], [0.6214990070612474, 0.30169130282015205], [0, 0.7319591489930068]],
+    aC: 290, aB: 68
+  };
+  function pairAt(Q, aC, aB) {
+    const r = Math.PI / 180;
+    return pairInstance(Q.U, Q.W, [-Math.cos(aC * r), -Math.sin(aC * r)], [Math.cos(aB * r), Math.sin(aB * r)]);
+  }
+  // Directions (degrees) in which b keeps the LP feasible: the cone generated by the columns w_j of A, as [lo, hi].
+  function bRange(Q) {
+    const ang = Q.W.map(w => Math.atan2(w[1], w[0]));
+    const mid = Math.atan2(Q.W.reduce((a, w) => a + w[1] / Math.hypot(w[0], w[1]), 0), Q.W.reduce((a, w) => a + w[0] / Math.hypot(w[0], w[1]), 0));
+    const rel = ang.map(a => { let d = a - mid; while (d > Math.PI) d -= 2 * Math.PI; while (d <= -Math.PI) d += 2 * Math.PI; return d; });
+    const r = 180 / Math.PI;
+    return [(mid + Math.min.apply(null, rel)) * r, (mid + Math.max.apply(null, rel)) * r];
+  }
+  // A random pair of the same kind: Q from a Gaussian 2x4 matrix, a bounded polygon, b inside the cone of the w_j,
+  // a unique optimum with both angles at least minDeg degrees; turned like PAIR. Returns null if none is found.
+  function randomPair(seed, minDeg) {
+    const rand = rng32(seed), r = 180 / Math.PI, md = (minDeg != null ? minDeg : 8) / r;
+    const rot = (v, a) => [Math.cos(a) * v[0] - Math.sin(a) * v[1], Math.sin(a) * v[0] + Math.cos(a) * v[1]];
+    for (let tries = 0; tries < 400; tries++) {
+      const rows = orthonormalize([0, 1].map(() => Float64Array.from({ length: 4 }, () => gauss(rand))));
+      if (rows.length < 2) continue;
+      const Nb = completeBasis(rows, 4);
+      const U = [0, 1, 2, 3].map(j => [Nb[0][j], Nb[1][j]]), W = [0, 1, 2, 3].map(j => [rows[0][j], rows[1][j]]);
+      const ua = U.map(u => Math.atan2(u[1], u[0])).sort((a, b) => a - b);
+      let gap = 0;
+      for (let i = 0; i < 4; i++) gap = Math.max(gap, i < 3 ? ua[i + 1] - ua[i] : ua[0] + 2 * Math.PI - ua[3]);
+      if (gap > 0.85 * Math.PI) continue;                       // keep the polygon bounded and not too thin
+      let b = [0, 0];
+      for (const w of W) { const l = 0.25 + rand(); b[0] += l * w[0]; b[1] += l * w[1]; }
+      const bn = Math.hypot(b[0], b[1]);
+      b = [b[0] / bn, b[1] / bn];
+      const ga = 2 * Math.PI * rand();
+      const P = pairInstance(U, W, [Math.cos(ga), Math.sin(ga)], b), sp = solveLP(P);
+      if (sp.status !== 'optimal' || !sp.unique || sp.thetaMin < md) continue;
+      const sd = solveLP(dualOf(P));
+      if (sd.status !== 'optimal' || !sd.unique || sd.thetaMin < md) continue;
+      const aU = Math.PI / 2 - Math.atan2(U[sp.thetaEdge][1], U[sp.thetaEdge][0]);
+      const aW = Math.PI / 2 - Math.atan2(W[sd.thetaEdge][1], W[sd.thetaEdge][0]);
+      const U2 = U.map(u => rot(u, aU)), W2 = W.map(w => rot(w, aW)), g2 = rot(P.gamma, aU), b2 = rot(b, aW);
+      let aC = Math.atan2(-g2[1], -g2[0]) * r;
+      if (aC < 0) aC += 360;
+      return { U: U2, W: W2, aC, aB: Math.atan2(b2[1], b2[0]) * r, seed };
+    }
+    return null;
+  }
+  function serialize(inst) {
+    return { kind: inst.kind, seed: inst.seed, n: inst.n, m: inst.m,
+      U: inst.U.map(r => Array.from(r)), A: inst.A.map(r => Array.from(r)),
+      g: Array.from(inst.g), gamma: inst.gamma.slice() };
+  }
+  function deserialize(o) {
+    return finalize({ kind: o.kind, seed: o.seed, n: o.n, m: o.m,
+      U: o.U.map(r => Float64Array.from(r)), A: o.A.map(r => Float64Array.from(r)),
+      g: Float64Array.from(o.g), gamma: o.gamma.slice() });
+  }
+
+  // ---------- exact solution of the 2-D LP and the condition measures ----------
+  function xOf(inst, v) {
+    const x = new Float64Array(inst.n);
+    for (let j = 0; j < inst.n; j++) x[j] = inst.g[j] + inst.U[j][0] * v[0] + inst.U[j][1] * v[1];
+    return x;
+  }
+  function vOf(inst, x) {
+    let v0 = 0, v1 = 0;
+    for (let j = 0; j < inst.n; j++) { const d = x[j] - inst.g[j]; v0 += inst.U[j][0] * d; v1 += inst.U[j][1] * d; }
+    return [v0, v1];
+  }
+  // All vertices of the polygon {v : g_j + u_j'v >= 0}, merged when they coincide.
+  function vertices(inst) {
+    const { n, U, g } = inst, tolF = 1e-10 * inst.scale;
+    const raw = [];
+    for (let j = 0; j < n; j++) for (let k = j + 1; k < n; k++) {
+      const a = U[j], b = U[k];
+      const det = a[0] * b[1] - a[1] * b[0];
+      if (Math.abs(det) < 1e-12 * Math.hypot(a[0], a[1]) * Math.hypot(b[0], b[1])) continue;
+      const v = [(-g[j] * b[1] + a[1] * g[k]) / det, (-a[0] * g[k] + g[j] * b[0]) / det];
+      const x = xOf(inst, v);
+      let ok = true;
+      for (let i = 0; i < n; i++) if (x[i] < -tolF) { ok = false; break; }
+      if (ok) raw.push({ v, x, pairs: [[j, k]] });
+    }
+    const out = [];
+    for (const p of raw) {
+      const hit = out.find(o => Math.hypot(o.v[0] - p.v[0], o.v[1] - p.v[1]) <= 1e-9 * (1 + Math.hypot(p.v[0], p.v[1])));
+      if (hit) hit.pairs.push(p.pairs[0]); else out.push(p);
+    }
+    return out;
+  }
+  // Extreme rays of the cone {d : u_i'd >= 0, i in S} (unit vectors).
+  function coneRays(U, S) {
+    const rays = [];
+    for (const i of S) for (const sg of [1, -1]) {
+      const nu = Math.hypot(U[i][0], U[i][1]);
+      const d = [-sg * U[i][1] / nu, sg * U[i][0] / nu];
+      let ok = true;
+      for (const k of S) { const nk = Math.hypot(U[k][0], U[k][1]); if (U[k][0] * d[0] + U[k][1] * d[1] < -1e-12 * nk) { ok = false; break; } }
+      if (ok && !rays.some(r => Math.hypot(r.d[0] - d[0], r.d[1] - d[1]) < 1e-9)) rays.push({ d, edge: i });
+    }
+    return rays;
+  }
+  function solveLP(inst) {
+    const { n, m, U, A, g, c, gamma } = inst;
+    const tolZ = 1e-10 * inst.scale;
+    const res = { status: 'optimal' };
+    const V = vertices(inst);
+    if (!V.length) { res.status = 'infeasible'; return res; }
+    // Unbounded iff the recession cone contains d with gamma'd < 0.
+    const all = [];
+    for (let i = 0; i < n; i++) all.push(i);
+    const gn = Math.hypot(gamma[0], gamma[1]);
+    for (const r of coneRays(U, all)) if (gamma[0] * r.d[0] + gamma[1] * r.d[1] < -1e-12 * gn) { res.status = 'unbounded'; res.ray = r.d; return res; }
+    for (const p of V) {
+      p.obj = dot(c, p.x);
+      p.active = [];
+      for (let i = 0; i < n; i++) if (p.x[i] <= tolZ) p.active.push(i);
+    }
+    V.sort((a, b) => a.obj - b.obj);
+    res.vertices = V;
+    const pstar = V[0].obj, tolObj = 1e-11 * (1 + Math.abs(pstar)) * inst.scale;
+    res.pstar = pstar;
+    res.optimal = V.filter(p => p.obj <= pstar + tolObj);
+    res.tie = res.optimal.length > 1;
+    const xs = V[0];
+    res.xstar = xs.x; res.vstar = xs.v; res.active = xs.active;
+    res.degenerate = xs.active.length > 2;
+    // Geometry at x*: the tangent cone's edges and the angle each makes with the level line.
+    const rays = coneRays(U, xs.active);
+    for (const r of rays) {
+      const s = Math.abs(gamma[0] * r.d[0] + gamma[1] * r.d[1]) / gn;
+      r.sin = Math.min(1, s);
+      r.theta = Math.asin(r.sin);
+    }
+    rays.sort((a, b) => a.theta - b.theta);
+    res.rays = rays;
+    res.thetaMin = rays.length ? rays[0].theta : NaN;
+    res.thetaEdge = rays.length ? rays[0].edge : -1;
+    res.muGeo = rays.length ? rays[0].sin : NaN;
+    // Second-best vertex (distinct objective value) and the primal gap delta_p.
+    const sec = V.find(p => p.obj > pstar + tolObj);
+    res.second = sec || null;
+    res.deltaP = sec ? sec.obj - pstar : Infinity;
+    // Dual vertices: s = c - A'y >= 0 with s_S = 0 on an m-subset S whose columns are independent.
+    const dualVals = [];
+    const subsets = [];
+    (function rec(start, cur) {
+      if (cur.length === m) { subsets.push(cur.slice()); return; }
+      for (let j = start; j < n; j++) { cur.push(j); rec(j + 1, cur); cur.pop(); }
+    })(0, []);
+    const tolF = 1e-10 * inst.scale * (1 + inst.cnorm);
+    for (const S of subsets) {
+      const BS = colsOf(A, S);
+      const BtS = [];
+      for (let j = 0; j < m; j++) BtS.push(Float64Array.from(BS, r => r[j]));
+      const y = solve(BtS, Float64Array.from(S, j => c[j]));
+      if (!y) continue;
+      const s = new Float64Array(n);
+      const Aty = matTVec(A, y);
+      let ok = true;
+      for (let j = 0; j < n; j++) { s[j] = c[j] - Aty[j]; if (s[j] < -tolF) ok = false; }
+      if (!ok) continue;
+      const val = dot(inst.b, y);
+      if (!dualVals.some(d => { let e = 0; for (let j = 0; j < n; j++) e = Math.max(e, Math.abs(d.s[j] - s[j])); return e <= 1e-9 * (1 + inst.cnorm); })) dualVals.push({ y, s, val, S });
+    }
+    dualVals.sort((a, b) => b.val - a.val);
+    res.dualVertices = dualVals;
+    res.dstar = dualVals.length ? dualVals[0].val : NaN;
+    const dsec = dualVals.find(d => d.val < res.dstar - tolObj);
+    res.deltaD = dsec ? res.dstar - dsec.val : Infinity;
+    res.deltaBar = Math.min(res.deltaP, res.deltaD);
+    res.deltaSide = res.deltaP <= res.deltaD ? 'primal' : 'dual';
+    // Basis, dual solution and Phi (unique optimum only).
+    res.unique = !res.tie && !res.degenerate;
+    res.Anorm = inst.lmax; res.kappa = inst.kappa;
+    if (xs.active.length >= 2) {
+      const N = res.unique ? xs.active.slice() : [rays.length > 1 ? rays[0].edge : xs.active[0], rays.length > 1 ? rays[1].edge : xs.active[1]];
+      const Bidx = [];
+      for (let j = 0; j < n; j++) if (N.indexOf(j) < 0) Bidx.push(j);
+      const B = colsOf(A, Bidx), Nm = colsOf(A, N);
+      const Bt = [];
+      for (let j = 0; j < m; j++) Bt.push(Float64Array.from(B, r => r[j]));
+      const y = solve(Bt, Float64Array.from(Bidx, j => c[j]));
+      const T = solve(B, Nm);
+      if (y && T) {
+        const Aty = matTVec(A, y);
+        const s = new Float64Array(n);
+        for (let j = 0; j < n; j++) s[j] = c[j] - Aty[j];
+        for (const j of Bidx) s[j] = 0;
+        res.basis = Bidx; res.nonbasic = N; res.ystar = y; res.sstar = s; res.T = T;
+        let mask = 0;
+        for (const j of Bidx) mask |= (1 << j);
+        res.basisMask = res.unique ? mask : -1;
+        const l1 = nrm1(xs.x) + nrm1(s);
+        res.l1 = l1;
+        if (res.unique) {
+          // zeta_p = min_j s*_{N_j} / sqrt(||T_{:,j}||^2 + 1);  zeta_d = min_i x*_{B_i} / sqrt(||T_{i,:}||^2 + 1)
+          let zp = Infinity, zpEdge = -1, zd = Infinity, zdIdx = -1, maxTerm = 0;
+          for (let t = 0; t < 2; t++) {
+            let cs = 1;
+            for (let i = 0; i < m; i++) cs += T[i][t] * T[i][t];
+            const val = s[N[t]] / Math.sqrt(cs);
+            if (val < zp) { zp = val; zpEdge = N[t]; }
+            maxTerm = Math.max(maxTerm, Math.sqrt(cs) / s[N[t]]);
+          }
+          for (let i = 0; i < m; i++) {
+            let rs = 1;
+            for (let t = 0; t < 2; t++) rs += T[i][t] * T[i][t];
+            const val = xs.x[Bidx[i]] / Math.sqrt(rs);
+            if (val < zd) { zd = val; zdIdx = Bidx[i]; }
+            maxTerm = Math.max(maxTerm, Math.sqrt(rs) / xs.x[Bidx[i]]);
+          }
+          res.zetaP = zp; res.zetaPEdge = zpEdge; res.zetaD = zd; res.zetaDIdx = zdIdx;
+          res.Phi = l1 / Math.min(zp, zd);
+          res.PhiMaxForm = l1 * maxTerm;              // the closed form of [A], for testing
+          res.muP = zp / inst.cnorm;
+          res.muD = zd / inst.qnorm;
+          res.binding = zp <= zd ? 'c' : 'b';
+          res.zetaDDist = xs.x[zdIdx] / Math.hypot(U[zdIdx][0], U[zdIdx][1]);
+          const svB = svals(B);
+          res.BinvNorm = 1 / svB[m - 1];
+          let xi = Infinity;
+          for (let j = 0; j < n; j++) xi = Math.min(xi, xs.x[j] + s[j]);
+          res.xi = xi;
+          res.wnorm = Math.sqrt(dot(xs.x, xs.x) + dot(s, s));
+        } else {
+          res.Phi = Infinity;
+          res.zetaP = res.tie ? 0 : NaN;
+          res.zetaD = res.degenerate ? 0 : NaN;
+          res.binding = res.tie ? 'tie' : 'degenerate';
+        }
+      }
+    }
+    if (res.Phi === undefined) { res.Phi = Infinity; res.basisMask = -1; }
+    return res;
+  }
+
+  // Quick optimal-vertex key used by brute-force tests: 'j,k' for a unique optimum, 'tie', 'degenerate' or a status.
+  function optimalKey(inst) {
+    const V = vertices(inst);
+    if (!V.length) return 'infeasible';
+    const all = [], gm = inst.gamma, gn = Math.hypot(gm[0], gm[1]);
+    for (let i = 0; i < inst.n; i++) all.push(i);
+    for (const r of coneRays(inst.U, all)) if (gm[0] * r.d[0] + gm[1] * r.d[1] < -1e-12 * gn) return 'unbounded';
+    let best = null, second = Infinity;
+    for (const p of V) {
+      p.obj = dot(inst.c, p.x);
+      if (!best || p.obj < best.obj) { if (best) second = Math.min(second, best.obj); best = p; } else second = Math.min(second, p.obj);
+    }
+    const tolObj = 1e-11 * (1 + Math.abs(best.obj)) * inst.scale;
+    if (second <= best.obj + tolObj) return 'tie';
+    let act = 0;
+    for (let i = 0; i < inst.n; i++) if (best.x[i] <= 1e-10 * inst.scale) act++;
+    if (act > 2) return 'degenerate';
+    return best.pairs[0].join(',');
+  }
+
+  // ---------- normalized duality gap (N-norm version, appendix of [L]) ----------
+  // rho^N(r; z) = (1/r) max { h'(zt - z) : xt >= 0, ||zt - z||_N <= r },  h = (A'y - c, b - Ax),
+  // ||z||_N^2 = ||x||^2/tau + ||y||^2/sigma. The maximizer is z(t) = (max(0, x + t tau h1/2), y + t sigma h2/2)
+  // with ||z(t) - z||_N = r. ||z(t) - z||_N^2 is piecewise quadratic in t, so the root is found exactly.
+  function makeRho(n) {
+    const bpT = new Float64Array(n), bpJ = new Int32Array(n);
+    return function rhoN(r, x, h1, h2, m, tau, sigma) {
+      if (!(r > 0)) return 0;
+      let h2sq = 0;
+      for (let i = 0; i < m; i++) h2sq += h2[i] * h2[i];
+      let alpha = sigma / 4 * h2sq, beta = 0, nb = 0;
+      for (let j = 0; j < n; j++) {
+        const h = h1[j];
+        if (h >= 0) alpha += tau / 4 * h * h;
+        else if (x[j] > 0) {
+          alpha += tau / 4 * h * h;
+          const T = 2 * x[j] / (tau * -h);
+          let p = nb++;
+          while (p > 0 && bpT[p - 1] > T) { bpT[p] = bpT[p - 1]; bpJ[p] = bpJ[p - 1]; p--; }
+          bpT[p] = T; bpJ[p] = j;
+        }
+      }
+      const r2 = r * r;
+      let t = Infinity;
+      for (let q = 0; q <= nb; q++) {
+        const tNext = q < nb ? bpT[q] : Infinity;
+        if (alpha > 0) {
+          const tt = Math.sqrt(Math.max(0, (r2 - beta) / alpha));
+          if (tt <= tNext) { t = tt; break; }
+        }
+        if (q === nb) break;
+        const j = bpJ[q], h = h1[j];
+        alpha -= tau / 4 * h * h;
+        if (alpha < 0) alpha = 0;
+        beta += x[j] * x[j] / tau;
+      }
+      let val = 0;
+      if (t === Infinity) {
+        for (let j = 0; j < n; j++) if (h1[j] < 0) val -= h1[j] * x[j];
+        return val / r;
+      }
+      const ct = t * tau / 2;
+      for (let j = 0; j < n; j++) {
+        const h = h1[j];
+        let d = ct * h;
+        if (h < 0 && d < -x[j]) d = -x[j];
+        val += h * d;
+      }
+      val += t * sigma / 2 * h2sq;
+      return val / r;
+    };
+  }
+
+  // ---------- restarted PDHG (Algorithm 1 of [A] and [H]) ----------
+  // Start z = (0, 0); OnePDHG: x+ = max(0, x - tau (c - A'y)), y+ = y + sigma (b - A(2x+ - x)).
+  // beta-restart (beta = 1/e) on the normalized duality gap of the average iterate.
+  // Stop at the first iteration whose average iterate is eps-optimal.
+  function rpdhg(inst, opts) {
+    opts = opts || {};
+    const eps = opts.eps != null ? opts.eps : 1e-6;
+    const maxIter = opts.maxIter != null ? opts.maxIter : 2000000;
+    const beta = opts.beta != null ? opts.beta : Math.exp(-1);
+    const basisMask = opts.basisMask != null ? opts.basisMask : -1;
+    const doRec = opts.record !== false;
+    const HEAD = opts.head != null ? opts.head : 3000, TAILCAP = opts.tailCap != null ? opts.tailCap : 4000;
+    const { n, m, Aflat: A, b, c, tau, sigma, U, g } = inst;
+    const Minv = inst.AAtInv;
+    const rhoN = makeRho(n);
+    const x = new Float64Array(n), y = new Float64Array(m), xn = new Float64Array(n);
+    const x0 = new Float64Array(n), y0 = new Float64Array(m), Ax0 = new Float64Array(m);
+    const xs = new Float64Array(n), ys = new Float64Array(m), xb = new Float64Array(n), yb = new Float64Array(m);
+    const Axb = new Float64Array(m), Atyb = new Float64Array(n), h1 = new Float64Array(n), h2 = new Float64Array(m), rp = new Float64Array(m);
+    let k = 0, ell = 0, it = 0, rho0 = 0, lastMismatch = 0, converged = false, err = Infinity, lastMask = 0;
+    const restarts = [], restartV = [], restartY = [], restartMask = [];
+    // recorder: every iteration up to HEAD, then a decimated tail (stride doubles when full).
+    // (vx, vy): the primal iterate in picture coordinates; (yx, yy): the first two entries of the dual iterate y.
+    const R = { it: [], vx: [], vy: [], yx: [], yy: [], le: [], mk: [] };
+    let stride = 1, tailStart = -1;
+    function proj(xx) {
+      let v0 = 0, v1 = 0;
+      for (let j = 0; j < n; j++) { const d = xx[j] - g[j]; v0 += U[j][0] * d; v1 += U[j][1] * d; }
+      return [v0, v1];
+    }
+    function push(iter, xx, e, mk) {
+      const v = proj(xx);
+      R.it.push(iter); R.vx.push(v[0]); R.vy.push(v[1]); R.yx.push(y[0]); R.yy.push(m > 1 ? y[1] : 0);
+      R.le.push(e > 0 ? Math.log10(e) : -20); R.mk.push(mk);
+    }
+    function record(iter, xx, e, mk) {
+      if (!doRec) return;
+      if (iter <= HEAD) { push(iter, xx, e, mk); return; }
+      if (tailStart < 0) tailStart = R.it.length;
+      if ((iter - HEAD) % stride !== 0) return;
+      push(iter, xx, e, mk);
+      if (R.it.length - tailStart >= TAILCAP) {
+        const keep = { it: [], vx: [], vy: [], yx: [], yy: [], le: [], mk: [] };
+        for (let p = tailStart; p < R.it.length; p++) {
+          if (((R.it[p] - HEAD) / stride) % 2 === 0) { for (const key in keep) keep[key].push(R[key][p]); }
+        }
+        for (const key in R) { R[key].length = tailStart; for (const v of keep[key]) R[key].push(v); }
+        stride *= 2;
+      }
+    }
+    if (doRec) push(0, x, Infinity, 0);
+    while (it < maxIter) {
+      // OnePDHG
+      for (let j = 0; j < n; j++) {
+        let s = 0;
+        for (let i = 0; i < m; i++) s += A[i * n + j] * y[i];
+        const v = x[j] - tau * (c[j] - s);
+        xn[j] = v > 0 ? v : 0;
+      }
+      for (let i = 0; i < m; i++) {
+        let s = 0;
+        const o = i * n;
+        for (let j = 0; j < n; j++) s += A[o + j] * (2 * xn[j] - x[j]);
+        y[i] += sigma * (b[i] - s);
+      }
+      for (let j = 0; j < n; j++) x[j] = xn[j];
+      it++; k++;
+      let mask = 0;
+      for (let j = 0; j < n; j++) if (x[j] > 0) mask |= (1 << j);
+      if (mask !== basisMask) lastMismatch = it;
+      lastMask = mask;
+      // average of the current outer loop
+      const inv = 1 / k;
+      for (let j = 0; j < n; j++) { xs[j] += x[j]; xb[j] = xs[j] * inv; }
+      for (let i = 0; i < m; i++) { ys[i] += y[i]; yb[i] = ys[i] * inv; }
+      // eps-optimality of the average: dist(x, V_p), ||min(s,0)||, gap
+      for (let i = 0; i < m; i++) {
+        let s = 0;
+        const o = i * n;
+        for (let j = 0; j < n; j++) s += A[o + j] * xb[j];
+        Axb[i] = s; rp[i] = s - b[i];
+      }
+      let dist2 = 0;
+      for (let i = 0; i < m; i++) { let s = 0; const Mi = Minv[i]; for (let l = 0; l < m; l++) s += Mi[l] * rp[l]; dist2 += rp[i] * s; }
+      let neg2 = 0, cx = 0;
+      for (let j = 0; j < n; j++) {
+        let s = 0;
+        for (let i = 0; i < m; i++) s += A[i * n + j] * yb[i];
+        Atyb[j] = s;
+        const sj = c[j] - s;
+        if (sj < 0) neg2 += sj * sj;
+        cx += c[j] * xb[j];
+      }
+      let by = 0;
+      for (let i = 0; i < m; i++) by += b[i] * yb[i];
+      const gap = cx - by;
+      err = Math.max(Math.sqrt(dist2 > 0 ? dist2 : 0), Math.sqrt(neg2), gap > 0 ? gap : 0);
+      record(it, x, err, mask);
+      if (err <= eps) { converged = true; break; }
+      // beta-restart test
+      let restart = false, rhoBar = 0;
+      if (ell === 0) restart = (k === 1);
+      else {
+        let dxx = 0, dyy = 0, cross = 0;
+        for (let j = 0; j < n; j++) { const d = xb[j] - x0[j]; dxx += d * d; h1[j] = Atyb[j] - c[j]; }
+        for (let i = 0; i < m; i++) { const d = yb[i] - y0[i]; dyy += d * d; cross += d * (Axb[i] - Ax0[i]); h2[i] = b[i] - Axb[i]; }
+        const r = Math.sqrt(Math.max(0, dxx / tau + dyy / sigma - 2 * cross));
+        rhoBar = rhoN(r, xb, h1, h2, m, tau, sigma);
+        restart = rhoBar <= beta * rho0;
+      }
+      if (restart) {
+        if (ell === 0) {
+          let dxx = 0, dyy = 0, cross = 0;
+          for (let j = 0; j < n; j++) { const d = xb[j] - x0[j]; dxx += d * d; h1[j] = Atyb[j] - c[j]; }
+          for (let i = 0; i < m; i++) { const d = yb[i] - y0[i]; dyy += d * d; cross += d * (Axb[i] - Ax0[i]); h2[i] = b[i] - Axb[i]; }
+          const r = Math.sqrt(Math.max(0, dxx / tau + dyy / sigma - 2 * cross));
+          rho0 = rhoN(r, xb, h1, h2, m, tau, sigma);
+        } else rho0 = rhoBar;
+        for (let j = 0; j < n; j++) { x0[j] = xb[j]; x[j] = xb[j]; xs[j] = 0; }
+        for (let i = 0; i < m; i++) { y0[i] = yb[i]; y[i] = yb[i]; ys[i] = 0; Ax0[i] = Axb[i]; }
+        k = 0; ell++;
+        restarts.push(it);
+        const v = proj(x0);
+        restartV.push(v[0], v[1]);
+        restartY.push(y0[0], m > 1 ? y0[1] : 0);
+        let rm = 0;
+        for (let j = 0; j < n; j++) if (x0[j] > 0) rm |= (1 << j);
+        restartMask.push(rm);
+      }
+    }
+    if (doRec && R.it[R.it.length - 1] !== it) push(it, x, err, lastMask);
+    // Stage I as in the two-stage theorem of [A]: the iteration count at the first restart N1 such that every later
+    // restart point x^{N,0} (and the final output) has positive part exactly on the optimal basis.
+    let outMask = 0;
+    for (let j = 0; j < n; j++) if (xb[j] > 0) outMask |= (1 << j);
+    let tBasis = null;
+    if (basisMask >= 0 && outMask === basisMask) {
+      tBasis = it;                                  // the output itself is the first point with the right support
+      for (let q = restarts.length - 1; q >= 0 && restartMask[q] === basisMask; q--) tBasis = restarts[q];
+    }
+    const tBasisRaw = (basisMask >= 0 && lastMask === basisMask) ? lastMismatch + 1 : null;
+    return {
+      iters: it, converged, hitCap: !converged, err, restarts, restartV, restartY, restartMask, outMask, tBasis, tBasisRaw,
+      stageI: tBasis, stageII: tBasis != null ? it - tBasis : null,
+      xbar: Array.from(xb), ybar: Array.from(yb),
+      rec: doRec ? R : null
+    };
+  }
+
+  // ---------- polygon clipping for drawing ----------
+  // Clip the box [x0,x1]x[y0,y1] by the half-planes g_j + u_j'v >= 0 (Sutherland-Hodgman).
+  function clipPolygon(inst, box) {
+    let P = [[box[0], box[1]], [box[2], box[1]], [box[2], box[3]], [box[0], box[3]]];
+    for (let j = 0; j < inst.n; j++) {
+      const u = inst.U[j], gj = inst.g[j];
+      const f = p => gj + u[0] * p[0] + u[1] * p[1];
+      const Q = [];
+      for (let i = 0; i < P.length; i++) {
+        const a = P[i], b = P[(i + 1) % P.length], fa = f(a), fb = f(b);
+        if (fa >= 0) Q.push(a);
+        if ((fa >= 0) !== (fb >= 0)) { const t = fa / (fa - fb); Q.push([a[0] + t * (b[0] - a[0]), a[1] + t * (b[1] - a[1])]); }
+      }
+      P = Q;
+      if (!P.length) break;
+    }
+    return P;
+  }
+  // Clip a convex polygon by the half-plane a'v <= beta.
+  function clipHalf(P, a, beta) {
+    const Q = [];
+    for (let i = 0; i < P.length; i++) {
+      const p = P[i], q = P[(i + 1) % P.length];
+      const fp = beta - (a[0] * p[0] + a[1] * p[1]), fq = beta - (a[0] * q[0] + a[1] * q[1]);
+      if (fp >= 0) Q.push(p);
+      if ((fp >= 0) !== (fq >= 0)) { const t = fp / (fp - fq); Q.push([p[0] + t * (q[0] - p[0]), p[1] + t * (q[1] - p[1])]); }
+    }
+    return Q;
+  }
+
+  root.LPCore = {
+    rng32, gauss, dot, nrm, nrm1, matVec, matTVec, solve, svals, symEigvals, orthonormalize, completeBasis, colsOf,
+    finalize, cloneInst, regularInstance, randomInstance, withAngle, withOffset, withG, angleOf, serialize, deserialize,
+    pairInstance, withB, bAngleOf, dualOf, PAIR, pairAt, bRange, randomPair,
+    xOf, vOf, vertices, coneRays, solveLP, optimalKey, makeRho, rpdhg, clipPolygon, clipHalf
+  };
+})(typeof self !== 'undefined' ? self : globalThis);
+</script>
+
+<script id="selftests">
+/* =====================================================================
+   LPTests: checks of the math core. In the browser console: LPTests.run().
+   ===================================================================== */
+(function (root) {
+  'use strict';
+  const C = root.LPCore;
+  const fmt = (v, d) => (v === Infinity ? '∞' : Number(v).toPrecision(d || 4));
+
+  // Threshold t* along a direction: largest t with key(t) === key(0), by bisection.
+  function threshold(keyAt, tMax) {
+    const k0 = keyAt(0);
+    let lo = 0, hi = tMax;
+    if (keyAt(hi) === k0) return Infinity;
+    for (let it = 0; it < 60; it++) { const mid = (lo + hi) / 2; if (keyAt(mid) === k0) lo = mid; else hi = mid; }
+    return (lo + hi) / 2;
+  }
+
+  function run(opts) {
+    opts = opts || {};
+    const log = opts.log || console.log;
+    const nInst = opts.nRandom || 200;
+    const nBrute = opts.nBrute || 40;
+    const nRun = opts.nRun || 60;
+    const nPair = opts.nPair || 150;
+    const report = { pass: true, checks: [], numbers: {} };
+    function check(name, ok, detail) {
+      report.checks.push({ name, ok, detail });
+      if (!ok) report.pass = false;
+      log((ok ? 'PASS  ' : 'FAIL  ') + name + (detail ? '  (' + detail + ')' : ''));
+    }
+
+    // Instances: the random model of [H] (n = 4..7) and the same polygons with random objective directions.
+    const insts = [];
+    for (let s = 1; insts.length < nInst; s++) {
+      const n = 4 + (s % 4);
+      const inst = C.randomInstance(n, 1000 + s);
+      insts.push(inst);
+      if (s % 2 === 0) {
+        const rand = C.rng32(77 + s);
+        const alt = C.withAngle(inst, 2 * Math.PI * rand());
+        if (C.solveLP(alt).status === 'optimal') insts.push(alt);
+      }
+    }
+
+    // 1. KKT and strong duality
+    let worstKKT = 0, worstDual = 0, nUnique = 0;
+    for (const inst of insts) {
+      const s = C.solveLP(inst);
+      if (s.status !== 'optimal' || !s.sstar) continue;
+      const x = s.xstar, sv = s.sstar;
+      let e = 0;
+      for (let j = 0; j < inst.n; j++) { e = Math.max(e, -x[j], -sv[j], Math.abs(x[j] * sv[j])); }
+      const Ax = C.matVec(inst.A, x);
+      for (let i = 0; i < inst.m; i++) e = Math.max(e, Math.abs(Ax[i] - inst.b[i]));
+      worstKKT = Math.max(worstKKT, e / inst.scale);
+      worstDual = Math.max(worstDual, Math.abs(s.pstar - s.dstar) / (1 + Math.abs(s.pstar)));
+      if (s.unique) nUnique++;
+    }
+    check('vertex enumeration satisfies the KKT conditions on ' + insts.length + ' LPs', worstKKT < 1e-9, 'worst residual ' + fmt(worstKKT, 2));
+    check('primal and dual vertex enumerations give equal optimal values', worstDual < 1e-9, 'worst gap ' + fmt(worstDual, 2));
+
+    // 2. Phi identity and mu_p = sin(theta_min)
+    let worstPhi = 0, worstMu = 0;
+    for (const inst of insts) {
+      const s = C.solveLP(inst);
+      if (!s.unique) continue;
+      worstPhi = Math.max(worstPhi, Math.abs(s.Phi - s.PhiMaxForm) / s.Phi);
+      worstMu = Math.max(worstMu, Math.abs(s.muP - s.muGeo) / s.muP);
+    }
+    check('closed form of Phi equals (|x*|_1 + |s*|_1) / min(zeta_p, zeta_d) on ' + nUnique + ' unique-optimum LPs', worstPhi < 1e-9, 'worst rel. error ' + fmt(worstPhi, 2));
+    check('mu_p = zeta_p/||c|| equals sin(theta_p) measured in the picture', worstMu < 1e-9, 'worst rel. error ' + fmt(worstMu, 2));
+
+    // 3. Brute force: zeta_p and zeta_d are the smallest perturbations that change the optimal vertex.
+    let worstZp = 0, worstZd = 0, minRatioP = Infinity, minRatioD = Infinity, nb = 0;
+    for (const inst of insts) {
+      if (nb >= nBrute) break;
+      const s = C.solveLP(inst);
+      if (!s.unique) continue;
+      nb++;
+      const gam = inst.gamma, rand = C.rng32(4242 + nb);
+      // zeta_p: perturb gamma (only the Null(A) part of Delta c matters; ||Delta c|| = ||Delta gamma||)
+      const keyGamma = d => t => C.optimalKey(C.finalize(Object.assign(C.cloneInst(inst), { gamma: [gam[0] + t * d[0], gam[1] + t * d[1]] })));
+      // analytic minimizer: Delta c = -s_j a_j / ||a_j||^2, a_j = e_{N_j} - sum_i T_ij e_{B_i}
+      const jN = s.nonbasic.indexOf(s.zetaPEdge);
+      const a = new Float64Array(inst.n);
+      a[s.zetaPEdge] = 1;
+      for (let i = 0; i < inst.m; i++) a[s.basis[i]] = -s.T[i][jN];
+      const aU = C.vOf(Object.assign({}, inst, { g: new Float64Array(inst.n) }), a);
+      const da = Math.hypot(aU[0], aU[1]);
+      const dirP = [-aU[0] / da, -aU[1] / da];
+      const tP = threshold(keyGamma(dirP), 4 * s.zetaP + 1e-12);
+      worstZp = Math.max(worstZp, Math.abs(tP - s.zetaP) / s.zetaP);
+      for (let r = 0; r < 24; r++) {
+        const ang = 2 * Math.PI * rand(), d = [Math.cos(ang), Math.sin(ang)];
+        const t = threshold(keyGamma(d), 50 * s.zetaP + 10);
+        minRatioP = Math.min(minRatioP, t / s.zetaP);
+      }
+      // zeta_d: perturb b by A dq with dq in Im(A'), i.e. g -> g + dq; ||Delta b||_{(AA')^{-1}} = ||dq||
+      const keyG = d => t => { const g2 = Float64Array.from(inst.g, (v, j) => v + t * d[j]); return C.optimalKey(C.withG(inst, g2)); };
+      const iB = s.basis.indexOf(s.zetaDIdx);
+      const row = new Float64Array(inst.n);                  // row i of B^{-1}A
+      row[s.zetaDIdx] = 1;
+      for (let t = 0; t < 2; t++) row[s.nonbasic[t]] = s.T[iB][t];
+      const rn = C.nrm(row);
+      const dirD = Float64Array.from(row, v => -v / rn);
+      const tD = threshold(keyG(dirD), 4 * s.zetaD + 1e-12);
+      worstZd = Math.max(worstZd, Math.abs(tD - s.zetaD) / s.zetaD);
+      for (let r = 0; r < 24; r++) {
+        let d = new Float64Array(inst.n);
+        for (let j = 0; j < inst.n; j++) d[j] = C.gauss(rand);
+        d = C.matTVec(inst.A, C.matVec(inst.AAtInv, C.matVec(inst.A, d)));   // project onto Im(A')
+        const dn = C.nrm(d);
+        for (let j = 0; j < inst.n; j++) d[j] /= dn;
+        const t = threshold(keyG(d), 50 * s.zetaD + 10);
+        minRatioD = Math.min(minRatioD, t / s.zetaD);
+      }
+    }
+    check('zeta_p: moving c by zeta_p in the analytic direction changes the optimal vertex (' + nb + ' LPs)', worstZp < 1e-6, 'worst rel. error ' + fmt(worstZp, 2));
+    check('zeta_p: no random direction changes it with a smaller perturbation', minRatioP >= 1 - 1e-6, 'min ratio ' + fmt(minRatioP, 6));
+    check('zeta_d: moving b by zeta_d in the analytic direction changes the optimal vertex', worstZd < 1e-6, 'worst rel. error ' + fmt(worstZd, 2));
+    check('zeta_d: no random direction changes it with a smaller perturbation', minRatioD >= 1 - 1e-6, 'min ratio ' + fmt(minRatioD, 6));
+
+    // 4. rPDHG reaches x*
+    let worstX = 0, nr = 0, capped = 0;
+    const pairs = [];
+    for (const inst of insts) {
+      if (nr >= nRun) break;
+      if (inst.kind !== 'random' || inst.gamma === undefined) continue;
+      const s = C.solveLP(inst);
+      if (!s.unique) continue;
+      const r = C.rpdhg(inst, { basisMask: s.basisMask, record: false, maxIter: 300000 });
+      nr++;
+      if (!r.converged) { capped++; continue; }
+      let e = 0;
+      for (let j = 0; j < inst.n; j++) e = Math.max(e, Math.abs(r.xbar[j] - s.xstar[j]));
+      worstX = Math.max(worstX, e / inst.scale);
+      pairs.push([Math.log(r.iters), Math.log(s.kappa * s.Phi)]);
+    }
+    check('rPDHG converges to x* on ' + (nr - capped) + ' LPs (' + capped + ' hit the test cap)', worstX < 1e-3, 'worst |xbar - x*| ' + fmt(worstX, 2));
+
+    // 5. An LP and its dual drawn as two pictures (n = 4, m = 2)
+    let worstSym = 0, badIdx = 0, worstStar = 0, worstPath = 0, worstQ = 0, np = 0, nPath = 0;
+    for (let s = 1; np < nPair && s < 20 * nPair; s++) {
+      const Q = C.randomPair(5000 + s, 0.5);
+      if (!Q) continue;
+      const rand = C.rng32(9000 + s);
+      const P = C.pairAt(Q, 360 * rand(), Q.aB);          // any direction of -c: the polygon is bounded
+      const sp = C.solveLP(P);
+      if (!sp.unique) continue;
+      const D = C.dualOf(P), sd = C.solveLP(D);
+      if (!sd.unique) continue;
+      np++;
+      for (let i = 0; i < 4; i++) for (let k = 0; k < 4; k++) {
+        const qi = [Q.U[i][0], Q.U[i][1], Q.W[i][0], Q.W[i][1]], qk = [Q.U[k][0], Q.U[k][1], Q.W[k][0], Q.W[k][1]];
+        worstQ = Math.max(worstQ, Math.abs(C.dot(qi, qk) - (i === k ? 1 : 0)));
+      }
+      const rel = (u, v) => Math.abs(u - v) / Math.abs(v);
+      const bn = Math.hypot(P.b[0], P.b[1]);
+      worstSym = Math.max(worstSym, rel(sd.Phi, sp.Phi), rel(P.cnorm * Math.sin(sp.thetaMin), sp.zetaP), rel(bn * Math.sin(sd.thetaMin), sp.zetaD), rel(sd.zetaP, sp.zetaD), rel(sd.zetaD, sp.zetaP));
+      if (sp.zetaPEdge !== sd.zetaDIdx || sp.zetaDIdx !== sd.zetaPEdge) badIdx++;
+      for (let j = 0; j < 4; j++) worstStar = Math.max(worstStar, Math.abs(sd.xstar[j] - sp.sstar[j]), Math.abs(sd.sstar[j] - sp.xstar[j]));
+      worstStar = Math.max(worstStar, Math.abs(sd.vstar[0] - sp.ystar[0]), Math.abs(sd.vstar[1] - sp.ystar[1]));
+      if (nPath < 30) {
+        const r = C.rpdhg(P, { basisMask: sp.basisMask, maxIter: 300000 });
+        if (r.converged) {
+          nPath++;
+          const L = r.rec.it.length - 1;
+          worstPath = Math.max(worstPath, Math.hypot(r.rec.yx[L] - sp.ystar[0], r.rec.yy[L] - sp.ystar[1]), Math.hypot(r.rec.vx[L] - sp.vstar[0], r.rec.vy[L] - sp.vstar[1]));
+        }
+      }
+    }
+    check('the pairs use an orthogonal Q = [U W] (' + np + ' random LP pairs)', worstQ < 1e-12, 'worst error ' + fmt(worstQ, 2));
+    check('both pictures give the same Phi, with zeta_p = ||c|| sin(theta_p) and zeta_d = ||b|| sin(theta_d)', worstSym < 1e-9, 'worst rel. error ' + fmt(worstSym, 2));
+    check('the dual picture has vertex y* and slacks s*, and its own s* is x*', worstStar < 1e-9, 'worst error ' + fmt(worstStar, 2));
+    check('the edge that ties in one picture is the edge that passes near the vertex in the other', badIdx === 0, badIdx + ' mismatches');
+    check('the drawn paths end at x* and y* (' + nPath + ' runs)', worstPath < 1e-3, 'worst distance ' + fmt(worstPath, 2));
+
+    // 6. correlation (information only)
+    const mean = a => a.reduce((p, q) => p + q, 0) / a.length;
+    const mx = mean(pairs.map(p => p[1])), my = mean(pairs.map(p => p[0]));
+    let sxy = 0, sxx = 0, syy = 0;
+    for (const p of pairs) { sxy += (p[1] - mx) * (p[0] - my); sxx += (p[1] - mx) ** 2; syy += (p[0] - my) ** 2; }
+    const corr = sxy / Math.sqrt(sxx * syy);
+    report.numbers.corr = corr;
+    log('INFO  correlation of log(iterations) with log(kappa Phi) over ' + pairs.length + ' random LPs: ' + fmt(corr, 3));
+    return report;
+  }
+
+  // Reference table: the page's LP, with each arrow turned toward its tie (eps = 1e-6).
+  function reference(log) {
+    log = log || console.log;
+    const Q = C.PAIR, r2d = 180 / Math.PI, rows = [];
+    const cases = [['baseline: -c 20 deg and b 22 deg from their ties', Q.aC, Q.aB]];
+    for (const off of [0.3, 0.03, 0.003, 0.0003, 0.0001]) cases.push(['-c ' + off + ' rad from straight down', 270 + off * r2d, Q.aB]);
+    cases.push(['-c straight down (a tie)', 270, Q.aB]);
+    for (const off of [0.3, 0.03, 0.003, 0.0003, 0.0001]) cases.push(['b ' + off + ' rad from straight up', Q.aC, 90 - off * r2d]);
+    cases.push(['b straight up (a tie)', Q.aC, 90]);
+    for (const [name, aC, aB] of cases) {
+      const P = C.pairAt(Q, aC, aB), sol = C.solveLP(P), t0 = Date.now();
+      const r = C.rpdhg(P, { basisMask: sol.basisMask, record: false });
+      const row = { name, Phi: sol.Phi, iters: r.iters, restarts: r.restarts.length, converged: r.converged, ms: Date.now() - t0 };
+      rows.push(row);
+      log(name.padEnd(50) + ' Phi ' + fmt(sol.Phi, 6).padStart(10) + '   iterations ' + String(r.iters).padStart(7) + '   restarts ' + String(r.restarts.length).padStart(3) + '   ' + row.ms + ' ms');
+    }
+    return rows;
+  }
+
+  root.LPTests = { run, reference };
+})(typeof self !== 'undefined' ? self : globalThis);
+</script>
+
+<script id="ui">
+/* =====================================================================
+   The page: the three steps, the two pictures, animation, charts.
+   ===================================================================== */
+(function () {
+  'use strict';
+  const C = window.LPCore;
+  const $ = id => document.getElementById(id);
+  const W = 640, H = 540, EPS = 1e-6;
+  const DX = W - 50, DY = 56, DR = 31;              // the arrow dial (top right of each picture)
+  const R2D = 180 / Math.PI;
+  const NEAR = 0.0003 * R2D;                        // the story's near tie: 0.0003 rad = 0.017 degrees
+
+  // ---------- formatting ----------
+  const SUBS = '₀₁₂₃₄₅₆₇₈₉';
+  const SUPS = { '-': '⁻', '0': '⁰', '1': '¹', '2': '²', '3': '³', '4': '⁴', '5': '⁵', '6': '⁶', '7': '⁷', '8': '⁸', '9': '⁹' };
+  const sub = k => String(k).split('').map(d => SUBS[+d]).join('');
+  const sup = k => String(k).split('').map(ch => SUPS[ch] || ch).join('');
+  const xe = j => 'x' + sub(j + 1), se = j => 's' + sub(j + 1);
+  const fmtInt = v => Math.round(v).toLocaleString('en-US');
+  function fmtNum(v, d) {
+    d = d || 3;
+    if (v === Infinity) return '∞';
+    if (v == null || !isFinite(v)) return '–';
+    const a = Math.abs(v);
+    if (a === 0) return '0';
+    if (a >= 1e6 || a < 1e-3) { const e = Math.floor(Math.log10(a)); return (v / Math.pow(10, e)).toFixed(d - 2) + '×10' + sup(e); }
+    if (a >= 1000) return fmtInt(v);
+    return String(Number(v.toPrecision(d)));
+  }
+  function fmtDeg(rad) {
+    if (rad == null || !isFinite(rad)) return '–';
+    const d = rad * R2D;
+    if (d < 5e-9) return '0°';
+    if (d >= 10) return d.toFixed(1) + '°';
+    if (d >= 1) return d.toFixed(2) + '°';
+    return String(Number(d.toPrecision(2))) + '°';
+  }
+  const decadeLabel = k => (k >= 0 && k <= 3) ? fmtInt(Math.pow(10, k)) : '10' + sup(k);
+  const wrap180 = d => { d = ((d + 180) % 360 + 360) % 360 - 180; return d; };
+  const norm360 = d => ((d % 360) + 360) % 360;
+  const f1 = v => v.toFixed(1);
+  function polyline(pts, stroke, w, extra) {
+    if (pts.length < 2) return '';
+    return '<polyline fill="none" stroke="' + stroke + '" stroke-width="' + w + '" stroke-linejoin="round" stroke-linecap="round" ' + (extra || '') +
+      ' points="' + pts.map(p => f1(p[0]) + ',' + f1(p[1])).join(' ') + '"/>';
+  }
+  function niceTicks(lo, hi, n) {
+    const span = hi - lo;
+    if (!(span > 0)) return [lo];
+    const step0 = span / n, mag = Math.pow(10, Math.floor(Math.log10(step0))), e = step0 / mag;
+    const step = (e >= 7.5 ? 10 : e >= 3.5 ? 5 : e >= 1.5 ? 2 : 1) * mag;
+    const out = [];
+    for (let v = Math.ceil(lo / step) * step; v <= hi + 1e-9 * span; v += step) out.push(+v.toFixed(10));
+    return out;
+  }
+  function upperBound(arr, x) { let lo = 0, hi = arr.length; while (lo < hi) { const mid = (lo + hi) >> 1; if (arr[mid] <= x) lo = mid + 1; else hi = mid; } return lo; }
+
+  // ---------- state ----------
+  // The LP is fixed by Q (the matrix A) and two directions: aC, the direction of the arrow -c in the LP's picture, and aB,
+  // the direction of b in the dual's picture (degrees). S.inst is the LP, S.dual its dual written as an LP of the same form.
+  const S = {
+    Q: null, range: null, aC: 0, aB: 0, inst: null, sol: null, dual: null, dsol: null, views: { P: null, D: null }, viewStates: [],
+    run: null, runPending: false, runId: 0, cursor: 0, playing: false, t0: 0, p0: 0, speed: 1, autoplay: true,
+    land: { c: null, b: null }, landId: { c: 0, b: 0 }, unlocked: false,
+    seed: ((Date.now() % 2147483647) | 1) >>> 0, fineRef: { c: null, b: null }, drag: null, mathRendered: false, pulse: {}
+  };
+  function nextSeed() { S.seed = (Math.imul(S.seed, 1103515245) + 12345) >>> 0; return S.seed; }
+  const PIC = {
+    P: { svg: $('planeP'), counter: $('counterP'), edge: xe, star: 'x*', arrow: '−c', start: 'start (x = 0)', th: 'p' },
+    D: { svg: $('planeD'), counter: $('counterD'), edge: se, star: 'y*', arrow: 'b', start: 'start (y = 0)', th: 'd' }
+  };
+  const instOf = k => (k === 'P' ? S.inst : S.dual);
+  const solOf = k => (k === 'P' ? S.sol : S.dsol);
+  // b as a continuous angle inside the feasible range [lo, hi]
+  function unwrapB(a) { const mid = (S.range[0] + S.range[1]) / 2; return mid + wrap180(a - mid); }
+  function clampB(a) { const m = Math.min(0.2, (S.range[1] - S.range[0]) / 20); return Math.min(S.range[1] - m, Math.max(S.range[0] + m, unwrapB(a))); }
+
+  // ---------- background jobs (Web Worker built from this page's own scripts) ----------
+  function jobHandler(C, T, msg, post) {
+    try {
+      if (msg.type === 'run') {
+        const inst = C.deserialize(msg.inst);
+        const sol = C.solveLP(inst);
+        const r = C.rpdhg(inst, { basisMask: sol.basisMask, maxIter: msg.maxIter });
+        post({ type: 'run', id: msg.id, result: r, done: true });
+      } else if (msg.type === 'land') {
+        const base = C.deserialize(msg.inst);
+        let buf = [], last = Date.now();
+        if (!msg.samples.length) post({ type: 'land', id: msg.id, items: [], done: true });
+        for (let i = 0; i < msg.samples.length; i++) {
+          const smp = msg.samples[i], a = smp.a * Math.PI / 180;
+          const inst = msg.which === 'c' ? C.withAngle(base, a + Math.PI) : C.withB(base, [Math.cos(a), Math.sin(a)]);
+          const sol = C.solveLP(inst);
+          const it = { a: smp.a, kind: smp.kind, status: sol.status, unique: !!sol.unique };
+          if (sol.status === 'optimal') {
+            const r = C.rpdhg(inst, { basisMask: sol.basisMask, record: false, maxIter: msg.maxIter });
+            it.iters = r.iters; it.conv = r.converged; it.kphi = inst.kappa * sol.Phi;
+          }
+          buf.push(it);
+          const done = i === msg.samples.length - 1;
+          if (done || Date.now() - last > 80) { post({ type: 'land', id: msg.id, items: buf, done }); buf = []; last = Date.now(); }
+        }
+      } else if (msg.type === 'tests') {
+        const log = line => post({ type: 'tests', id: msg.id, line, done: false });
+        const rep = T.run({ log });
+        log('--- reference table: the LP of this page, eps = 1e-6 ---');
+        T.reference(log);
+        post({ type: 'tests', id: msg.id, done: true, pass: rep.pass });
+      }
+    } catch (err) {
+      post({ type: 'error', id: msg.id, kind: msg.type, message: String((err && err.stack) || err), done: true });
+    }
+  }
+  const WORKER_URL = (function () {
+    try {
+      const src = $('mathcore').textContent + '\n' + $('selftests').textContent + '\n' +
+        'const jobHandler = ' + jobHandler.toString() + ';\n' +
+        'self.onmessage = e => jobHandler(self.LPCore, self.LPTests, e.data, d => self.postMessage(d));\n';
+      return URL.createObjectURL(new Blob([src], { type: 'text/javascript' }));
+    } catch (e) { return null; }
+  })();
+  function makeLane() {
+    const lane = { w: null, busy: false };
+    lane.start = function (msg, onMsg) {
+      if (lane.w && lane.busy) { lane.w.terminate(); lane.w = null; }
+      if (!lane.w && WORKER_URL) { try { lane.w = new Worker(WORKER_URL); } catch (e) { lane.w = null; } }
+      lane.busy = true;
+      const handle = d => { if (d.done) lane.busy = false; onMsg(d); };
+      if (lane.w) {
+        lane.w.onmessage = ev => handle(ev.data);
+        lane.w.onerror = ev => { lane.busy = false; console.error(ev.message); };
+        lane.w.postMessage(msg);
+      } else {
+        setTimeout(() => jobHandler(C, window.LPTests, msg, handle), 0);   // fallback: main thread
+      }
+    };
+    return lane;
+  }
+  const lanes = { run: makeLane(), c: makeLane(), b: makeLane(), tests: makeLane() };
+
+  // ---------- the LP ----------
+  function applyState(aC, aB) {
+    aB = clampB(aB);
+    const P = C.pairAt(S.Q, aC, aB), sp = C.solveLP(P);
+    if (sp.status !== 'optimal') return false;
+    const D = C.dualOf(P), sd = C.solveLP(D);
+    if (sd.status !== 'optimal') return false;
+    S.aC = norm360(aC); S.aB = aB; S.inst = P; S.sol = sp; S.dual = D; S.dsol = sd;
+    return true;
+  }
+  // The direction at which each arrow ties along the nearest edge at the optimal vertex.
+  function tieOf(w) {
+    if (w === 'c') { const j = S.sol.thetaEdge; return j < 0 ? null : norm360(Math.atan2(S.inst.U[j][1], S.inst.U[j][0]) * R2D + 180); }
+    const i = S.dsol.thetaEdge;
+    return i < 0 ? null : unwrapB(Math.atan2(S.inst.A[1][i], S.inst.A[0][i]) * R2D);
+  }
+  // The story's two targets: each arrow 0.017 degrees from its nearest tie, on the side where it starts.
+  function storyTargets() {
+    const tc = tieOf('c'), tb = tieOf('b');
+    return { c: tc + (Math.sign(wrap180(S.aC - tc)) || 1) * NEAR, b: tb + (Math.sign(S.aB - tb) || 1) * NEAR, tieC: tc, tieB: tb };
+  }
+
+  // ---------- views ----------
+  function viewFromPts(pts, pad) {
+    let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+    for (const p of pts) { if (!isFinite(p[0]) || !isFinite(p[1])) continue; x0 = Math.min(x0, p[0]); x1 = Math.max(x1, p[0]); y0 = Math.min(y0, p[1]); y1 = Math.max(y1, p[1]); }
+    const span = Math.max(x1 - x0, y1 - y0, 0.4);
+    x0 -= pad * span; x1 += pad * span; y0 -= pad * span; y1 += pad * span;
+    const padL = 22, padR = 22, padT = 104, padB = 22;
+    const s = Math.min((W - padL - padR) / (x1 - x0), (H - padT - padB) / (y1 - y0));
+    const cx = (x0 + x1) / 2, cy = (y0 + y1) / 2;
+    return { s, ox: padL + (W - padL - padR) / 2 - s * cx, oy: padT + (H - padT - padB) / 2 + s * cy };
+  }
+  // Points each picture must show for the LP P: in the LP's picture every vertex; in the dual's, y*, its neighbors and nearby edges.
+  function primalPts(P) { const sp = C.solveLP(P); return sp.vertices ? sp.vertices.map(p => p.v) : []; }
+  function dualPts(P) {
+    const D = C.dualOf(P), sd = C.solveLP(D), out = [];
+    if (sd.status !== 'optimal') return out;
+    const y = sd.vstar, R = 1.1 * Math.max(Math.hypot(y[0], y[1]), 0.6);
+    out.push(y);
+    for (let j = 0; j < D.n; j++) {
+      const u = D.U[j], f = (D.g[j] + u[0] * y[0] + u[1] * y[1]) / (u[0] * u[0] + u[1] * u[1]);
+      const foot = [y[0] - f * u[0], y[1] - f * u[1]];
+      if (Math.hypot(foot[0] - y[0], foot[1] - y[1]) <= R) out.push(foot);
+    }
+    for (const p of sd.vertices) if (Math.hypot(p.v[0] - y[0], p.v[1] - y[1]) <= 1.4 * R) out.push(p.v);
+    if (sd.rays && sd.rays.length === 2) {            // some of the region itself, along the bisector of its corner at y*
+      const d = [sd.rays[0].d[0] + sd.rays[1].d[0], sd.rays[0].d[1] + sd.rays[1].d[1]], dn = Math.hypot(d[0], d[1]);
+      if (dn > 1e-9) out.push([y[0] + 0.8 * R * d[0] / dn, y[1] + 0.8 * R * d[1] / dn]);
+    }
+    return out;
+  }
+  function addNear(pts, path, frac) {
+    let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+    for (const p of pts) { x0 = Math.min(x0, p[0]); x1 = Math.max(x1, p[0]); y0 = Math.min(y0, p[1]); y1 = Math.max(y1, p[1]); }
+    const m = frac * Math.max(x1 - x0, y1 - y0, 0.4);
+    for (const p of path) if (p[0] >= x0 - m && p[0] <= x1 + m && p[1] >= y0 - m && p[1] <= y1 + m) pts.push(p);
+  }
+  function computeViews(states, only) {
+    if (!only) S.viewStates = states;
+    const ptsP = [[0, 0]], ptsD = [[0, 0]];
+    for (const P of states) { ptsP.push.apply(ptsP, primalPts(P)); ptsD.push.apply(ptsD, dualPts(P)); }
+    const P0 = states[0], r = C.rpdhg(P0, { basisMask: C.solveLP(P0).basisMask, maxIter: 20000, head: 3000, tailCap: 500 });
+    if (r.rec) {
+      addNear(ptsP, r.rec.vx.map((v, i) => [v, r.rec.vy[i]]), 0.3);
+      addNear(ptsD, r.rec.yx.map((v, i) => [v, r.rec.yy[i]]), 0.3);
+    }
+    if (only !== 'D') S.views.P = viewFromPts(ptsP, 0.06);
+    if (only !== 'P') S.views.D = viewFromPts(ptsD, 0.14);
+  }
+  // After the user turns an arrow, refit a picture if any point it must show has left the drawing area.
+  function ensureViews() {
+    for (const key of ['P', 'D']) {
+      const V = S.views[key], pts = key === 'P' ? primalPts(S.inst) : dualPts(S.inst);
+      const bad = pts.some(v => { const x = V.ox + V.s * v[0], y = V.oy - V.s * v[1]; return x < 10 || x > W - 10 || y < 108 || y > H - 10; });
+      if (bad) computeViews([S.inst], key);
+    }
+  }
+  // States the default views must hold: the start and both turns of the story.
+  function storyStates() {
+    const t = storyTargets(), out = [S.inst];
+    const oc0 = wrap180(S.aC - t.tieC), oc1 = wrap180(t.c - t.tieC), ob0 = S.aB - t.tieB, ob1 = t.b - t.tieB;
+    for (let k = 1; k <= 12; k++) {
+      const e = k / 12;
+      out.push(C.pairAt(S.Q, t.tieC + oc0 * Math.pow(oc1 / oc0, e), S.aB));
+      out.push(C.pairAt(S.Q, S.aC, t.tieB + ob0 * Math.pow(ob1 / ob0, e)));
+    }
+    return out;
+  }
+
+  // ---------- the pictures ----------
+  function edgeSegments(inst, poly) {
+    const segs = new Array(inst.n).fill(null);
+    for (let i = 0; i < poly.length; i++) {
+      const p = poly[i], q = poly[(i + 1) % poly.length], mid = [(p[0] + q[0]) / 2, (p[1] + q[1]) / 2];
+      let best = -1, bestV = Infinity;
+      for (let j = 0; j < inst.n; j++) {
+        const u = inst.U[j], v = Math.abs(inst.g[j] + u[0] * mid[0] + u[1] * mid[1]) / Math.hypot(u[0], u[1]);
+        if (v < bestV) { bestV = v; best = j; }
+      }
+      if (bestV <= 1e-7 * (1 + Math.hypot(mid[0], mid[1])) && Math.hypot(q[0] - p[0], q[1] - p[1]) > 0) segs[best] = [p, q];
+    }
+    return segs;
+  }
+  function viewFns(key) {
+    const V = S.views[key];
+    return { w2s: v => [V.ox + V.s * v[0], V.oy - V.s * v[1]], s2w: (px, py) => [(px - V.ox) / V.s, (V.oy - py) / V.s], s: V.s };
+  }
+  // The edge that nearly passes through the optimal vertex (a nearly degenerate vertex), when that is what makes Phi large.
+  function hotEdge(sol) { return (sol.status === 'optimal' && sol.unique && sol.binding === 'b' && sol.Phi >= 100) ? sol.zetaDIdx : -1; }
+  function renderPicture(key) {
+    const pc = PIC[key], inst = instOf(key), sol = solOf(key), svg = pc.svg, U = inst.U, g = inst.g, n = inst.n;
+    const { w2s, s2w, s: sc } = viewFns(key);
+    const c0 = s2w(-40, H + 40), c1 = s2w(W + 40, -40), vb = [c0[0], c0[1], c1[0], c1[1]];
+    const poly = C.clipPolygon(inst, vb);
+    const P = arr => arr.map(p => { const q = w2s(p); return f1(q[0]) + ',' + f1(q[1]); }).join(' ');
+    const gam = inst.gamma, gn = Math.hypot(gam[0], gam[1]), gh = [gam[0] / gn, gam[1] / gn], ld = [-gh[1], gh[0]];
+    const big = 4 * (W + H) / sc;
+    const through = (p, d) => [w2s([p[0] - big * d[0], p[1] - big * d[1]]), w2s([p[0] + big * d[0], p[1] + big * d[1]])];
+    const L = (a, b, attrs) => '<line x1="' + f1(a[0]) + '" y1="' + f1(a[1]) + '" x2="' + f1(b[0]) + '" y2="' + f1(b[1]) + '" ' + attrs + '/>';
+    const kf = Math.min(1.9, Math.max(1, W / (svg.getBoundingClientRect().width || W)));
+    const halo = 'paint-order="stroke" stroke="var(--surface)" stroke-width="' + (3.5 * kf).toFixed(1) + '" stroke-linejoin="round"';
+    const ok = sol.status === 'optimal';
+    let s = '<defs><clipPath id="clip' + key + '"><polygon points="' + P(poly) + '"/></clipPath>' +
+      '<marker id="ah' + key + '" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="var(--accent)"/></marker></defs>';
+    s += '<polygon points="' + P(poly) + '" fill="var(--poly)"/>';
+    if (ok) {
+      // level lines of the objective, inside the feasible region
+      const t0 = gh[0] * sol.vstar[0] + gh[1] * sol.vstar[1];
+      const cs = [[vb[0], vb[1]], [vb[2], vb[1]], [vb[2], vb[3]], [vb[0], vb[3]]].map(p => gh[0] * p[0] + gh[1] * p[1]);
+      const hi = Math.max.apply(null, cs), lo = Math.min.apply(null, cs), step = (hi - lo) / 16;
+      let ll = '';
+      for (let t = t0 + step; t < hi; t += step) { const ab = through([gh[0] * t, gh[1] * t], ld); ll += L(ab[0], ab[1], ''); }
+      s += '<g clip-path="url(#clip' + key + ')" stroke="var(--level)" stroke-width="1">' + ll + '</g>';
+    }
+    // edges and their labels
+    const segs = edgeSegments(inst, poly);
+    const tied = (ok && sol.tie && sol.optimal.length > 1) ? sol.optimal[0].active.filter(j => sol.optimal[1].active.indexOf(j) >= 0) : [];
+    const hot = hotEdge(sol);
+    for (let j = 0; j < n; j++) {
+      const u = U[j], nu = Math.hypot(u[0], u[1]);
+      const p0 = [-g[j] * u[0] / (nu * nu), -g[j] * u[1] / (nu * nu)], d = [-u[1] / nu, u[0] / nu];
+      const ab = through(p0, d), seg = segs[j];
+      const cls = S.pulse[key] === j ? 'class="pulse" ' : '';
+      if (j === hot) {
+        // its edge in bold, or, if the line misses the region, the whole line dashed: either way it nearly meets the vertex
+        if (seg) s += L(w2s(seg[0]), w2s(seg[1]), cls + 'stroke="var(--warn)" stroke-width="3.2" stroke-linecap="round"');
+        else s += L(ab[0], ab[1], cls + 'stroke="var(--warn)" stroke-width="2.4" stroke-dasharray="8 5"');
+      } else if (seg) {
+        const t = tied.indexOf(j) >= 0;
+        s += L(w2s(seg[0]), w2s(seg[1]), cls + 'stroke="' + (t ? 'var(--accent)' : 'var(--edge)') + '" stroke-width="' + (t ? 4.5 : 2) + '" stroke-linecap="round"');
+      } else s += L(ab[0], ab[1], cls + 'stroke="var(--muted)" stroke-width="1.2" stroke-dasharray="3 5" opacity=".7"');
+      const segPx = seg ? Math.hypot(seg[1][0] - seg[0][0], seg[1][1] - seg[0][1]) * sc : Infinity;
+      if (seg && segPx < 16) continue;                    // too short to label without covering the vertex
+      let mid;
+      if (seg) mid = [(seg[0][0] + seg[1][0]) / 2, (seg[0][1] + seg[1][1]) / 2];
+      else {
+        // label the line where it is closest to the center of the drawing area
+        const cc = s2w(W / 2, (104 + H) / 2), t = (cc[0] - p0[0]) * d[0] + (cc[1] - p0[1]) * d[1];
+        mid = [p0[0] + t * d[0], p0[1] + t * d[1]];
+        const qm = w2s(mid);
+        if (qm[0] < 12 || qm[0] > W - 12 || qm[1] < 112 || qm[1] > H - 8) continue;   // the line barely enters the picture
+      }
+      const q = w2s(mid), on = [-u[0] / nu, u[1] / nu];
+      const lx = Math.min(W - 14, Math.max(14, q[0] + 15 * kf * on[0])), ly = Math.min(H - 6, Math.max(18, q[1] + 15 * kf * on[1] + 5 * kf));
+      s += '<text x="' + f1(lx) + '" y="' + f1(ly) + '" text-anchor="middle" font-size="' + f1(14.5 * kf) + '" fill="' + (j === hot ? 'var(--warn)' : 'var(--muted)') + '" font-weight="' + (j === hot ? 600 : 400) + '" ' + halo + '>' + pc.edge(j) + '</text>';
+    }
+    if (ok) {
+      const xs = w2s(sol.vstar);
+      // level line through the optimal vertex and the angle theta to the nearest edge
+      if (sol.rays && sol.rays.length) {
+        const ab = through(sol.vstar, ld);
+        s += L(ab[0], ab[1], 'stroke="var(--theta)" stroke-width="1.3" stroke-dasharray="6 4" opacity=".9"');
+        const r0 = sol.rays[0];
+        let l = ld;
+        if (l[0] * r0.d[0] + l[1] * r0.d[1] < 0) l = [-l[0], -l[1]];
+        const a1 = Math.atan2(-l[1], l[0]), a2 = Math.atan2(-r0.d[1], r0.d[0]);
+        let da = a2 - a1;
+        while (da > Math.PI) da -= 2 * Math.PI;
+        while (da < -Math.PI) da += 2 * Math.PI;
+        const R = 46, p1 = [xs[0] + R * Math.cos(a1), xs[1] + R * Math.sin(a1)], p2 = [xs[0] + R * Math.cos(a2), xs[1] + R * Math.sin(a2)];
+        s += '<path d="M' + f1(xs[0]) + ',' + f1(xs[1]) + ' L' + f1(p1[0]) + ',' + f1(p1[1]) + ' A' + R + ',' + R + ' 0 0 ' + (da > 0 ? 1 : 0) + ' ' + f1(p2[0]) + ',' + f1(p2[1]) + ' Z" fill="var(--theta)" fill-opacity=".2" stroke="var(--theta)" stroke-width="1.3"/>';
+        const lp = labelSpot(xs, poly.map(w2s), [ld[0], -ld[1]], sol.rays, [xs[0] - 22 * kf * gh[0], xs[1] + 22 * kf * gh[1]], hot >= 0 ? U[hot] : null, kf, fmtDeg(sol.thetaMin).length + 5);
+        s += '<text x="' + f1(lp[0]) + '" y="' + f1(lp[1]) + '" text-anchor="middle" font-size="' + f1(14.5 * kf) + '" font-weight="600" fill="var(--theta)" ' + halo + '>θ<tspan font-size="' + f1(10.5 * kf) + '" dy="' + f1(3 * kf) + '">' + pc.th + '</tspan><tspan dy="' + f1(-3 * kf) + '"> = ' + fmtDeg(sol.thetaMin) + '</tspan></text>';
+      }
+      for (const p of sol.vertices) { const q = w2s(p.v); s += '<circle cx="' + f1(q[0]) + '" cy="' + f1(q[1]) + '" r="2.6" fill="var(--edge)"/>'; }
+      for (const p of sol.optimal) { const q = w2s(p.v); s += '<circle cx="' + f1(q[0]) + '" cy="' + f1(q[1]) + '" r="7" fill="var(--accent)" stroke="var(--surface)" stroke-width="1.6"/>'; }
+      if (sol.degenerate) s += '<circle cx="' + f1(xs[0]) + '" cy="' + f1(xs[1]) + '" r="13" fill="none" stroke="var(--warn)" stroke-width="2" stroke-dasharray="4 3"/>';
+      const lab = [xs[0] - 22 * kf * gh[0], xs[1] + 22 * kf * gh[1]];
+      s += '<text x="' + f1(lab[0]) + '" y="' + f1(lab[1] + 5 * kf) + '" text-anchor="middle" font-size="' + f1(16 * kf) + '" font-weight="600" fill="var(--accent)" ' + halo + '>' + pc.star + '</text>';
+    }
+    // the start point x = 0 (left: its projection) or y = 0 (right)
+    const q0 = w2s([0, 0]);
+    if (q0[0] > 0 && q0[0] < W && q0[1] > 96 && q0[1] < H) {
+      s += '<path d="M' + f1(q0[0] - 5) + ',' + f1(q0[1] - 5) + ' l10,10 m0,-10 l-10,10" stroke="var(--muted)" stroke-width="1.6"/>';
+      const right = q0[0] > W - 110 * kf;
+      s += '<text x="' + f1(q0[0] + (right ? -8 : 8)) + '" y="' + f1(q0[1] - 7) + '" text-anchor="' + (right ? 'end' : 'start') + '" font-size="' + f1(12 * kf) + '" fill="var(--muted)" ' + halo + '>' + pc.start + '</text>';
+    }
+    s += '<g id="pathG' + key + '" pointer-events="none"></g>';
+    // the dial: the arrow is -gamma (in the LP's picture -c; in the dual's b)
+    const ax = -gh[0], ay = gh[1];
+    const tip = [DX + DR * ax, DY + DR * ay], tail = [DX - DR * 0.6 * ax, DY - DR * 0.6 * ay];
+    let arc = '';
+    if (key === 'D') {
+      // directions of b that keep the LP feasible
+      const rr = DR + 7, a0 = S.range[0] / R2D, a1 = S.range[1] / R2D;
+      const e0 = [DX + rr * Math.cos(a0), DY - rr * Math.sin(a0)], e1 = [DX + rr * Math.cos(a1), DY - rr * Math.sin(a1)];
+      arc = '<path d="M' + f1(e0[0]) + ',' + f1(e0[1]) + ' A' + rr + ',' + rr + ' 0 ' + (S.range[1] - S.range[0] > 180 ? 1 : 0) + ' 0 ' + f1(e1[0]) + ',' + f1(e1[1]) + '" fill="none" stroke="var(--accent)" stroke-opacity=".35" stroke-width="5" stroke-linecap="round" pointer-events="none"/>';
+    }
+    s += '<g class="' + (S.pulse['dial' + key] ? 'pulse' : '') + '">' +
+      '<circle class="dial-hit" cx="' + DX + '" cy="' + DY + '" r="' + (DR + 13) + '" fill="var(--surface)" fill-opacity=".9" stroke="var(--rule)"/>' + arc +
+      L(tail, [DX + DR * 0.82 * ax, DY + DR * 0.82 * ay], 'stroke="var(--accent)" stroke-width="3.2" marker-end="url(#ah' + key + ')" pointer-events="none"') +
+      '<circle class="handle" cx="' + f1(tip[0]) + '" cy="' + f1(tip[1]) + '" r="10" fill="var(--accent)" fill-opacity=".16" stroke="var(--accent)" stroke-width="1.6"/>' +
+      '<text x="' + (DX - DR - 18) + '" y="' + (DY + 5) + '" text-anchor="end" font-size="' + f1(14 * kf) + '" fill="var(--muted)" pointer-events="none">' + pc.arrow + '</text></g>';
+    svg.innerHTML = s;
+    renderPath(key);
+  }
+  function renderPictures() { renderPicture('P'); renderPicture('D'); }
+  function insideConvex(Q, p) {
+    let sg = 0;
+    for (let i = 0; i < Q.length; i++) {
+      const a = Q[i], b = Q[(i + 1) % Q.length], cr = (b[0] - a[0]) * (p[1] - a[1]) - (b[1] - a[1]) * (p[0] - a[0]);
+      if (Math.abs(cr) < 1e-9) continue;
+      const t = cr > 0 ? 1 : -1;
+      if (!sg) sg = t; else if (t !== sg) return false;
+    }
+    return Q.length > 2;
+  }
+  // A spot for the label of theta near the vertex xs (screen coordinates): inside the picture, outside the region,
+  // off the level line (direction ld) and off the label of the vertex.
+  function labelSpot(xs, polyS, ld, rays, starAt, hotU, kf, nch) {
+    const w = nch * 8.4 * kf, h = 16 * kf;
+    let out = [0, 0];
+    for (const r of rays) { out[0] -= r.d[0]; out[1] += r.d[1]; }
+    const on = Math.hypot(out[0], out[1]) || 1;
+    out = [out[0] / on, out[1] / on];
+    const lineDist = (p, q, d) => Math.abs((p[0] - q[0]) * d[1] - (p[1] - q[1]) * d[0]);
+    let best = null, bestScore = Infinity;
+    for (const rad of [64, 92]) for (let k = 0; k < 16; k++) {
+      const a = k * Math.PI / 8, dx = Math.cos(a), dy = Math.sin(a);
+      const c = [xs[0] + rad * kf * dx, xs[1] + rad * kf * dy];
+      let score = (rad > 64 ? 6 : 0) + 12 * (1 - (dx * out[0] + dy * out[1]));
+      if (c[0] - w / 2 < 8 || c[0] + w / 2 > W - 8 || c[1] - h / 2 < 110 + 40 * (kf - 1) || c[1] + h / 2 > H - 6) score += 1000;   // below the counter, which takes more room on a phone
+      for (const p of [c, [c[0] - w / 2, c[1] - h / 2], [c[0] + w / 2, c[1] - h / 2], [c[0] - w / 2, c[1] + h / 2], [c[0] + w / 2, c[1] + h / 2]]) if (insideConvex(polyS, p)) score += 60;
+      if (lineDist(c, xs, ld) < 0.9 * h) score += 80;
+      if (hotU) { const hd = [hotU[1], hotU[0]], hn = Math.hypot(hd[0], hd[1]); if (lineDist(c, xs, [hd[0] / hn, hd[1] / hn]) < 0.9 * h) score += 50; }
+      if (Math.abs(c[0] - starAt[0]) < (w / 2 + 12 * kf) && Math.abs(c[1] - starAt[1]) < h) score += 150;
+      if (score < bestScore) { bestScore = score; best = c; }
+    }
+    return [best[0], best[1] + 5 * kf];
+  }
+
+  function renderPath(key) {
+    const gEl = $('pathG' + key);
+    if (gEl) {
+      const r = S.run;
+      if (!r || !r.rec) gEl.innerHTML = '';
+      else {
+        const { w2s } = viewFns(key);
+        const R = r.rec, cur = S.cursor, hiIdx = upperBound(R.it, cur) - 1;
+        const X = key === 'P' ? R.vx : R.yx, Y = key === 'P' ? R.vy : R.yy, RS = key === 'P' ? r.restartV : r.restartY;
+        const pts = [];
+        for (let i = 0; i <= hiIdx; i++) pts.push(w2s([X[i], Y[i]]));
+        let s = polyline(pts, 'var(--path)', 1.8, 'opacity=".95"');
+        for (let q = 0; q < r.restarts.length && r.restarts[q] <= cur; q++) {
+          const p = w2s([RS[2 * q], RS[2 * q + 1]]);
+          s += '<circle cx="' + f1(p[0]) + '" cy="' + f1(p[1]) + '" r="3.8" fill="var(--surface)" stroke="var(--path)" stroke-width="1.7"/>';
+        }
+        if (hiIdx >= 0) { const p = w2s([X[hiIdx], Y[hiIdx]]); s += '<circle cx="' + f1(p[0]) + '" cy="' + f1(p[1]) + '" r="4.6" fill="var(--path)"/>'; }
+        gEl.innerHTML = s;
+      }
+    }
+    const el = PIC[key].counter;
+    if (S.runPending) el.innerHTML = '…<small>running rPDHG</small>';
+    else if (!S.run) el.innerHTML = '–<small>' + (S.drag ? 'release to run' : 'start with step 1 above') + '</small>';
+    else {
+      const done = S.cursor >= S.run.iters;
+      el.innerHTML = fmtInt(S.cursor) + '<small>' + (done ? (S.run.converged ? 'iterations to ε = 10⁻⁶' : 'iterations, cap reached') : 'iterations') + '</small>' +
+        (done && S.ratioNote ? '<small class="ratio">' + S.ratioNote + '</small>' : '');
+    }
+  }
+
+  // ---------- the cards ----------
+  function renderPhi() {
+    const sp = S.sol, sd = S.dsol, cn = S.inst.cnorm, bn = Math.hypot(S.inst.b[0], S.inst.b[1]);
+    const zc = cn * Math.sin(sp.thetaMin), zb = bn * Math.sin(sd.thetaMin);
+    $('vL1').textContent = sp.l1 != null ? fmtNum(sp.l1) : '–';
+    $('vC').textContent = sp.tie ? '0' : fmtNum(zc);
+    $('vB').textContent = sd.tie ? '0' : fmtNum(zb);
+    $('vPhi').textContent = fmtNum(sp.Phi);
+    const bindC = sp.unique ? sp.binding === 'c' : !!sp.tie, bindB = sp.unique ? sp.binding === 'b' : !!sd.tie;
+    $('chC').classList.toggle('bind', bindC);
+    $('chB').classList.toggle('bind', bindB);
+  }
+  function whyText() {
+    const sp = S.sol, sd = S.dsol, r = S.run;
+    if (sp.status !== 'optimal') return '';
+    const N = r ? fmtInt(r.iters) : '…';
+    const easyAgain = ' Then Φ = ∞ and the bound does not apply, yet rPDHG needs only ' + N + ' iterations: being near a tie hurts, being exactly at one need not.';
+    if (sp.tie) return '−c is exactly perpendicular to edge ' + xe(sp.thetaEdge) + ', so that whole edge is optimal, and three edges of the dual meet at y*.' + easyAgain;
+    if (sd.tie) return 'b is exactly perpendicular to edge ' + se(sd.thetaEdge) + ', so that whole edge is optimal for the dual, and three edges of the LP meet at x*.' + easyAgain;
+    if (!sp.unique) return 'The optimal vertex is degenerate, so Φ = ∞ and the bound does not apply. Here rPDHG needs ' + N + ' iterations.';
+    const big = sp.Phi >= 300, small = sp.Phi <= 60;
+    const thp = fmtDeg(sp.thetaMin), thd = fmtDeg(sd.thetaMin);
+    if (small) return 'Both arrows are far from a tie (θp = ' + thp + ', θd = ' + thd + '). Only a large change in c or b changes the optimal basis, so Φ is small.';
+    if (sp.binding === 'c') {
+      if (big) return '−c is only ' + thp + ' from being perpendicular to edge ' + xe(sp.thetaEdge) + ': a near tie. In the dual, edge ' + se(sp.zetaPEdge) + ' almost passes through y*. A tiny change in c changes the optimal basis, so Φ is large.';
+      return '−c is ' + thp + ' from being perpendicular to edge ' + xe(sp.thetaEdge) + '. At 0°, that whole edge would be optimal.';
+    }
+    if (big) return 'b is only ' + thd + ' from being perpendicular to edge ' + se(sd.thetaEdge) + ': a near tie in the dual. In the LP, edge ' + xe(sp.zetaDIdx) + ' almost passes through x*. A tiny change in b changes the optimal basis, so Φ is large.';
+    return 'b is ' + thd + ' from being perpendicular to edge ' + se(sd.thetaEdge) + '. At 0°, that whole edge would be optimal for the dual.';
+  }
+  function renderIterCard() {
+    const r = S.run, num = $('iterNum');
+    if (!r) { num.textContent = S.runPending ? '…' : '–'; num.classList.add('pending'); }
+    else { num.classList.remove('pending'); num.textContent = (r.converged ? '' : '≥ ') + fmtInt(r.iters); }
+    $('why').textContent = (r || S.runPending) ? whyText() : 'Not run yet. Start with step 1 above.';
+  }
+  function renderAlgo() {
+    if ($('math').hidden) return;
+    for (let k = 0; k <= 5; k++) { const el = $('alg' + k); if (el) el.classList.remove('on'); }
+    const r = S.run;
+    if (!r) return;
+    const cur = S.cursor;
+    let on = [];
+    if (cur === 0) on = [0];
+    else if (cur >= r.iters) on = [5];
+    else if (r.restarts.indexOf(cur) >= 0) on = [3, 4];
+    else on = [1, 2];
+    on.forEach(k => $('alg' + k).classList.add('on'));
+    const ell = upperBound(r.restarts, cur - 1), lastR = ell > 0 ? r.restarts[ell - 1] : 0;
+    $('algCnt').textContent = 'iteration ' + fmtInt(cur) + ' · outer loop ℓ = ' + ell + ' · inner step k = ' + (cur - lastR);
+  }
+
+  // ---------- convergence plot ----------
+  function fitBox(svg, maxW, Hc) { const w = svg.getBoundingClientRect().width || maxW; const Wc = Math.round(Math.max(340, Math.min(maxW, w))); svg.setAttribute('viewBox', '0 0 ' + Wc + ' ' + Hc); return Wc; }
+  function axisFrame(Wc, Hc, Lm, Rm, Tm, Bm) { return '<rect x="' + Lm + '" y="' + Tm + '" width="' + (Wc - Lm - Rm) + '" height="' + (Hc - Tm - Bm) + '" class="ax"/>'; }
+  function renderConv() {
+    const svg = $('conv'), r = S.run, Hc = 200, Wc = fitBox(svg, 560, Hc), Lm = 46, Rm = 12, Tm = 22, Bm = 32;
+    if (!r || !r.rec) { svg.innerHTML = axisFrame(Wc, Hc, Lm, Rm, Tm, Bm) + '<text class="lbl" x="' + (Wc / 2) + '" y="' + (Hc / 2) + '" text-anchor="middle">' + (S.runPending ? 'running rPDHG…' : (S.drag ? 'release to run' : 'no run yet')) + '</text>'; return; }
+    const R = r.rec;
+    let ymax = -Infinity, ymin = Math.log10(EPS) - 0.4;
+    for (let i = 0; i < R.le.length; i++) if (isFinite(R.le[i]) && R.le[i] > -19) { ymax = Math.max(ymax, R.le[i]); ymin = Math.min(ymin, R.le[i]); }
+    ymax = Math.ceil(ymax + 0.05); ymin = Math.floor(ymin);
+    const X = it => Lm + (Wc - Lm - Rm) * it / Math.max(1, r.iters), Y = v => Tm + (Hc - Tm - Bm) * (ymax - v) / Math.max(1e-9, ymax - ymin);
+    let s = '';
+    for (let k = ymin; k <= ymax; k++) if ((ymax - k) % 2 === 0 || ymax - ymin <= 6) s += '<line class="gridl" x1="' + Lm + '" x2="' + (Wc - Rm) + '" y1="' + f1(Y(k)) + '" y2="' + f1(Y(k)) + '"/><text class="tk" x="' + (Lm - 6) + '" y="' + f1(Y(k) + 4) + '" text-anchor="end">10' + sup(k) + '</text>';
+    for (const t of niceTicks(0, r.iters, 4)) s += '<text class="tk" x="' + f1(X(t)) + '" y="' + (Hc - Bm + 15) + '" text-anchor="middle">' + fmtInt(t) + '</text>';
+    s += '<text class="lbl" x="' + (Wc - Rm) + '" y="' + (Hc - 3) + '" text-anchor="end">iteration</text>';
+    s += '<line x1="' + Lm + '" x2="' + (Wc - Rm) + '" y1="' + f1(Y(Math.log10(EPS))) + '" y2="' + f1(Y(Math.log10(EPS))) + '" stroke="var(--muted)" stroke-dasharray="4 4"/><text class="tk" x="' + (Wc - Rm - 4) + '" y="' + f1(Y(Math.log10(EPS)) - 5) + '" text-anchor="end">ε</text>';
+    const cur = S.cursor, hiIdx = upperBound(R.it, cur) - 1, pts = [];
+    for (let i = 0; i <= hiIdx; i++) { if (!isFinite(R.le[i]) || R.le[i] <= -19) continue; pts.push([X(R.it[i]), Y(R.le[i])]); }
+    s += polyline(pts, 'var(--path)', 1.8);
+    for (const t of r.restarts) if (t <= cur) s += '<line x1="' + f1(X(t)) + '" x2="' + f1(X(t)) + '" y1="' + (Hc - Bm) + '" y2="' + (Hc - Bm - 6) + '" stroke="var(--muted)" stroke-width="1.3"/>';
+    s += axisFrame(Wc, Hc, Lm, Rm, Tm, Bm);
+    s += '<text class="lbl" x="' + Lm + '" y="13">error of the average iterate (log scale)</text>';
+    svg.innerHTML = s;
+  }
+
+  // ---------- every direction of each arrow ----------
+  const OFFS = [-1, -1.5, -2, -2.5, -3, -3.5, -4];
+  function landSamples(w) {
+    const out = [];
+    if (w === 'c') {
+      for (let d = 0; d < 360; d++) out.push({ a: d, kind: 'grid' });
+      const edges = new Set();
+      for (const p of (S.sol.vertices || [])) for (const j of p.active) edges.add(j);
+      for (const j of edges) {
+        const tie = norm360(Math.atan2(S.inst.U[j][1], S.inst.U[j][0]) * R2D + 180);
+        out.push({ a: tie, kind: 'tie' });
+        for (const e of OFFS) for (const sg of [1, -1]) out.push({ a: norm360(tie + sg * Math.pow(10, e) * R2D), kind: 'near' });
+      }
+    } else {
+      const lo = S.range[0], hi = S.range[1], m = Math.min(0.15, (hi - lo) / 30), N = 240;
+      for (let k = 0; k <= N; k++) out.push({ a: lo + m + (hi - lo - 2 * m) * k / N, kind: 'grid' });
+      for (const off of [0.25, 0.5, 1, 2]) if (off < (hi - lo) / 4) { out.push({ a: lo + off, kind: 'grid' }); out.push({ a: hi - off, kind: 'grid' }); }
+      for (let i = 0; i < 4; i++) {
+        const t = unwrapB(Math.atan2(S.inst.A[1][i], S.inst.A[0][i]) * R2D);
+        if (t <= lo + 0.5 || t >= hi - 0.5) continue;
+        out.push({ a: t, kind: 'tie' });
+        for (const e of OFFS) for (const sg of [1, -1]) out.push({ a: t + sg * Math.pow(10, e) * R2D, kind: 'near' });
+      }
+    }
+    return out;
+  }
+  // The sweep of -c depends on b, and the sweep of b depends on c.
+  const landKey = w => (S.Q.seed || 0) + ':' + (w === 'c' ? S.aB : S.aC).toFixed(9);
+  function requestLandscape() {
+    if (!S.unlocked) return;
+    for (const w of ['c', 'b']) {
+      const key = landKey(w), L = S.land[w];
+      if (L && L.key === key) continue;
+      const id = ++S.landId[w], samples = landSamples(w);
+      S.land[w] = { key, id, items: [], total: samples.length, done: false };
+      lanes[w].start({ type: 'land', id, which: w, inst: C.serialize(S.inst), samples, maxIter: 400000 }, d => {
+        const L2 = S.land[w];
+        if (!L2 || d.id !== L2.id) return;
+        if (d.type === 'error') { console.error(d.message); return; }
+        L2.items.push.apply(L2.items, d.items);
+        if (d.done) L2.done = true;
+        renderLand();
+      });
+    }
+    renderLand();
+  }
+  function landRange() {
+    let lo = Infinity, hi = -Infinity;
+    for (const w of ['c', 'b']) {
+      const L = S.land[w];
+      if (!L) continue;
+      for (const it of L.items) if (it.status === 'optimal') {
+        lo = Math.min(lo, Math.log10(it.iters)); hi = Math.max(hi, Math.log10(it.iters));
+        if (isFinite(it.kphi)) lo = Math.min(lo, Math.log10(it.kphi));
+      }
+    }
+    if (!isFinite(lo)) { lo = 0; hi = 4; }
+    lo = Math.floor(lo - 0.05); hi = Math.ceil(hi + 0.05);
+    if (hi - lo < 2) hi = lo + 2;
+    return [lo, hi];
+  }
+  function renderLandOne(w, yr) {
+    const svg = $(w === 'c' ? 'landC' : 'landB'), Hc = 190, Wc = fitBox(svg, 560, Hc), Lm = 46, Rm = 12, Tm = 22, Bm = 32;
+    S['landWc' + w] = Wc;
+    const L = S.land[w], items = (L && L.items) || [], stale = L && L.key !== landKey(w);
+    const x0 = w === 'c' ? 0 : S.range[0], x1 = w === 'c' ? 360 : S.range[1];
+    const X = a => Lm + (Wc - Lm - Rm) * (a - x0) / (x1 - x0);
+    const Y = v => Tm + (Hc - Tm - Bm) * (yr[1] - Math.min(yr[1], Math.max(yr[0], v))) / (yr[1] - yr[0]);
+    let s = '';
+    for (let k = yr[0]; k <= yr[1]; k++) s += '<line class="gridl" x1="' + Lm + '" x2="' + (Wc - Rm) + '" y1="' + f1(Y(k)) + '" y2="' + f1(Y(k)) + '"/><text class="tk" x="' + (Lm - 6) + '" y="' + f1(Y(k) + 4) + '" text-anchor="end">' + decadeLabel(k) + '</text>';
+    const ticks = w === 'c' ? [0, 90, 180, 270, 360] : niceTicks(x0, x1, 5);
+    for (const t of ticks) s += '<text class="tk" x="' + f1(X(t)) + '" y="' + (Hc - Bm + 15) + '" text-anchor="middle">' + Math.round(t) + '°</text>';
+    s += '<text class="lbl" x="' + (Wc - Rm) + '" y="' + (Hc - 3) + '" text-anchor="end">direction of ' + (w === 'c' ? '−c' : 'b') + ' (degrees)</text>';
+    s += '<text class="ttl" x="' + Lm + '" y="14">' + (w === 'c' ? 'Turning −c, with b as now' : 'Turning b, with c as now') + '</text>';
+    const pts = items.filter(it => it.status === 'optimal' && it.kind !== 'tie').map(it => ({ x: it.a, it: it.iters, k: it.kphi })).sort((a, b) => a.x - b.x);
+    let g = polyline(pts.filter(p => isFinite(p.k)).map(p => [X(p.x), Y(Math.log10(p.k))]), 'var(--accent)', 1.6, 'stroke-dasharray="5 4" opacity=".9"');
+    g += polyline(pts.map(p => [X(p.x), Y(Math.log10(p.it))]), 'var(--ink)', 1.7);
+    for (const it of items) if (it.status === 'optimal' && it.kind === 'tie') g += '<circle cx="' + f1(X(it.a)) + '" cy="' + f1(Y(Math.log10(it.iters))) + '" r="4.2" fill="var(--surface)" stroke="var(--path)" stroke-width="2"/>';
+    s += '<g opacity="' + (stale ? 0.3 : 1) + '">' + g + '</g>';
+    // the current direction
+    const cur = w === 'c' ? S.aC : S.aB, cx = X(cur);
+    s += '<line x1="' + f1(cx) + '" x2="' + f1(cx) + '" y1="' + Tm + '" y2="' + (Hc - Bm) + '" stroke="var(--theta)" stroke-width="1.4"/>';
+    if (S.run) s += '<circle cx="' + f1(cx) + '" cy="' + f1(Y(Math.log10(S.run.iters))) + '" r="4.6" fill="var(--theta)"/>';
+    s += axisFrame(Wc, Hc, Lm, Rm, Tm, Bm);
+    if (!L || !L.done) s += '<text class="lbl" x="' + (Wc - Rm - 6) + '" y="' + (Tm + 14) + '" text-anchor="end">computing… ' + (L ? L.items.length + ' / ' + L.total : '') + '</text>';
+    svg.innerHTML = s;
+  }
+  function renderLand() {
+    const yr = landRange();
+    renderLandOne('c', yr);
+    renderLandOne('b', yr);
+    const done = S.land.c && S.land.c.done && S.land.b && S.land.b.done;
+    let note = 'Each chart turns one arrow through every direction and runs rPDHG each time. Spikes are near ties; circles are exact ties. b stays inside the arc on its dial, where the LP is feasible. Click a chart to jump there.';
+    if (S.sol && S.sol.unique && S.sol.binding === 'b' && S.sol.Phi >= 300) note += ' Now b is near a tie, so x* is nearly degenerate, and every −c that makes x* optimal is slow.';
+    if (S.sol && S.sol.unique && S.sol.binding === 'c' && S.sol.Phi >= 300) note += ' Now −c is near a tie, so y* is nearly degenerate, and every b that makes y* optimal is slow.';
+    $('landNote').textContent = done ? note : 'Running rPDHG for every direction of each arrow…';
+  }
+
+  // ---------- updates ----------
+  function renderDynamic() { renderPath('P'); renderPath('D'); renderConv(); renderAlgo(); }
+  function refresh(o) {
+    o = o || {};
+    if (o.invalidate !== false) { S.run = null; S.cursor = 0; S.ratioNote = null; pause(); }
+    renderPictures(); renderPhi(); renderIterCard(); renderConv(); renderLand(); updateFine(); renderAlgo();
+    if (o.run) requestRun();
+  }
+  let runResolvers = [];
+  function requestRun() {
+    const id = ++S.runId;
+    S.run = null; S.runPending = true; S.cursor = 0; pause();
+    renderIterCard(); renderDynamic();
+    lanes.run.start({ type: 'run', id, inst: C.serialize(S.inst), maxIter: 2000000 }, d => {
+      if (d.id !== S.runId) return;
+      S.runPending = false;
+      if (d.type === 'error') { console.error(d.message); return; }
+      S.run = d.result;
+      renderIterCard(); renderLand();
+      const res = runResolvers; runResolvers = []; res.forEach(f => f());
+      if (S.autoplay) play(); else { S.cursor = S.run.iters; renderDynamic(); }
+    });
+  }
+  function runAndWait() { return new Promise(res => { runResolvers.push(res); requestRun(); }); }
+  let runTimer = 0;
+  function scheduleRun(ms) { clearTimeout(runTimer); runTimer = setTimeout(() => { requestRun(); requestLandscape(); }, ms || 250); }
+  function setAngles(aC, aB, live) {
+    if (!applyState(aC, aB)) return false;
+    refresh({ run: !live });
+    return true;
+  }
+  function loadPair(Q, o) {
+    o = o || {};
+    S.Q = Q; S.range = C.bRange(Q); S.fineRef = { c: null, b: null };
+    applyState(Q.aC, Q.aB);
+    computeViews(storyStates());
+    S.land = { c: null, b: null };
+    refresh({ run: o.run !== false });
+    requestLandscape();
+  }
+  const loadDefault = o => loadPair(C.PAIR, o);
+
+  // ---------- animation of the path ----------
+  const animDur = iters => (0.7 + 0.5 * Math.log2(1 + iters / 60)) * 1000 / S.speed;
+  const iterAt = (p, iters) => Math.min(iters, Math.floor(60 * (Math.pow(1 + iters / 60, p) - 1)));
+  const pOf = (cur, iters) => Math.log(1 + cur / 60) / Math.log(1 + iters / 60);
+  function play() {
+    if (!S.run) return;
+    if (S.cursor >= S.run.iters) S.cursor = 0;
+    S.playing = true; S.t0 = performance.now(); S.p0 = pOf(S.cursor, S.run.iters);
+    $('runBtn').textContent = 'Pause';
+    requestAnimationFrame(tick);
+  }
+  function pause() { S.playing = false; $('runBtn').textContent = 'Replay'; }
+  function tick(now) {
+    if (!S.playing || !S.run) return;
+    const p = Math.min(1, S.p0 + (now - S.t0) / animDur(S.run.iters));
+    S.cursor = p >= 1 ? S.run.iters : iterAt(p, S.run.iters);
+    if (p >= 1) pause();
+    renderDynamic();
+    if (S.playing) requestAnimationFrame(tick);
+  }
+  function step() {
+    if (!S.run) return;
+    pause();
+    const R = S.run.rec;
+    if (S.cursor >= S.run.iters) S.cursor = 0;
+    else { const i = upperBound(R.it, S.cursor); S.cursor = i < R.it.length ? R.it[i] : S.run.iters; }
+    renderDynamic();
+  }
+  function reset() { pause(); S.cursor = 0; renderDynamic(); }
+
+  // ---------- fine control of each angle ----------
+  function updateFine() {
+    for (const w of ['c', 'b']) {
+      const sol = w === 'c' ? S.sol : S.dsol, el = $(w === 'c' ? 'fineC' : 'fineB');
+      $(w === 'c' ? 'fineCVal' : 'fineBVal').textContent = fmtDeg(sol.thetaMin);
+      if (!S.fineRef[w] && isFinite(sol.thetaMin)) {
+        const deg = sol.thetaMin * R2D;
+        el.value = deg > 0 ? Math.max(-4, Math.min(1.4, Math.log10(deg))) : -4;
+      }
+    }
+  }
+  function fineRef(w) {
+    if (!S.fineRef[w]) {
+      const tie = tieOf(w);
+      if (tie == null) return null;
+      const cur = w === 'c' ? S.aC : S.aB;
+      S.fineRef[w] = { tie, side: Math.sign(w === 'c' ? wrap180(cur - tie) : cur - tie) || 1 };
+    }
+    return S.fineRef[w];
+  }
+  function setFine(w, deg, live) {
+    const ref = fineRef(w);
+    if (!ref) return;
+    const a = ref.tie + ref.side * deg;
+    if (w === 'c') setAngles(a, S.aB, live); else setAngles(S.aC, a, live);
+  }
+  for (const w of ['c', 'b']) {
+    const el = $(w === 'c' ? 'fineC' : 'fineB');
+    el.addEventListener('input', () => { story.tok = null; setFine(w, Math.pow(10, +el.value), true); });
+    el.addEventListener('change', () => { S.fineRef[w] = null; ensureViews(); renderPictures(); unlockLand(); requestRun(); requestLandscape(); });
+    $(w === 'c' ? 'tieC' : 'tieB').addEventListener('click', () => { story.tok = null; setFine(w, 0, false); S.fineRef[w] = null; updateFine(); unlockLand(); requestLandscape(); });
+  }
+
+  // ---------- dragging the arrows ----------
+  function svgPoint(svg, e) { const r = svg.getBoundingClientRect(); return [(e.clientX - r.left) * W / r.width, (e.clientY - r.top) * H / r.height]; }
+  function onDrag(e) {
+    const d = S.drag;
+    if (!d) return;
+    const p = svgPoint(PIC[d.key].svg, e);
+    if (Math.hypot(p[0] - DX, p[1] - DY) < 3) return;
+    const a = Math.atan2(-(p[1] - DY), p[0] - DX) * R2D;     // the arrow's direction, counterclockwise from the right
+    if (d.key === 'P') setAngles(a, S.aB, true); else setAngles(S.aC, a, true);
+  }
+  function endDrag() {
+    if (!S.drag) return;
+    S.drag = null;
+    ensureViews(); renderPictures();
+    unlockLand();
+    requestRun(); requestLandscape();
+  }
+  for (const key of ['P', 'D']) {
+    const svg = PIC[key].svg;
+    svg.addEventListener('pointerdown', e => {
+      const t = e.target;
+      if (!(t.classList.contains('handle') || t.classList.contains('dial-hit'))) return;
+      e.preventDefault();
+      svg.setPointerCapture(e.pointerId);
+      story.tok = null;
+      S.drag = { key }; S.fineRef = { c: null, b: null }; S.pulse = {};
+      onDrag(e);
+    });
+    svg.addEventListener('pointermove', e => { if (S.drag && S.drag.key === key) onDrag(e); });
+    svg.addEventListener('pointerup', endDrag);
+    svg.addEventListener('pointercancel', endDrag);
+  }
+  for (const w of ['c', 'b']) {
+    const svg = $(w === 'c' ? 'landC' : 'landB');
+    svg.addEventListener('click', e => {
+      const Wl = S['landWc' + w] || 520, r = svg.getBoundingClientRect(), x = (e.clientX - r.left) * Wl / r.width;
+      const t = (x - 46) / (Wl - 46 - 12);
+      if (t < 0 || t > 1) return;
+      story.tok = null; S.fineRef = { c: null, b: null };
+      if (w === 'c') setAngles(360 * t, S.aB, false); else setAngles(S.aC, S.range[0] + t * (S.range[1] - S.range[0]), false);
+      ensureViews(); renderPictures(); requestLandscape();
+    });
+  }
+
+  // ---------- toolbar ----------
+  $('randomBtn').addEventListener('click', () => {
+    story.tok = null; S.pulse = {};
+    const Q = C.randomPair(nextSeed());
+    if (Q) { unlockLand(); loadPair(Q); }
+  });
+  $('startOver').addEventListener('click', resetStory);
+  $('runBtn').addEventListener('click', () => { if (S.playing) pause(); else if (S.run) play(); else if (!S.runPending) requestRun(); });
+  $('stepBtn').addEventListener('click', step);
+  $('speed').addEventListener('input', () => {
+    const v = +$('speed').value;
+    S.speed = Math.pow(2, v);
+    $('speedVal').textContent = (S.speed < 1 ? (S.speed === 0.5 ? '½' : '¼') : S.speed) + '×';
+    if (S.playing) { S.p0 = pOf(S.cursor, S.run.iters); S.t0 = performance.now(); }
+  });
+  function effectiveDark() { const a = document.documentElement.getAttribute('data-theme'); return a ? a === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches; }
+  function syncThemeBtn() { const d = effectiveDark(); $('themeBtn').title = d ? 'Light theme (D)' : 'Dark theme (D)'; $('themeBtn').setAttribute('aria-pressed', String(d)); }
+  function toggleTheme() { document.documentElement.setAttribute('data-theme', effectiveDark() ? 'light' : 'dark'); syncThemeBtn(); }
+  $('themeBtn').addEventListener('click', toggleTheme);
+  function renderMath() {
+    if (S.mathRendered || !window.renderMathInElement) return;
+    window.renderMathInElement($('math'), { delimiters: [{ left: '$$', right: '$$', display: true }, { left: '$', right: '$', display: false }], throwOnError: false });
+    S.mathRendered = true;
+  }
+  function toggleMath(force) {
+    const el = $('math'), open = force != null ? force : el.hidden;
+    el.hidden = !open;
+    $('mathBtn').setAttribute('aria-expanded', String(open));
+    $('mathBtn').setAttribute('aria-pressed', String(open));
+    if (open) { renderMath(); renderAlgo(); el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+  }
+  $('mathBtn').addEventListener('click', () => toggleMath());
+  window.addEventListener('load', () => { if (!$('math').hidden) renderMath(); });
+  $('testBtn').addEventListener('click', () => {
+    const out = $('testOut');
+    out.hidden = false; out.textContent = 'Running…\n';
+    $('testBtn').disabled = true;
+    lanes.tests.start({ type: 'tests', id: 1 }, d => {
+      if (d.line) out.textContent += d.line + '\n';
+      if (d.type === 'error') out.textContent += 'Error: ' + d.message + '\n';
+      if (d.done) { out.textContent += d.pass === false ? 'SOME CHECKS FAILED\n' : (d.type === 'error' ? '' : 'All checks passed.\n'); $('testBtn').disabled = false; }
+      out.scrollTop = out.scrollHeight;
+    });
+  });
+
+  // ---------- tooltips ----------
+  const tipEl = $('tip');
+  function showTip(el) {
+    tipEl.textContent = el.getAttribute('data-tip');
+    tipEl.hidden = false;
+    const r = el.getBoundingClientRect(), vw = document.documentElement.clientWidth;
+    let left = r.left + window.scrollX;
+    left = Math.max(window.scrollX + 8, Math.min(left, window.scrollX + vw - tipEl.offsetWidth - 8));
+    tipEl.style.left = left + 'px';
+    tipEl.style.top = (r.bottom + window.scrollY + 6) + 'px';
+  }
+  const hideTip = () => { tipEl.hidden = true; };
+  const phiBox = $('phiCard');
+  phiBox.addEventListener('mouseover', e => { const b = e.target.closest('.chip'); if (b) showTip(b); });
+  phiBox.addEventListener('mouseout', e => { const b = e.target.closest('.chip'); if (b && !b.contains(e.relatedTarget)) hideTip(); });
+  phiBox.addEventListener('focusin', e => { const b = e.target.closest('.chip'); if (b) showTip(b); });
+  phiBox.addEventListener('focusout', hideTip);
+  phiBox.addEventListener('click', e => { const b = e.target.closest('.chip'); if (b) { if (tipEl.hidden) showTip(b); else hideTip(); } });
+
+  // ---------- the three steps ----------
+  const sleep = ms => new Promise(r => setTimeout(r, ms));
+  const story = { tok: null, base: null, nearC: null, nearB: null, res: {} };
+  function markNext(k) { for (let i = 1; i <= 3; i++) $('step' + i).classList.toggle('next', i === k); }
+  // On a phone the pictures are stacked: bring the one to watch into view.
+  function showCard(id) {
+    if (!window.matchMedia('(max-width: 920px)').matches) return;
+    const r = $(id).getBoundingClientRect();
+    if (r.top >= 0 && r.bottom <= window.innerHeight) return;
+    const smooth = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    $(id).scrollIntoView({ behavior: smooth ? 'smooth' : 'auto', block: 'start' });
+  }
+  // Turn one arrow toward its tie; the distance to the tie shrinks geometrically, so the last degrees slow down.
+  function animateTurn(w, target, ms, tok) {
+    const tie = tieOf(w), cur = w === 'c' ? S.aC : S.aB;
+    const o0 = w === 'c' ? wrap180(cur - tie) : cur - tie, o1 = w === 'c' ? wrap180(target - tie) : target - tie;
+    return new Promise(resolve => {
+      const t0 = performance.now();
+      function f(now) {
+        if (tok !== story.tok) return resolve();
+        const p = Math.min(1, (now - t0) / ms), e = p < 0.5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2;
+        const a = tie + o0 * Math.pow(o1 / o0, e);
+        if (w === 'c') setAngles(a, S.aB, true); else setAngles(S.aC, a, true);
+        if (p < 1) requestAnimationFrame(f); else resolve();
+      }
+      requestAnimationFrame(f);
+    });
+  }
+  const isDefault = () => S.Q === C.PAIR && Math.abs(wrap180(S.aC - C.PAIR.aC)) < 1e-9 && Math.abs(S.aB - C.PAIR.aB) < 1e-9;
+  async function runStep(k) {
+    const tok = {};
+    story.tok = tok;
+    S.pulse = {};
+    for (let i = 1; i <= 3; i++) $('step' + i).classList.toggle('busy', i === k);
+    try {
+      showCard(k === 2 ? 'cardD' : 'cardP');
+      if (k === 1) {
+        if (!isDefault()) loadDefault({ run: false });
+        await runAndWait(); if (tok !== story.tok) return;
+        story.res[1] = S.run.iters;
+        $('res1').textContent = fmtInt(S.run.iters) + ' iterations';
+        markNext(2);
+      } else {
+        const w = k === 2 ? 'c' : 'b', key = k === 2 ? 'P' : 'D', other = k === 2 ? 'D' : 'P';
+        if (!isDefault()) loadDefault({ run: false });
+        const t = storyTargets();
+        S.pulse = { ['dial' + key]: true }; renderPictures();
+        await sleep(k === 2 && window.matchMedia('(max-width: 920px)').matches ? 900 : 450); if (tok !== story.tok) return;
+        await animateTurn(w, t[w], 2300, tok); if (tok !== story.tok) return;
+        // the edge in the other picture that now almost passes through the optimal vertex
+        S.pulse = { [other]: hotEdge(solOf(other)) }; renderPictures();
+        await runAndWait(); if (tok !== story.tok) return;
+        requestLandscape();
+        story.res[k] = S.run.iters;
+        $('res' + k).textContent = fmtInt(S.run.iters) + ' iterations · ' + Math.round(S.run.iters / story.base) + '× more';
+        S.ratioNote = Math.round(S.run.iters / story.base) + '× as many as in step 1';
+        setTimeout(() => { if (story.tok === tok) { S.pulse = {}; renderPictures(); } }, 4500);
+        if (k === 2) markNext(3);
+        else {
+          markNext(0);
+          const rc = Math.round((story.res[2] || story.nearC) / story.base), rb = Math.round((story.res[3] || story.nearB) / story.base);
+          const out = $('storyOut');
+          out.hidden = false;
+          out.textContent = 'The LP never changed size, yet rPDHG needed ' + rc + ' and ' + rb + ' times as many iterations when one arrow was 0.017° from a tie. ' +
+            'A near tie in one picture is a nearly degenerate vertex in the other. Φ, the condition number in the iteration bound of [A], measures both. Your turn: drag either arrow.';
+          unlockLand();
+        }
+      }
+    } finally {
+      $('step' + k).classList.remove('busy');
+    }
+  }
+  function unlockLand() { if (S.unlocked) return; S.unlocked = true; $('landCard').classList.remove('locked'); requestLandscape(); }
+  $('unlockLand').addEventListener('click', unlockLand);
+  function resetStory() {
+    story.tok = null; story.res = {};
+    for (let i = 1; i <= 3; i++) $('res' + i).textContent = '';
+    $('storyOut').hidden = true;
+    S.unlocked = false; $('landCard').classList.add('locked');
+    S.pulse = {};
+    markNext(1);
+    loadDefault({ run: false });
+  }
+  for (let i = 1; i <= 3; i++) $('step' + i).addEventListener('click', () => runStep(i));
+
+  // ---------- keyboard ----------
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') { hideTip(); return; }
+    const tag = (e.target && e.target.tagName) || '';
+    if (/^(INPUT|SELECT|TEXTAREA)$/.test(tag) || e.metaKey || e.ctrlKey || e.altKey) return;
+    const k = e.key;
+    if (k === ' ') { e.preventDefault(); if (S.playing) pause(); else if (S.run) play(); else if (!S.runPending) requestRun(); }
+    else if (k === 'ArrowRight') { e.preventDefault(); step(); }
+    else if (k === 'r' || k === 'R') reset();
+    else if (k === 'm' || k === 'M') toggleMath();
+    else if (k === 'd' || k === 'D') toggleTheme();
+    else if ('[]{},.<>'.indexOf(k) >= 0) {
+      const fine = e.shiftKey || '{}<>'.indexOf(k) >= 0, dd = (fine ? 0.1 : 1) * ('[{,<'.indexOf(k) >= 0 ? 1 : -1);
+      story.tok = null; S.fineRef = { c: null, b: null };
+      const ok = '[]{}'.indexOf(k) >= 0 ? setAngles(S.aC + dd, S.aB, true) : setAngles(S.aC, S.aB + dd, true);
+      if (ok) scheduleRun(300);
+    }
+  });
+
+  let resizeTimer = 0;
+  window.addEventListener('resize', () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(() => { if (S.inst) { renderPictures(); renderConv(); renderLand(); } }, 150); });
+
+  // ---------- start ----------
+  $('legend').innerHTML = [
+    '<li><svg width="14" height="14"><circle cx="7" cy="7" r="5.5" fill="var(--accent)"/></svg>optimal vertex</li>',
+    '<li><svg width="18" height="12"><path d="M1,11 L17,11 A16,16 0 0 0 15,3 Z" fill="var(--theta)" fill-opacity=".25" stroke="var(--theta)"/></svg>angle θ to the level line</li>',
+    '<li><svg width="18" height="8"><line x1="0" y1="4" x2="18" y2="4" stroke="var(--path)" stroke-width="2.2"/></svg>rPDHG’s path</li>',
+    '<li><svg width="12" height="12"><circle cx="6" cy="6" r="4" fill="var(--surface)" stroke="var(--path)" stroke-width="1.7"/></svg>restart point</li>',
+    '<li><svg width="18" height="8"><line x1="1" y1="4" x2="17" y2="4" stroke="var(--warn)" stroke-width="3" stroke-linecap="round"/></svg>edge almost through the optimal vertex</li>'
+  ].join('');
+  $('caption').textContent = 'Each edge is where one variable xⱼ, or one dual slack sⱼ, is zero. Each arrow points where its objective improves. Both paths come from one run of rPDHG, and turning one arrow moves the edges of the other picture.';
+  syncThemeBtn();
+  loadDefault({ run: false });
+  // reference counts for the story (three short runs)
+  (function () {
+    const t = storyTargets(), it = P => C.rpdhg(P, { basisMask: C.solveLP(P).basisMask, record: false }).iters;
+    story.base = it(S.inst);
+    story.nearC = it(C.pairAt(S.Q, t.c, S.aB));
+    story.nearB = it(C.pairAt(S.Q, S.aC, t.b));
+  })();
+  window.LPDemo = { S, setAngles, requestRun, play, runStep, story, loadDefault };
+})();
+</script>
+<div class="site-foot">&copy; 2026 Zikai Xiong &middot; <a href="../../research.html#demos">All interactive demos</a></div>
+<script src="../../assets/js/nav.js"></script>
+</body>
+</html>

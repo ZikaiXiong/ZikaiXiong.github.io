@@ -1,0 +1,198 @@
+#!/usr/bin/env python3
+"""Turn a freshly built demo page into the website copy at demos/<name>/index.html.
+
+    python3 demos/apply_site_theme.py <built.html> <comparison|ndd|rounding>
+
+It adds the site navbar, footer, favicon, fonts and demos/demo-theme.css, the
+"Created by Zikai Xiong" byline, and the website-only fixes made to each copy.
+Every step is idempotent, so running it on the current copy changes nothing.
+"""
+import pathlib
+import re
+import sys
+
+HERE = pathlib.Path(__file__).resolve().parent
+
+PAPERS = {
+    'comparison': ('Scheinberg &amp; Xiong', ['2604.26867']),
+    'ndd': ('Scheinberg &amp; Xiong', ['2604.26867']),
+    'rounding': ('Xiong &amp; Freund', ['2608.30876']),
+    'pdhg-lp-hardness': ('Xiong', ['2410.04043']),
+    'pdhg-random-lps': ('Xiong', ['2501.00728', '2410.04043']),
+}
+
+FAVICON = ("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='8' fill='%238B1D2C'/%3E"
+           "%3Ccircle cx='19' cy='20' r='9' fill='%23fff'/%3E%3Ccircle cx='45' cy='20' r='9' fill='%23fff'/%3E%3Ccircle cx='32' cy='36' r='20' fill='%23fff'/%3E"
+           "%3Ccircle cx='25' cy='33' r='2.5' fill='%238B1D2C'/%3E%3Ccircle cx='39' cy='33' r='2.5' fill='%238B1D2C'/%3E"
+           "%3Cellipse cx='32' cy='42' rx='4.5' ry='3.5' fill='%238B1D2C'/%3E%3C/svg%3E")
+
+HEAD = f'''<meta name="author" content="Zikai Xiong">
+<link rel="icon" type="image/svg+xml" href="{FAVICON}">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&display=swap">
+<link rel="stylesheet" href="../demo-theme.css">
+'''
+
+NAV = '''<header class="site-header">
+  <nav class="navbar" aria-label="Site navigation">
+    <a class="navbar-brand" href="../../index.html">Zikai&nbsp;Xiong</a>
+    <button class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false" aria-controls="nav-menu">&#9776;</button>
+    <ul class="nav-links" id="nav-menu">
+      <li><a href="../../index.html">about</a></li>
+      <li><a href="../../research.html" class="active">research</a></li>
+      <li><a href="../../news.html">news</a></li>
+      <li><a href="../../cv/" target="_blank" rel="noopener">cv</a></li>
+      <li><a href="../../awards.html">awards</a></li>
+      <li><a href="../../teaching.html">teaching</a></li>
+      <li><a href="../../talks.html">talks</a></li>
+      <li><a href="../../blogs.html">blogs</a></li>
+      <li><a href="../../gallery.html">photos</a></li>
+    </ul>
+  </nav>
+</header>
+'''
+
+FOOT = '<div class="site-foot">&copy; 2026 Zikai Xiong &middot; <a href="../../research.html#demos">All interactive demos</a></div>\n'
+NAVJS = '<script src="../../assets/js/nav.js"></script>\n'
+
+
+COMPARISON_UI = '''<script id="site-ui">
+// Website-only UI layer for the comparison demo: the comparison is the one obvious action.
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  // click a swatch to answer
+  [['swA', 'ansA'], ['swB', 'ansB']].forEach(function (p) {
+    var sw = $(p[0]), btn = $(p[1]);
+    if (!sw || !btn) return;
+    sw.classList.add('pickable');
+    sw.addEventListener('click', function () { if (!btn.disabled) btn.click(); });
+  });
+  // one-line instruction under the question, following the task
+  var prompt = $('prompt'), hint = document.createElement('p');
+  hint.className = 'booth-hint';
+  prompt.insertAdjacentElement('afterend', hint);
+  function syncHint() {
+    var t = prompt.textContent;
+    hint.textContent = /^Done/.test(t) ? ''
+      : /like more/.test(t) ? 'Click the shade you like more. No preference? Click Same.'
+      : 'Click the color that is closer to the target. Cannot tell? Click Same.';
+    hint.hidden = !hint.textContent;
+  }
+  new MutationObserver(syncHint).observe(prompt, { childList: true, characterData: true, subtree: true });
+  syncHint();
+  // Undo next to the comparison count
+  var foot = document.querySelector('.booth-foot'), undo = $('undoBtn'), count = $('boothCount');
+  if (foot && undo && count) count.insertAdjacentElement('afterend', undo);
+  // everything else in the toolbar goes under "More options"
+  var bar = document.querySelector('.toolbar'), more = document.createElement('details');
+  more.className = 'more-ctl';
+  more.innerHTML = '<summary class="btn">More options</summary><div class="more-row"></div>';
+  var row = more.querySelector('.more-row');
+  [bar.querySelector('.seg[aria-label="Dimension"]'), $('restartBtn'), $('newTargetBtn'), $('autoBtn'), $('revealBtn')]
+    .forEach(function (el) { if (el) row.appendChild(el); });
+  bar.appendChild(more);
+  document.addEventListener('click', function (e) { if (more.open && !more.contains(e.target)) more.open = false; });
+})();
+</script>
+'''
+
+
+def byline(name):
+    authors, ids = PAPERS[name]
+    links = ' and '.join(f'<a href="https://arxiv.org/abs/{a}" target="_blank" rel="noopener">arXiv:{a}</a>' for a in ids)
+    return f'Created by Zikai Xiong · Based on {authors}, {links}'
+
+
+def replace_once(s, old, new):
+    assert s.count(old) == 1, f'expected exactly one match for: {old[:80]!r}'
+    return s.replace(old, new)
+
+
+def apply(s, name):
+    # <html>: theme classes, light by default like the website
+    m = re.search(r'<html[^>]*>', s)
+    tag = m.group(0)
+    if 'demo-site' not in tag:
+        extra = ' demo-pdhg' if name.startswith('pdhg') else ''
+        new = tag[:-1] + f' class="demo-site demo-{name}{extra}"'
+        if 'data-theme' not in new:
+            new += ' data-theme="light"'
+        s = s.replace(tag, new + '>', 1)
+
+    if 'demo-theme.css' not in s:
+        s = replace_once(s, '<meta charset="utf-8">\n', '<meta charset="utf-8">\n' + HEAD)
+
+    if 'class="site-header"' not in s:
+        if '<body' in s:
+            m = re.search(r'<body[^>]*>\n', s)
+            s = s[:m.end()] + NAV + s[m.end():]
+        else:
+            s = replace_once(s, '<div class="wrap">', NAV + '<div class="wrap">')
+
+    if name != 'ndd' and 'class="site-foot"' not in s:
+        if name == 'comparison':
+            # end of .wrap: the page's own footer note, then the closing div
+            k = s.index('</footer>\n</div>\n') + len('</footer>\n</div>\n')
+            s = s[:k] + FOOT + s[k:]
+        else:
+            s = replace_once(s, '</body>', FOOT + '</body>')
+
+    if 'assets/js/nav.js' not in s:
+        if '</body>' in s:
+            s = replace_once(s, '</body>', NAVJS + '</body>')
+        else:
+            s = replace_once(s, '</html>', NAVJS + '</html>')
+
+    # byline under the title
+    if name in ('comparison', 'rounding'):
+        s = re.sub(r'<p class="cite">.*?</p>', '<p class="cite">' + byline(name) + '</p>', s, count=1, flags=re.S)
+
+    if name.startswith('pdhg') and 'class="cite"' not in s:
+        m = re.search(r'<h1>.*?</h1>\n', s)
+        ind = re.match(r' *', s[s.rfind('\n', 0, m.start()) + 1:]).group(0)
+        s = s[:m.end()] + f'{ind}<p class="cite">{byline(name)}</p>\n' + s[m.end():]
+
+    if name == 'comparison':
+        # title that names the task and the kind of feedback
+        s = s.replace('<title>Optimizing by Comparison</title>', '<title>Color Picking by Comparison Feedback</title>')
+        s = s.replace('<h1>Optimizing by Comparison</h1>', '<h1>Color Picking by Comparison Feedback</h1>')
+        s = s.replace('Which side is closer to the target?', 'Which color is closer to the target?')
+        # clickable swatches, a one-line instruction, Undo by the answers, the rest under "More options"
+        if 'id="site-ui"' not in s:
+            s = replace_once(s, NAVJS, NAVJS + COMPARISON_UI)
+
+        # default comparison budget 40 (was 20), with 60 and 100 as options
+        s = s.replace('<option value="20" selected>20, then reveal</option><option value="40">40, then reveal</option><option value="0">No limit</option>',
+                      '<option value="20">20, then reveal</option><option value="40" selected>40, then reveal</option><option value="60">60, then reveal</option><option value="100">100, then reveal</option><option value="0">No limit</option>')
+        s = s.replace("set:{task:'match',d:2,T:1,h0:0.4,budget:20,", "set:{task:'match',d:2,T:1,h0:0.4,budget:40,")
+        s = s.replace('auto:false, reveal:false, budget:20, atBudget', 'auto:false, reveal:false, budget:40, atBudget')
+        s = s.replace('id="moreBtn" hidden>20 more comparisons', 'id="moreBtn" hidden>40 more comparisons')
+        s = s.replace('textContent=`${S.set.budget||20} more comparisons`', 'textContent=`${S.set.budget||40} more comparisons`')
+
+    if name == 'ndd':
+        sub = '<div class="sub">The algorithm only learns which of two points is better.</div>\n'
+        cite = '    <div class="sub cite">' + byline(name) + '</div>\n'
+        if 'class="sub cite"' in s:
+            s = re.sub(r' *<div class="sub cite">.*?</div>\n', cite, s, count=1)
+        else:
+            s = replace_once(s, sub, sub + cite)
+        css = '.sub{font-size:13px;color:var(--muted);margin-top:2px}\n'
+        if '.sub.cite a' not in s:
+            s = replace_once(s, css, css + '.sub.cite a{color:var(--accent)}\n')
+        if '@media (max-width:760px){html,body{overflow:auto' not in s:
+            s = replace_once(s, '.sub.cite a{color:var(--accent)}\n', '.sub.cite a{color:var(--accent)}\n'
+                             '@media (max-width:760px){html,body{overflow:auto;height:auto}#app{flex-direction:column;height:auto!important}'
+                             '#stage{flex:none;height:62vh;height:62svh}#panel{width:auto;border-left:0;border-top:1px solid var(--line)}}\n')
+        s = s.replace('#app{flex-direction:column;height:auto}', '#app{flex-direction:column;height:auto!important}')
+        # white page instead of cream behind the level sets
+        s = s.replace("bg: '#f6f4ee', low: '#4c8fae', mid: '#a6cdd6', high: '#f4f1e8',",
+                      "bg: '#ffffff', low: '#4c8fae', mid: '#a6cdd6', high: '#f8f9fa',")
+        s = s.replace("halo: 'rgba(250,248,242,0.92)'", "halo: 'rgba(255,255,255,0.92)'")
+    return s
+
+
+if __name__ == '__main__':
+    src, name = pathlib.Path(sys.argv[1]), sys.argv[2]
+    assert name in PAPERS, name
+    out = HERE / name / 'index.html'
+    out.write_text(apply(src.read_text(encoding='utf-8'), name), encoding='utf-8')
+    print('wrote', out)
