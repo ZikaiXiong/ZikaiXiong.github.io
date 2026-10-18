@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-QPHE3BK83R"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-QPHE3BK83R');
+  </script>
+
+  <title>Interactive Demos | Zikai Xiong</title>
+  <meta name="description" content="Interactive demos by Zikai Xiong that let you explore the ideas in his optimization papers in your browser: comparison-based optimization, restarted PDHG for linear programming, and ellipsoidal rounding.">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Interactive Demos | Zikai Xiong">
+  <meta property="og:description" content="Explore the ideas in Zikai Xiong's optimization papers through interactive demos that run in your browser.">
+  <meta property="og:url" content="https://zikaixiong.github.io/demos/">
+  <meta property="og:image" content="https://zikaixiong.github.io/demos/pdhg-lp-hardness/preview.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="author" content="Zikai Xiong">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='8' fill='%238B1D2C'/%3E%3Ccircle cx='19' cy='20' r='9' fill='%23fff'/%3E%3Ccircle cx='45' cy='20' r='9' fill='%23fff'/%3E%3Ccircle cx='32' cy='36' r='20' fill='%23fff'/%3E%3Ccircle cx='25' cy='33' r='2.5' fill='%238B1D2C'/%3E%3Ccircle cx='39' cy='33' r='2.5' fill='%238B1D2C'/%3E%3Cellipse cx='32' cy='42' rx='4.5' ry='3.5' fill='%238B1D2C'/%3E%3C/svg%3E">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600;8..60,700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+  <noscript><link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600;8..60,700&display=swap" rel="stylesheet"></noscript>
+  <link rel="stylesheet" href="../assets/css/main.css">
+</head>
+
+<body>
+  <header class="site-header">
+    <nav class="navbar container" aria-label="Site navigation">
+      <a class="navbar-brand" href="../index.html">Zikai&nbsp;Xiong</a>
+      <button class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false" aria-controls="nav-menu">&#9776;</button>
+      <ul class="nav-links" id="nav-menu">
+        <li><a href="../index.html">about</a></li>
+        <li><a href="../research.html">research</a></li>
+        <li><a href="./" class="active">demos</a></li>
+        <li><a href="../news.html">news</a></li>
+        <li><a href="../cv/" target="_blank" rel="noopener">cv</a></li>
+        <li><a href="../awards.html">awards</a></li>
+        <li><a href="../teaching.html">teaching</a></li>
+        <li><a href="../talks.html">talks</a></li>
+        <li><a href="../blogs.html">blog</a></li>
+        <li><a href="../gallery.html">photos</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main class="container">
+
+    <h1 class="page-title">Interactive Demos</h1>
+    <p class="page-desc">Each demo illustrates a key idea from one of my papers.</p>
+
+    <div class="tool-grid">
+      <div class="tool-card">
+        <a class="tool-media" href="comparison/">
+          <video muted loop playsinline preload="none" poster="comparison/preview.jpg">
+            <source src="comparison/preview.mp4" type="video/mp4">
+          </video>
+        </a>
+        <span class="tool-title">Color Picking by Comparison Feedback</span>
+        <p class="tool-desc">Find a color by answering only &ldquo;which one is better?&rdquo;</p>
+        <span class="tool-paper">Paper: <a href="https://arxiv.org/abs/2604.26867">Function-Free Optimization via Comparison Oracles</a></span>
+        <a class="demo-btn" href="comparison/">&#9654; Try the demo</a>
+      </div>
+      <div class="tool-card">
+        <a class="tool-media" href="ndd/">
+          <video muted loop playsinline preload="none" poster="ndd/preview.jpg">
+            <source src="ndd/preview.mp4" type="video/mp4">
+          </video>
+        </a>
+        <span class="tool-title">Normal Direction Descent (NDD)</span>
+        <p class="tool-desc">How comparisons alone give a direction of descent, step by step.</p>
+        <span class="tool-paper">Paper: <a href="https://arxiv.org/abs/2604.26867">Function-Free Optimization via Comparison Oracles</a></span>
+        <a class="demo-btn" href="ndd/">&#9654; Watch the animation</a>
+      </div>
+      <div class="tool-card">
+        <a class="tool-media" href="pdhg-lp-hardness/">
+          <video muted loop playsinline preload="none" poster="pdhg-lp-hardness/preview.jpg"><source src="pdhg-lp-hardness/preview.mp4" type="video/mp4"></video>
+        </a>
+        <span class="tool-title">Why Is This LP Hard?</span>
+        <p class="tool-desc">How a near tie in the LP or its dual makes restarted PDHG slow.</p>
+        <span class="tool-paper">Paper: <a href="https://arxiv.org/abs/2410.04043">Accessible Complexity Bounds for Restarted PDHG on Linear Programs with a Unique Optimizer</a></span>
+        <a class="demo-btn" href="pdhg-lp-hardness/">&#9654; Try the demo</a>
+      </div>
+      <div class="tool-card">
+        <a class="tool-media" href="pdhg-random-lps/">
+          <video muted loop playsinline preload="none" poster="pdhg-random-lps/preview.jpg"><source src="pdhg-random-lps/preview.mp4" type="video/mp4"></video>
+        </a>
+        <span class="tool-title">How Hard Is a Random LP?</span>
+        <p class="tool-desc">Solve hundreds of random LPs in your browser.</p>
+        <span class="tool-paper">Paper: <a href="https://arxiv.org/abs/2501.00728">High-Probability Polynomial-Time Complexity of Restarted PDHG for Linear Programming</a></span>
+        <a class="demo-btn" href="pdhg-random-lps/">&#9654; Try the demo</a>
+      </div>
+      <div class="tool-card">
+        <a class="tool-media" href="rounding/">
+          <video muted loop playsinline preload="none" poster="rounding/card.jpg">
+            <source src="rounding/card.mp4" type="video/mp4">
+          </video>
+        </a>
+        <span class="tool-title">Does Symmetry Help Rounding?</span>
+        <p class="tool-desc">How the symmetry of a shape limits how well an ellipse can fit it.</p>
+        <span class="tool-paper">Paper: <a href="https://arxiv.org/abs/2608.30876">Symmetry-dependence in Rounding of a Convex Body</a></span>
+        <a class="demo-btn" href="rounding/">&#9654; Try the demo</a>
+      </div>
+    </div>
+
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">&copy; 2026 Zikai Xiong</div>
+  </footer>
+
+  <script src="../assets/js/nav.js"></script>
+  <script src="../assets/js/pub-preview.js"></script>
+</body>
+</html>

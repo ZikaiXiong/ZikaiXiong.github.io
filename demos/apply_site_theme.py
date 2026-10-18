@@ -13,6 +13,22 @@ import sys
 
 HERE = pathlib.Path(__file__).resolve().parent
 
+TITLES = {
+    'comparison': 'Color Picking by Comparison Feedback',
+    'ndd': 'Normal Direction Descent (NDD)',
+    'rounding': 'Does Symmetry Help Rounding?',
+    'pdhg-lp-hardness': 'Why Is This LP Hard?',
+    'pdhg-random-lps': 'How Hard Is a Random LP?',
+}
+
+DESCRIPTIONS = {
+    'comparison': 'Interactive demo by Zikai Xiong: find a color by answering only which of two colors is closer, and watch an optimization algorithm learn from comparisons alone.',
+    'ndd': 'Interactive animation by Zikai Xiong: how comparisons alone give a normal direction, and the two descent methods NDD and adaNDD built on it.',
+    'rounding': 'Interactive demo by Zikai Xiong: how the symmetry of a convex shape limits how well an ellipse can round it.',
+    'pdhg-lp-hardness': 'Interactive demo by Zikai Xiong: why a tiny LP can be hard for restarted PDHG, and how a near tie in the LP or its dual makes it slow.',
+    'pdhg-random-lps': 'Interactive demo by Zikai Xiong: restarted PDHG solves hundreds of random linear programs in your browser.',
+}
+
 PAPERS = {
     'comparison': ('Scheinberg &amp; Xiong', ['2604.26867']),
     'ndd': ('Scheinberg &amp; Xiong', ['2604.26867']),
@@ -38,20 +54,21 @@ NAV = '''<header class="site-header">
     <button class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false" aria-controls="nav-menu">&#9776;</button>
     <ul class="nav-links" id="nav-menu">
       <li><a href="../../index.html">about</a></li>
-      <li><a href="../../research.html" class="active">research</a></li>
+      <li><a href="../../research.html">research</a></li>
+      <li><a href="../" class="active">demos</a></li>
       <li><a href="../../news.html">news</a></li>
       <li><a href="../../cv/" target="_blank" rel="noopener">cv</a></li>
       <li><a href="../../awards.html">awards</a></li>
       <li><a href="../../teaching.html">teaching</a></li>
       <li><a href="../../talks.html">talks</a></li>
-      <li><a href="../../blogs.html">blogs</a></li>
+      <li><a href="../../blogs.html">blog</a></li>
       <li><a href="../../gallery.html">photos</a></li>
     </ul>
   </nav>
 </header>
 '''
 
-FOOT = '<div class="site-foot">&copy; 2026 Zikai Xiong &middot; <a href="../../research.html#demos">All interactive demos</a></div>\n'
+FOOT = '<div class="site-foot">&copy; 2026 Zikai Xiong &middot; <a href="../">All interactive demos</a></div>\n'
 NAVJS = '<script src="../../assets/js/nav.js"></script>\n'
 
 
@@ -120,7 +137,21 @@ def apply(s, name):
 
     if 'demo-theme.css' not in s:
         s = replace_once(s, '<meta charset="utf-8">\n', '<meta charset="utf-8">\n' + HEAD)
+    # description and link-preview tags (shown when the link is shared)
+    if 'property="og:image"' not in s:
+        desc = DESCRIPTIONS[name]
+        meta = '' if '<meta name="description"' in s else f'<meta name="description" content="{desc}">\n'
+        meta += (f'<meta property="og:type" content="website">\n'
+                 f'<meta property="og:title" content="{TITLES[name]} | Zikai Xiong">\n'
+                 f'<meta property="og:description" content="{desc}">\n'
+                 f'<meta property="og:url" content="https://zikaixiong.github.io/demos/{name}/">\n'
+                 f'<meta property="og:image" content="https://zikaixiong.github.io/demos/{name}/preview.jpg">\n'
+                 f'<meta name="twitter:card" content="summary_large_image">\n')
+        s = replace_once(s, '<link rel="stylesheet" href="../demo-theme.css">\n', '<link rel="stylesheet" href="../demo-theme.css">\n' + meta)
 
+    # navbar and footer: replace the current ones so that updates reach every demo
+    s = re.sub(r'<header class="site-header">.*?</header>\n', '', s, count=1, flags=re.S)
+    s = re.sub(r'<div class="site-foot">.*?</div>\n', '', s, count=1, flags=re.S)
     if 'class="site-header"' not in s:
         if '<body' in s:
             m = re.search(r'<body[^>]*>\n', s)
@@ -169,24 +200,14 @@ def apply(s, name):
         s = s.replace('textContent=`${S.set.budget||20} more comparisons`', 'textContent=`${S.set.budget||40} more comparisons`')
 
     if name == 'ndd':
-        sub = '<div class="sub">The algorithm only learns which of two points is better.</div>\n'
-        cite = '    <div class="sub cite">' + byline(name) + '</div>\n'
-        if 'class="sub cite"' in s:
-            s = re.sub(r' *<div class="sub cite">.*?</div>\n', cite, s, count=1)
-        else:
-            s = replace_once(s, sub, sub + cite)
-        css = '.sub{font-size:13px;color:var(--muted);margin-top:2px}\n'
+        # the step-by-step animation (2026-10-18): title, and the byline in the panel
+        s = re.sub(r'<title>Normal direction descent, step by step</title>', '<title>Normal Direction Descent (NDD)</title>', s, count=1, flags=re.I)
+        s = s.replace('<div class="ttl">Normal direction descent, step by step</div>', '<div class="ttl">Normal Direction Descent (NDD)</div>')
+        cite = '<div class="sub cite">' + byline(name) + '</div>'
+        s = re.sub(r'<div class="sub">Comparison-based optimization · Scheinberg &amp; Xiong, <a [^>]*>arXiv:2604\.26867</a></div>', cite, s, count=1)
+        s = re.sub(r'<div class="sub cite">.*?</div>', cite, s, count=1)
         if '.sub.cite a' not in s:
-            s = replace_once(s, css, css + '.sub.cite a{color:var(--accent)}\n')
-        if '@media (max-width:760px){html,body{overflow:auto' not in s:
-            s = replace_once(s, '.sub.cite a{color:var(--accent)}\n', '.sub.cite a{color:var(--accent)}\n'
-                             '@media (max-width:760px){html,body{overflow:auto;height:auto}#app{flex-direction:column;height:auto!important}'
-                             '#stage{flex:none;height:62vh;height:62svh}#panel{width:auto;border-left:0;border-top:1px solid var(--line)}}\n')
-        s = s.replace('#app{flex-direction:column;height:auto}', '#app{flex-direction:column;height:auto!important}')
-        # white page instead of cream behind the level sets
-        s = s.replace("bg: '#f6f4ee', low: '#4c8fae', mid: '#a6cdd6', high: '#f4f1e8',",
-                      "bg: '#ffffff', low: '#4c8fae', mid: '#a6cdd6', high: '#f8f9fa',")
-        s = s.replace("halo: 'rgba(250,248,242,0.92)'", "halo: 'rgba(255,255,255,0.92)'")
+            s = replace_once(s, '</style>', '.sub.cite a { color: var(--accent); }\n</style>')
     return s
 
 

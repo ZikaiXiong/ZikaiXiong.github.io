@@ -84,8 +84,8 @@ html.demo-rounding .xm { color: var(--ink); }
   color: #919ba4; font-family: var(--site-sans); font-size: 0.85rem;
 }
 
-/* NDD fills the window below the navbar */
-html.demo-ndd #app { height: calc(100vh - var(--site-nav-h)); }
+/* NDD fills the window below the navbar (on phones the page scrolls instead) */
+@media (min-width: 761px) { html.demo-ndd #app { height: calc(100vh - var(--site-nav-h)); } }
 
 /* --------------------------------------------------------------------------
    Headings: the site's serif in crimson, no small caps
@@ -95,7 +95,7 @@ html.demo-site h1 { font-family: var(--site-serif); font-weight: 600; color: var
 html.demo-site .card h3,
 html.demo-site .sl-label,
 html.demo-site details.math > summary,
-html.demo-ndd .ctitle > span,
+html.demo-ndd .ctitle,
 html.demo-ndd .lbl {
   font-family: var(--site-serif); font-size: 1.05rem; font-weight: 600;
   letter-spacing: 0; text-transform: none; color: var(--accent);
@@ -121,10 +121,10 @@ html.demo-site .card > .card-head:first-child,
 html.demo-site .card > details > summary {
   padding-bottom: 8px; margin-bottom: 12px; border-bottom: 1px solid var(--rule);
 }
-/* the symmetry demo's introduction becomes a card with a crimson edge */
+/* the symmetry demo's introduction becomes a card */
 html.demo-rounding .lead {
   max-width: none; background: var(--surface); border: 1px solid var(--card-line, var(--rule));
-  border-left: 3px solid var(--accent); border-radius: 8px; padding: 12px 18px; box-shadow: var(--card-shadow, none);
+  border-radius: 8px; padding: 12px 18px; box-shadow: var(--card-shadow, none);
 }
 /* NDD: light side panel with white cards and stat tiles */
 html.demo-ndd:not([data-theme="dark"]) { --panel: #f5f5f3; --bg: #ffffff; }
@@ -193,3 +193,7 @@ html.demo-comparison .more-row {
   background: var(--surface); border: 1px solid var(--card-line, var(--rule)); border-radius: 8px;
   box-shadow: 0 8px 24px rgba(33, 37, 41, .12);
 }
+
+/* highlighted algorithm line: background only, no colored bar on the left */
+html.demo-site .algo li.on { border-left-color: transparent; }
+html.demo-ndd .ctitle b { font-family: var(--site-sans); }

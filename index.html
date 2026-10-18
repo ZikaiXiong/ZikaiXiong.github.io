@@ -97,12 +97,13 @@
       <ul class="nav-links" id="nav-menu">
         <li><a href="index.html" class="active">about</a></li>
         <li><a href="research.html">research</a></li>
+        <li><a href="demos/">demos</a></li>
         <li><a href="news.html">news</a></li>
         <li><a href="cv/" target="_blank" rel="noopener">cv</a></li>
         <li><a href="awards.html">awards</a></li>
         <li><a href="teaching.html">teaching</a></li>
         <li><a href="talks.html">talks</a></li>
-        <li><a href="blogs.html">blogs</a></li>
+        <li><a href="blogs.html">blog</a></li>
         <li><a href="gallery.html">photos</a></li>
       </ul>
     </nav>
@@ -125,7 +126,7 @@
 
       <div class="profile-main">
         <h1 class="page-title">Zikai Xiong</h1>
-        <p class="page-desc">I am a tenure-track Assistant Professor at Northwestern IEMS.</p>
+        <p class="page-desc">Assistant Professor, Industrial Engineering and Management Sciences, Northwestern University</p>
 
         <p>I am a tenure-track Assistant Professor in the <a href="https://www.northwestern.edu/">Northwestern University</a> <a href="https://www.mccormick.northwestern.edu/industrial/">Department of Industrial Engineering and Management Sciences (IEMS)</a>.
         I received my Ph.D. from the <a href="https://www.mit.edu/">MIT</a> <a href="https://orc.mit.edu/">Operations Research Center (ORC)</a>, advised by Prof. <a href="https://mitmgmtfaculty.mit.edu/rfreund/">Robert Freund</a>.
@@ -150,6 +151,14 @@
       My research is in optimization theory and computation. Two main lines of my current work are <b>large-scale optimization on AI-era computing hardware</b> and <b>optimization with humans and AI</b>. A recurring goal in my work is to uncover insights into algorithmic behavior that inform both theory and computational practice.
       I am delighted that some of my methods have been implemented in state-of-the-art commercial optimization solvers. My work has received second place in the George B. Dantzig Dissertation Award, won the INFORMS Optimization Society Student Paper Prize, and been a finalist in the George Nicholson Student Paper Competition. My overarching aspiration is to broaden the capabilities of optimization to solve problems arising in operations research, machine learning, and AI.
       </p>
+      <a class="demo-callout" href="demos/">
+        <span class="demo-callout-text">Interactive demos of key ideas from my papers. <span class="demo-callout-go">Try them &rarr;</span></span>
+        <span class="demo-stack" aria-hidden="true">
+          <img src="demos/comparison/thumb.jpg" alt="" width="120" height="75">
+          <img src="demos/ndd/thumb.jpg" alt="" width="120" height="75">
+          <img src="demos/pdhg-lp-hardness/thumb.jpg" alt="" width="120" height="75">
+        </span>
+      </a>
     </section>
 
     <section id="news">
@@ -170,10 +179,6 @@
           <td class="news-date">October 2026</td>
           <td>I will give a talk at the IDEAL Get Ready for Research Workshop.
             For the talk, I built <a href="demos/comparison/">Color Picking by Comparison Feedback</a>, where you help match a color by answering only &ldquo;which one is better?&rdquo;, and an animation of <a href="demos/ndd/">Normal Direction Descent</a> based on my paper  <a href="https://arxiv.org/abs/2604.26867">Function-Free Optimization via Comparison Oracles</a>.
-            <span class="news-actions">
-              <a class="demo-btn" href="demos/comparison/">&#9654; Try the demo</a>
-              <a class="demo-btn" href="demos/ndd/">&#9654; Watch the animation</a>
-            </span>
           </td>
         </tr>
         <tr>
@@ -187,9 +192,6 @@
           <td class="news-date">August 2026</td>
           <td>My new paper with Robert Freund,
             <a href="https://arxiv.org/abs/2608.30876">Symmetry-dependence in Rounding of a Convex Body</a>, is now available on arXiv.
-            <span class="news-actions">
-              <a class="demo-btn" href="demos/rounding/">&#9654; Try the demo</a>
-            </span>
           </td>
         </tr>
         <tr>
@@ -236,7 +238,7 @@
               <video muted loop playsinline preload="none" poster="demos/ndd/preview.jpg">
                 <source src="demos/ndd/preview.mp4" type="video/mp4">
               </video>
-              <span class="pub-preview-cap"><b>Normal Direction Descent.</b> See how the algorithm learns descent directions from comparisons alone. <span class="pub-preview-go">Watch the animation &rarr;</span></span>
+              <span class="pub-preview-cap"><b>Normal Direction Descent (NDD).</b> Step by step: comparisons give a normal direction, and two descent methods use it. <span class="pub-preview-go">Watch the animation &rarr;</span></span>
             </a>
           </div>
         </li>

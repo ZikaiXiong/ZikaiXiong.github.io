@@ -32,12 +32,13 @@
       <ul class="nav-links" id="nav-menu">
         <li><a href="index.html">about</a></li>
         <li><a href="research.html" class="active">research</a></li>
+        <li><a href="demos/">demos</a></li>
         <li><a href="news.html">news</a></li>
         <li><a href="cv/" target="_blank" rel="noopener">cv</a></li>
         <li><a href="awards.html">awards</a></li>
         <li><a href="teaching.html">teaching</a></li>
         <li><a href="talks.html">talks</a></li>
-        <li><a href="blogs.html">blogs</a></li>
+        <li><a href="blogs.html">blog</a></li>
         <li><a href="gallery.html">photos</a></li>
       </ul>
     </nav>
@@ -47,6 +48,15 @@
 
     <h1 class="page-title">Research</h1>
     <p class="page-desc">(alphabetical authorship marked with <span class="author-star">*</span>)</p>
+
+    <a class="demo-callout" href="demos/">
+      <span class="demo-callout-text">Interactive demos of key ideas from my papers. <span class="demo-callout-go">Try them &rarr;</span></span>
+      <span class="demo-stack" aria-hidden="true">
+        <img src="demos/comparison/thumb.jpg" alt="" width="120" height="75">
+        <img src="demos/ndd/thumb.jpg" alt="" width="120" height="75">
+        <img src="demos/pdhg-lp-hardness/thumb.jpg" alt="" width="120" height="75">
+      </span>
+    </a>
 
     <h2 class="section-title">Journal Papers and Preprints</h2>
     <ul class="pub-list">
@@ -126,7 +136,7 @@
             <video muted loop playsinline preload="none" poster="demos/ndd/preview.jpg">
               <source src="demos/ndd/preview.mp4" type="video/mp4">
             </video>
-            <span class="pub-preview-cap"><b>Normal Direction Descent.</b> See how the algorithm learns descent directions from comparisons alone. <span class="pub-preview-go">Watch the animation &rarr;</span></span>
+            <span class="pub-preview-cap"><b>Normal Direction Descent (NDD).</b> Step by step: comparisons give a normal direction, and two descent methods use it. <span class="pub-preview-go">Watch the animation &rarr;</span></span>
           </a>
         </div>
       </li>
@@ -346,63 +356,6 @@
       </li>
 
     </ul>
-
-    <h2 class="section-title" id="demos">Interactive Demos</h2>
-    <p>Interactive pages that let you see and try the ideas in my papers.</p>
-
-    <div class="tool-grid">
-      <div class="tool-card">
-        <a class="tool-media" href="demos/comparison/">
-          <video muted loop playsinline preload="none" poster="demos/comparison/preview.jpg">
-            <source src="demos/comparison/preview.mp4" type="video/mp4">
-          </video>
-        </a>
-        <span class="tool-title">Color Picking by Comparison Feedback</span>
-        <p class="tool-desc">Find a color by answering only &ldquo;which one is better?&rdquo;</p>
-        <span class="tool-paper">Paper: <a href="https://arxiv.org/abs/2604.26867">Function-Free Optimization via Comparison Oracles</a></span>
-        <a class="demo-btn" href="demos/comparison/">&#9654; Try the demo</a>
-      </div>
-      <div class="tool-card">
-        <a class="tool-media" href="demos/ndd/">
-          <video muted loop playsinline preload="none" poster="demos/ndd/preview.jpg">
-            <source src="demos/ndd/preview.mp4" type="video/mp4">
-          </video>
-        </a>
-        <span class="tool-title">Normal Direction Descent</span>
-        <p class="tool-desc">How comparisons alone give a direction of descent.</p>
-        <span class="tool-paper">Paper: <a href="https://arxiv.org/abs/2604.26867">Function-Free Optimization via Comparison Oracles</a></span>
-        <a class="demo-btn" href="demos/ndd/">&#9654; Watch the animation</a>
-      </div>
-      <div class="tool-card">
-        <a class="tool-media" href="demos/rounding/">
-          <video muted loop playsinline preload="none" poster="demos/rounding/card.jpg">
-            <source src="demos/rounding/card.mp4" type="video/mp4">
-          </video>
-        </a>
-        <span class="tool-title">Does Symmetry Help Rounding?</span>
-        <p class="tool-desc">How the symmetry of a shape limits how well an ellipse can fit it.</p>
-        <span class="tool-paper">Paper: <a href="https://arxiv.org/abs/2608.30876">Symmetry-dependence in Rounding of a Convex Body</a></span>
-        <a class="demo-btn" href="demos/rounding/">&#9654; Try the demo</a>
-      </div>
-      <div class="tool-card">
-        <a class="tool-media" href="demos/pdhg-lp-hardness/">
-          <video muted loop playsinline preload="none" poster="demos/pdhg-lp-hardness/preview.jpg"><source src="demos/pdhg-lp-hardness/preview.mp4" type="video/mp4"></video>
-        </a>
-        <span class="tool-title">Why Is This LP Hard?</span>
-        <p class="tool-desc">How a near tie in the LP or its dual makes restarted PDHG slow.</p>
-        <span class="tool-paper">Paper: <a href="https://arxiv.org/abs/2410.04043">Accessible Complexity Bounds for Restarted PDHG on Linear Programs with a Unique Optimizer</a></span>
-        <a class="demo-btn" href="demos/pdhg-lp-hardness/">&#9654; Try the demo</a>
-      </div>
-      <div class="tool-card">
-        <a class="tool-media" href="demos/pdhg-random-lps/">
-          <video muted loop playsinline preload="none" poster="demos/pdhg-random-lps/preview.jpg"><source src="demos/pdhg-random-lps/preview.mp4" type="video/mp4"></video>
-        </a>
-        <span class="tool-title">How Hard Is a Random LP?</span>
-        <p class="tool-desc">Solve hundreds of random LPs in your browser and see how the iteration counts spread out.</p>
-        <span class="tool-paper">Paper: <a href="https://arxiv.org/abs/2501.00728">High-Probability Polynomial-Time Complexity of Restarted PDHG for Linear Programming</a></span>
-        <a class="demo-btn" href="demos/pdhg-random-lps/">&#9654; Try the demo</a>
-      </div>
-    </div>
 
     <h2 class="section-title">Patent Applications</h2>
     <ul class="pub-list">
