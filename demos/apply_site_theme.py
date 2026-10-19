@@ -15,6 +15,7 @@ HERE = pathlib.Path(__file__).resolve().parent
 
 TITLES = {
     'comparison': 'Color Picking by Comparison Feedback',
+    'photo': 'Photo Editing by Comparison Feedback',
     'ndd': 'Normal Direction Descent (NDD)',
     'rounding': 'Does Symmetry Help Rounding?',
     'pdhg-lp-hardness': 'Why Is This LP Hard?',
@@ -22,6 +23,7 @@ TITLES = {
 }
 
 DESCRIPTIONS = {
+    'photo': 'Interactive demo by Zikai Xiong: edit a photo by answering only which of two versions is better, and watch an optimization algorithm learn from comparisons alone.',
     'comparison': 'Interactive demo by Zikai Xiong: find a color by answering only which of two colors is closer, and watch an optimization algorithm learn from comparisons alone.',
     'ndd': 'Interactive animation by Zikai Xiong: how comparisons alone give a normal direction, and the two descent methods NDD and adaNDD built on it.',
     'rounding': 'Interactive demo by Zikai Xiong: how the symmetry of a convex shape limits how well an ellipse can round it.',
@@ -31,6 +33,7 @@ DESCRIPTIONS = {
 
 PAPERS = {
     'comparison': ('Scheinberg &amp; Xiong', ['2604.26867']),
+    'photo': ('Scheinberg &amp; Xiong', ['2604.26867']),
     'ndd': ('Scheinberg &amp; Xiong', ['2604.26867']),
     'rounding': ('Xiong &amp; Freund', ['2608.30876']),
     'pdhg-lp-hardness': ('Xiong', ['2410.04043']),
@@ -165,7 +168,7 @@ def apply(s, name):
             k = s.index('</footer>\n</div>\n') + len('</footer>\n</div>\n')
             s = s[:k] + FOOT + s[k:]
         else:
-            s = replace_once(s, '</body>', FOOT + '</body>')
+            s = replace_once(s, NAVJS + '</body>', FOOT + NAVJS + '</body>') if NAVJS + '</body>' in s else replace_once(s, '</body>', FOOT + '</body>')
 
     if 'assets/js/nav.js' not in s:
         if '</body>' in s:
@@ -174,7 +177,7 @@ def apply(s, name):
             s = replace_once(s, '</html>', NAVJS + '</html>')
 
     # byline under the title
-    if name in ('comparison', 'rounding'):
+    if name in ('comparison', 'rounding', 'photo'):
         s = re.sub(r'<p class="cite">.*?</p>', '<p class="cite">' + byline(name) + '</p>', s, count=1, flags=re.S)
 
     if name.startswith('pdhg') and 'class="cite"' not in s:
