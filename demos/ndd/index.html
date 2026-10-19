@@ -19,9 +19,9 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
 <style>
 :root { --bg: #f6f4ee; --panel: #fffdf9; --ink: #1c2333; --muted: #6b7280; --faint: #a3a9b3; --line: #e7e2d7; --chip: #f1ede4; --better: #1f9d55; --worse: #d64545; --nhat: #e8710a; --tan: #7b3fbf; --arc: #e9a21f; --best: #e0a100; --path: #1d3557; --bet: #2563eb; --cap: rgba(255,253,249,.95); --shadow: 0 8px 28px rgba(28,35,51,.13); --accent: #1d3557; --btn: #ffffff; --btnh: #f3efe6; --halo: #f8f6f0; --ui: -apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Arial,sans-serif;
-  --ada: #7b3fbf; --plane1: #2a9d8f; --plane2: #7b3fbf; --surf: #3e8ea3; --sx: rgba(62,142,163,.16); color-scheme: light; }
+  --ada: #7b3fbf; --plane1: #7b3fbf; --plane2: #a0522d; --surf: #3e8ea3; --sx: rgba(62,142,163,.16); color-scheme: light; }
 :root[data-theme="dark"] { --bg: #0e131a; --panel: #121923; --ink: #e7ecf3; --muted: #9aa4b2; --faint: #5f6a79; --line: #243040; --chip: #1b2430; --better: #3ccf7a; --worse: #ff6b6b; --nhat: #ff9a3c; --tan: #c39bff; --arc: #ffc54d; --best: #ffd23f; --path: #e9eef6; --bet: #7aa7ff; --cap: rgba(18,25,35,.93); --shadow: 0 8px 28px rgba(0,0,0,.5); --accent: #9cc8ff; --btn: #1a2330; --btnh: #223042; --halo: #0e131a;
-  --ada: #c39bff; --plane1: #4fd1c1; --plane2: #c39bff; --surf: #5fb3c9; --sx: rgba(95,179,201,.14); color-scheme: dark; }
+  --ada: #c39bff; --plane1: #c39bff; --plane2: #c8643c; --surf: #5fb3c9; --sx: rgba(95,179,201,.14); color-scheme: dark; }
 * { box-sizing: border-box; }
 html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); font-family: var(--ui); overflow: hidden; -webkit-font-smoothing: antialiased; }
 #app { display: flex; height: 100vh; width: 100vw; }
@@ -77,6 +77,8 @@ kbd { font-family: var(--ui); font-size: .78em; border: 1px solid var(--line); b
 .lg-p1 { width: 14px; height: 14px; border-radius: 50%; background: color-mix(in srgb, var(--plane1) 25%, transparent); border: 1.5px solid var(--plane1); }
 .lg-p2 { width: 14px; height: 14px; border-radius: 50%; background: color-mix(in srgb, var(--plane2) 25%, transparent); border: 1.5px solid var(--plane2); }
 .lg-g { width: 18px; height: 0; border-top: 2px dashed var(--muted); }
+.lg-y1 { width: 18px; height: 3px; background: var(--plane1); border-radius: 2px; }
+.lg-y2 { width: 18px; height: 3px; background: var(--plane2); border-radius: 2px; }
 .lg-bet { width: 18px; height: 3px; background: var(--bet); border-radius: 2px; }
 .lg-path { width: 18px; height: 3px; background: var(--path); border-radius: 2px; }
 .lg-ada { width: 18px; height: 3px; background: var(--ada); border-radius: 2px; }
@@ -1544,13 +1546,20 @@ TABS['1'] = (() => {
   };
 })();
 
-/* Step 2: normal direction estimation by orthogonal-subspace construction (Algorithm 2), in 3D. */
+/* Step 2: normal direction estimation by orthogonal-subspace construction (Algorithm 2), in 3D.
+ * One plane at a time. Each plane is a card stuck through a round piece of the level surface: the half under
+ * the surface is faint with a dashed rim, and the cut where card and surface meet is the curve of step 1.
+ * For each plane the camera picks a view from above the surface that shows the card like a half-open door;
+ * face-on, the card is exactly the picture of step 1, with a small 3D overview in the corner. The frame
+ * vectors appear only where they matter: v2 and q3 when plane 2 is built, v3 when n-hat is. */
 
 TABS['2'] = (() => {
   const S = { kind: 'ellipsoid', h: 0.16, T: 4, seed: 5, mode: 'fixed', truth: false, xdir: [0.35, 0.55, 0.76], hd: { d: 12 } };
-  let fn, x, n, e1, e2, rx, est, surf, patch, beats = [], camG, camL, faceCams = [], planeInfo = [];
+  let fn, x, n, e1, e2, rx, est, surf, patch, planes = [], beats = [], camG, camE, camP = [], faceCams = [];
   let userQ = [1, 0, 0, 0], userFrom = [1, 0, 0, 0];
-  const RD = 1.38;                                    // disk radius in units of h
+  const RD = 1.38, RP = 1.7;                                  // radii of the card and of the surface piece, in units of h
+  const EL = 33 * Math.PI / 180, EL_FLAT = 16 * Math.PI / 180, ELG = 48 * Math.PI / 180;   // camera height above the tangent plane: close up (lower for a card almost flat on the surface), whole surface
+  const LIGHT = C.unit([-0.35, 0.55, 0.76]);                  // in camera coordinates
 
   function frameAt(nv) {
     const a = Math.abs(nv[0]) < 0.8 ? [1, 0, 0] : [0, 1, 0];
@@ -1565,55 +1574,119 @@ TABS['2'] = (() => {
     rx = C.regRadius(fn, x);
     const R = C.rng(S.seed), q = C.haarFrame(3, R), O = C.makeOracle(fn), H = { h: S.h };
     est = C.osne(O, x, H, S.T, R, S.mode, q);
-    surf = C.levelSurface3(fn, x, 22, 44);
-    patch = C.localPatch(fn, x, e1, e2, n, 1.75 * S.h, 14);
+    surf = C.levelSurface3(fn, x, 30, 60);
+    patch = roundPatch();
+    planes = est.calls.map((call, i) => planeGeom(i, call));
     cameras();
     beats = buildBeats();
+    const mc = document.getElementById('miniCv'); if (mc) mc._key = null;
     Player.set(beats, keep ? Math.min(Player.idx, beats.length - 1) : 0);
     updatePanel();
     runHD();
   }
+
+  // ---------------------------------------------------------------- geometry
+  /** A round piece of the level surface around x: rings of points, found along n from the tangent plane. */
+  function roundPatch() {
+    const NR = 8, NS = 64, R0 = RP * S.h, level = fn.f(x), rows = [];
+    for (let i = 0; i <= NR; i++) {
+      const r = R0 * i / NR, row = [];
+      for (let k = 0; k <= NS; k++) {
+        const th = 2 * Math.PI * k / NS, base = C.axpy(C.axpy(x, r * Math.cos(th), e1), r * Math.sin(th), e2);
+        const w = C.nearestRoot(fn, base, n, level, 2 * R0);
+        row.push(w === null ? null : C.axpy(base, w, n));
+      }
+      rows.push(row);
+    }
+    return rows;
+  }
+  /** Plane i = span{v_i, q_(i+1)} as a card of radius RD h: the cut (the level curve through x in the plane, ending
+   *  on the rim), the halves above and under the surface, their rims, and the circle of radius h split the same way. */
+  function planeGeom(i, call) {
+    const a = est.vs[i], b = est.q[i + 1], h = S.h, half = RD * h, level = fn.f(x);
+    const m = C.unit(C.cross3(a, b));
+    const mp = C.unit(C.add(C.scale(a, C.dot(n, a)), C.scale(b, C.dot(n, b))));   // "up" in the plane: the part of n in it
+    const tp = C.unit(C.cross3(m, mp));                                             // along the cut
+    const at = (r, th) => C.axpy(C.axpy(x, r * Math.cos(th), tp), r * Math.sin(th), mp);
+    const G = { a, b, m, mp, tp, call, cut: [], above: null, below: null, rimAbove: null, rimBelow: null };
+    const raw = C.localCurve(fn, x, tp, mp, half * 1.1, 80).filter(Boolean), inside = q => C.norm(C.sub(q, x)) <= half;
+    const rimHit = (p, q) => {                                // the point of segment pq on the rim
+      const d = C.sub(q, p), w = C.sub(p, x), A = C.dot(d, d), Bq = C.dot(w, d), Cq = C.dot(w, w) - half * half;
+      const s = (-Bq + Math.sqrt(Math.max(0, Bq * Bq - A * Cq))) / A, s2 = (-Bq - Math.sqrt(Math.max(0, Bq * Bq - A * Cq))) / A;
+      return C.axpy(p, s >= 0 && s <= 1 ? s : s2, d);
+    };
+    raw.forEach((q, k) => { if (k && inside(q) !== inside(raw[k - 1])) G.cut.push(rimHit(raw[k - 1], q)); if (inside(q)) G.cut.push(q); });
+    const arc = (from, to) => Array.from({ length: 49 }, (_, k) => at(half, from + (to - from) * k / 48));
+    if (G.cut.length >= 2) {
+      const ang = q => { const v = C.sub(q, x); return Math.atan2(C.dot(v, mp), C.dot(v, tp)); };
+      const a0 = ang(G.cut[0]), a1 = ang(G.cut[G.cut.length - 1]);
+      let up = a0; while (up < a1) up += 2 * Math.PI;
+      let dn = a0; while (dn > a1) dn -= 2 * Math.PI;
+      G.rimAbove = arc(a1, up); G.rimBelow = arc(a1, dn);
+      G.above = G.cut.concat(G.rimAbove); G.below = G.cut.concat(G.rimBelow);
+      if (fn.f(at(0.6 * half, Math.PI / 2)) < level) {           // safety: "above" must be the worse side
+        [G.above, G.below] = [G.below, G.above]; [G.rimAbove, G.rimBelow] = [G.rimBelow, G.rimAbove];
+      }
+    } else { G.rimAbove = arc(0, 2 * Math.PI); G.rimBelow = []; G.above = G.rimAbove; G.below = []; }
+    G.circ = Array.from({ length: 97 }, (_, k) => at(h, 2 * Math.PI * k / 96));
+    G.circUnder = G.circ.map(q => fn.f(q) < level);
+    return G;
+  }
+  const viewDir = (az, el) => C.add(C.scale(C.add(C.scale(e1, Math.cos(az)), C.scale(e2, Math.sin(az))), Math.cos(el)), C.scale(n, Math.sin(el)));
+  const angDiff = (a, b) => { let d = (a - b) % (2 * Math.PI); if (d > Math.PI) d -= 2 * Math.PI; if (d < -Math.PI) d += 2 * Math.PI; return Math.abs(d); };
+  /** The azimuth around n (at height el) with the lowest score; a small penalty keeps it near the previous one. */
+  function bestAz(score, prev, el) {
+    let best = 0, bs = Infinity;
+    for (let k = 0; k < 180; k++) {
+      const az = 2 * Math.PI * k / 180, s = score(viewDir(az, el)) + (prev === null ? 0 : 0.04 * Math.pow(angDiff(az, prev) / Math.PI, 2));
+      if (s < bs) { bs = s; best = az; }
+    }
+    return best;
+  }
   function cameras() {
     const W = VIEW.W, Hh = VIEW.H, cy = 86 + (Hh - 236) / 2;
-    const tv = C.unit(C.add(C.scale(n, 0.6), C.scale(C.add(C.scale(e1, 0.86), C.scale(e2, 0.5)), 0.8)));
+    const sL = Math.max(70, Math.min(W * 0.21, (Hh - 236) * 0.3)) / S.h;
+    camP = []; let prev = null;
+    for (const P of planes) {
+      const el = Math.abs(C.dot(P.m, n)) > 0.85 ? EL_FLAT : EL;   // a card almost flat on the surface: look from lower down
+      // like a half-open door: the card's normal at about 53° from the view, its height (mp) seen almost in full, the cut not end-on
+      const az = bestAz(v => Math.pow(Math.abs(C.dot(v, P.m)) - 0.6, 2) + 0.7 * Math.pow(Math.max(0, Math.abs(C.dot(v, P.mp)) - 0.35), 2) +
+        0.5 * Math.pow(Math.max(0, Math.abs(C.dot(v, P.tp)) - 0.8), 2), prev, el);
+      const v = viewDir(az, el);
+      if (C.dot(P.m, v) < 0) P.m = C.scale(P.m, -1);         // face-on, look from the same side
+      P.az = az; prev = az;
+      camP.push(Cam.make(Q.look(v, n), sL, x.slice(), W / 2, cy));
+    }
+    faceCams = planes.map(P => Cam.make(Q.look(P.m, P.mp), sL * 1.08, x.slice(), W / 2, cy));
+    const Y1 = est.ys[0], Y2 = est.ys[1];                     // the end: both tangent directions well visible
+    camE = Cam.make(Q.look(viewDir(bestAz(v => Math.max(Math.abs(C.dot(v, Y1)), Math.abs(C.dot(v, Y2))) ** 2, prev, EL), EL), n), sL, x.slice(), W / 2, cy);
     let Rmax = 0; for (const row of surf) for (const p of row) Rmax = Math.max(Rmax, C.norm(C.sub(p, fn.xstar)));
-    camG = Cam.make(Q.look(tv, n), Math.min(W, Hh - 220) * 0.36 / Rmax, fn.xstar.slice(), W / 2, cy);
-    const Rpx = Math.max(80, Math.min(W * 0.24, (Hh - 236) * 0.34));
-    camL = Cam.make(Q.look(tv, n), Rpx / S.h, x.slice(), W / 2, cy);
-    planeInfo = est.calls.map((call, i) => {
-      const a = est.vs[i], b = est.q[i + 1];
-      let m = C.unit(C.cross3(a, b)); if (C.dot(m, tv) < 0) m = C.scale(m, -1);
-      // in-plane normal and tangent (for drawing the in-plane level curve; uses the true normal)
-      const pn = C.add(C.scale(a, C.dot(n, a)), C.scale(b, C.dot(n, b))), mp = C.unit(pn), tp = C.unit(C.cross3(m, mp));
-      return { a, b, m, mp, tp, call };
-    });
-    faceCams = planeInfo.map(P => Cam.make(Q.look(P.m, P.mp), camL.s * 1.08, x.slice(), W / 2, cy));
+    camG = Cam.make(Q.look(viewDir(planes[0].az, ELG), n), Math.min(W, Hh - 220) * 0.36 / Rmax, fn.xstar.slice(), W / 2, cy);
   }
 
   // ---------------------------------------------------------------- beats
   function buildBeats() {
     const B = [];
-    const st = { cam: 'L', frame: false, planes: [], active: -1, tests: [], bracket: null, axes: null, ys: [], vs: [0], vAnim: null, fin: null, est: false, cmps: 0, face: -1 };
-    const push = o => B.push(Object.assign({}, st, { planes: st.planes.slice(), tests: st.tests.slice(), ys: st.ys.slice(), vs: st.vs.slice() }, o));
+    const st = { cam: 'G', cards: [], face: -1, circ: false, tests: [], bracket: null, axes: null, ls: null, ys: [], arrows: [], rights: [], fin: null, cmps: 0 };
+    const push = o => B.push(Object.assign({}, st, { cards: st.cards.slice(), tests: st.tests.slice(), ys: st.ys.slice(), arrows: st.arrows.slice(), rights: st.rights.slice() }, o));
     const word = b => b ? '<span class="c-better">better</span>' : '<span class="c-worse">worse</span>';
-    push({ cam: 'G', caption: 'In three dimensions the level set through $x$ is a surface. Its tangent space at $x$ is a plane: we need $d-1=2$ tangent directions to pin down the normal.', phase: 'A level surface', lines: ['in'], tick: true, dur: 3000 });
-    push({ caption: 'Zoom in. As in step 1, $x$ is compared only with points at distance $h$: the small sphere. Below the surface is better than $x$.', phase: 'Comparisons at radius $h$', lines: ['in'], tr: 1500, dur: 2800 });
-    st.frame = true;
-    push({ caption: 'Draw a random orthonormal frame $q_1,q_2,q_3$ and set $v_1=q_1$.', phase: 'Random frame', lines: ['l2', 'l3'], tick: true, dur: 2400 });
-    const d = 3;
-    for (let i = 0; i < d - 1; i++) {
-      const P = planeInfo[i], call = P.call, sub = (i + 1) === 1 ? '\\mathbf 1' : '\\mathbf 2';
-      st.planes.push(i); st.active = i; st.tests = []; st.bracket = null; st.axes = null;
-      if (i === 0) push({ caption: 'Plane 1 is spanned by $v_1$ and $q_2$. Run step 1 inside it.', phase: 'Plane 1', lines: ['l4', 'l5'], tick: true, det: true, dur: 2400 });
-      else push({ caption: 'Plane 2 is spanned by $v_2$ and $q_3$. Both are perpendicular to $y_1$, so every direction in plane 2 is perpendicular to $y_1$, and so is whatever step 1 finds here.', phase: 'Plane 2 $\\perp y_1$', lines: ['l4', 'l5'], tick: true, det: true, dur: 3600 });
-      st.face = i; st.cam = 'F' + i;
-      push({ caption: 'Seen face-on, plane ' + (i + 1) + ' looks exactly like step 1: the surface cuts it in a curve through $x$.', phase: 'Step 1 in plane ' + (i + 1), lines: ['l5'], tr: 1300, dur: 2200, lock: true });
+    push({ caption: 'In three dimensions the level set through $x$ is a surface. Its tangent space at $x$ is a plane: we need $d-1=2$ tangent directions to pin down the normal.', phase: 'A level surface', lines: ['in'], tick: true, dur: 3000 });
+    st.cam = 'P0';
+    push({ caption: 'Zoom in on $x$. Close up, the surface is almost flat. Points under it are better than $x$, points above it are worse.', phase: 'Near $x$', lines: ['in'], tr: 1500, dur: 2800 });
+    for (let i = 0; i < 2; i++) {
+      const call = planes[i].call;
+      st.cards = [i]; st.cam = 'P' + i;
+      if (i === 0) push({ caption: 'Plane 1 is a random plane through $x$, spanned by $v_1=q_1$ and $q_2$ from a random orthonormal frame. It cuts the surface along a curve; its dashed half lies under the surface.', phase: 'Plane 1', lines: ['l2', 'l3', 'l4', 'l5'], tick: true, det: true, tr: 1100, dur: 3600 });
+      else push({ caption: 'Plane 2 is spanned by $v_2$ and $q_3$. Both are perpendicular to $y_1$, so the whole plane is, and so is whatever step 1 finds in it: no linear system needed.', phase: 'Plane 2 $\\perp y_1$', lines: ['l4', 'l5'], tick: true, det: true, tr: 1400, dur: 3800 });
+      st.face = i; st.cam = 'F' + i; st.circ = true; st.arrows = []; st.rights = [];
+      push({ caption: i === 0 ? 'Seen face-on, plane 1 looks exactly like step 1: the cut is a curve through $x$, and $x$ is compared only with points at distance $h$ (the circle).' : 'Seen face-on, plane 2 is again step 1.', phase: 'Step 1 in plane ' + (i + 1), lines: ['l5'], tr: 1300, dur: i === 0 ? 3000 : 2000, lock: true });
       const evs = call.events;
       for (let k = 0; k < evs.length; k++) {
         const e = evs[k];
-        if (e.type === 'rotate') { st.axes = e; }        // shown together with the first test
+        if (e.type === 'rotate') { st.axes = e; }            // shown together with the first test
         else if (e.type === 'ls') {
           for (let j = 0; j < e.ls.steps.length - 1; j++) { st.cmps += 2; push({ ls: { u: e.u, h: e.ls.steps[j].h }, caption: 'Line search: both sides worse, halve $h$.', phase: 'Line search', lines: ['l5'], dur: 900, tr: 400 }); }
+          st.ls = null;
         } else if (e.type === 'cmp' && e.tag === 'a+') {
           const em = evs[k + 1]; k++;
           st.tests.push({ u: e.u, h: e.h, better: e.better, tag: 'a+' }, { u: em.u, h: em.h, better: em.better, tag: 'a-' }); st.cmps += 2;
@@ -1634,164 +1707,193 @@ TABS['2'] = (() => {
           push({ caption: 'Step 1 returns $y_' + (i + 1) + '$, a direction in plane ' + (i + 1) + ' that is nearly tangent to the surface.', phase: '$y_' + (i + 1) + '$ found', lines: ['l5'], dur: 1800 });
         }
       }
-      if (call.early) st.ys.push(i);
-      st.face = -1; st.cam = 'L'; st.tests = []; st.bracket = null; st.axes = null;
-      push({ caption: 'Back in 3D: $y_' + (i + 1) + '$ lies (almost) in the tangent plane of the surface.', phase: '$y_' + (i + 1) + '$ in 3D', lines: ['l5'], tr: 1300, dur: 2200, lock: true });
-      st.vs.push(i + 1); st.vAnim = i;
-      push({ caption: 'Turn $v_' + (i + 1) + '$ inside plane ' + (i + 1) + ' until it is perpendicular to $y_' + (i + 1) + '$: $v_' + (i + 2) + '=-\\langle y_' + (i + 1) + ',q_' + (i + 2) + '\\rangle v_' + (i + 1) + '+\\langle y_' + (i + 1) + ',v_' + (i + 1) + '\\rangle q_' + (i + 2) + '$.', phase: 'Rotate $v_' + (i + 1) + '\\to v_' + (i + 2) + '$', lines: ['l6'], tr: 1400, dur: 2800 });
-      st.vAnim = null;
+      if (call.early && !st.ys.includes(i)) st.ys.push(i);
+      st.face = -1; st.cam = 'P' + i; st.circ = false; st.tests = []; st.bracket = null; st.axes = null;
+      if (i === 0) push({ caption: 'Back in 3D: $y_1$ lies almost along the surface.', phase: '$y_1$ in 3D', lines: ['l5'], tr: 1300, dur: 2400, lock: true });
+      else push({ caption: 'Back in 3D: $y_2$ also lies almost along the surface, at right angles to $y_1$.', phase: '$y_2$ in 3D', lines: ['l5'], tr: 1300, dur: 2600, lock: true, rights: [['Y1', 'Y2']] });
+      if (i === 0) {
+        st.arrows = ['V2', 'Q3']; st.rights = [['V2', 'Y1']];
+        push({ caption: 'Turn $v_1$ inside plane 1 until it is perpendicular to $y_1$: $v_2=-\\langle y_1,q_2\\rangle v_1+\\langle y_1,v_1\\rangle q_2$. The frame vector $q_3$ is perpendicular to plane 1, so to $y_1$ as well.', phase: 'Rotate $v_1\\to v_2$', lines: ['l6'], tr: 900, dur: 3800 });
+        st.rights = [['V2', 'Y1'], ['Q3', 'Y1']];
+      } else {
+        st.arrows = ['V3']; st.rights = [['V3', 'Y2']];
+        push({ caption: 'Turn $v_2$ inside plane 2 until it is perpendicular to $y_2$: that is $v_3$. All of plane 2 is perpendicular to $y_1$, so $v_3$ is perpendicular to both $y_1$ and $y_2$.', phase: 'Rotate $v_2\\to v_3$', lines: ['l6'], tr: 900, dur: 3600 });
+      }
     }
-    // final comparison
+    // the sign of the normal: one more comparison
     const F = est.final;
-    if (F.ls) for (let j = 0; j < F.ls.steps.length - 1; j++) { st.cmps += 2; push({ ls: { u: F.vd, h: F.ls.steps[j].h }, caption: 'Line search: halve $h$.', phase: 'Line search', lines: ['l7'], dur: 900 }); }
+    st.cards = []; st.arrows = []; st.rights = []; st.cam = 'E';
+    if (F.ls) for (let j = 0; j < F.ls.steps.length - 1; j++) { st.cmps += 2; push({ ls: { u: F.vd, h: F.ls.steps[j].h, free: true }, caption: 'Line search: halve $h$.', phase: 'Line search', lines: ['l7'], dur: 900, tr: 700 }); }
     st.cmps += S.mode === 'line' ? 2 : 1;
     st.fin = F;
-    push({ caption: '$v_3$ is perpendicular to $y_1$ and $y_2$. Compare $x$ with $x+hv_3$: it is ' + word(F.better) + ', so $\\hat n=' + (F.better ? '-v_3' : 'v_3') + '$.', phase: 'Orientation', lines: ['l7', 'l8'], tick: true, dur: 2600 });
-    st.est = true;
+    push({ caption: '$v_3$ is the normal up to its sign. One more comparison: $x+hv_3$ is ' + word(F.better) + ' than $x$, so $\\hat n=' + (F.better ? '-v_3' : 'v_3') + '$.', phase: 'Orientation', lines: ['l7', 'l8'], tick: true, tr: 1300, dur: 2800 });
+    st.rights = [['NH', 'Y1'], ['NH', 'Y2']];
     const err = C.norm(C.sub(est.nhat, n)), bound = 2 * Math.sqrt(2) * (S.h / rx + Math.PI / Math.pow(2, S.T + 1));
-    push({ caption: 'Done: $y_1,y_2$ span the estimated tangent plane and $\\hat n$ is perpendicular to it, with no linear system to solve. ' + st.cmps + ' comparisons; error $\\|\\hat n-n\\|=' + fmt(err, 3) + '$, guaranteed at most $' + fmt(Math.min(2, bound), 3) + '$.', phase: 'Normal estimate $\\hat n$', lines: ['l8'], dur: 4000, stop: true, next: ['3', 'Next: the descent'] });
+    push({ caption: 'Done: $y_1$ and $y_2$ lie along the surface and $\\hat n$ is perpendicular to both, with no linear system to solve. ' + st.cmps + ' comparisons; error $\\|\\hat n-n\\|=' + fmt(err, 3) + '$, guaranteed at most $' + fmt(Math.min(2, bound), 3) + '$.', phase: 'Normal estimate $\\hat n$', lines: ['l8'], dur: 4000, stop: true, next: ['3', 'Next: the descent'] });
     B.forEach((b, j) => { b.count = (j + 1) + ' / ' + B.length; b.cmpsTxt = b.cmps + ' comparisons'; });
     return B;
   }
 
   // ---------------------------------------------------------------- 3D drawing
-  function camOf(b) { return b.cam === 'G' ? camG : (b.cam === 'L' ? camL : faceCams[+b.cam.slice(1)]); }
-  function polyP(cam, pts) { return pts.map(p => Cam.P(cam, p)); }
+  function camOf(b) { const c = b.cam; return c === 'G' ? camG : c === 'E' ? camE : (c[0] === 'F' ? faceCams : camP)[+c.slice(1)]; }
+  const polyP = (cam, pts) => pts.map(p => Cam.P(cam, p));
+  const colOf = j => j ? COL.plane2 : COL.plane1;
+  const VEC = () => ({ V2: est.vs[1], Q3: est.q[2], V3: est.vs[2], Y1: est.ys[0], Y2: est.ys[1], NH: est.nhat });
   function draw(B, i, t) {
     if (!B.length) return;
     const b = B[i], p = B[Math.max(0, i - 1)];
-    const cA = camOf(p), cB = camOf(b);
-    let cam = Cam.lerp(cA, cB, t);
+    let cam = Cam.lerp(camOf(p), camOf(b), t);
     const uq = Q.slerp(userFrom, userQ, t);
     cam = Object.assign({}, cam, { q: Q.mul(uq, cam.q) });
-    const zG = (p.cam === 'G' ? 1 - t : 0) + (b.cam === 'G' ? t : 0);           // weight of the global view
-    const face = (b.face >= 0 ? (p.face === b.face ? 1 : t) : (p.face >= 0 ? 1 - t : 0));
-    const fIdx = b.face >= 0 ? b.face : p.face;
-    const X = Cam.P(cam, x), h = S.h, Rh = h * cam.s;
-    const light = [-0.35, 0.55, 0.76];
-    Paint.begin();
-    // global level surface
+    const P3 = q => Cam.P(cam, q), X = P3(x), h = S.h, V = VEC();
+    const W8 = (inP, inB) => (inP ? 1 - t : 0) + (inB ? t : 0);           // weight of what p and/or b show
+    const zG = W8(p.cam === 'G', b.cam === 'G'), zL = 1 - zG;
+    const face = W8(p.face >= 0, b.face >= 0), fIdx = b.face >= 0 ? b.face : p.face;
+    const fromAbove = Q.rot(cam.q, n)[2] >= 0;                            // is the camera on the worse side of the surface?
+
+    // the whole level surface (front faces only; it is convex)
     if (zG > 0.01) {
+      Paint.begin();
       for (let a = 0; a < surf.length - 1; a++) for (let c = 0; c < surf[a].length - 1; c++) {
         const q4 = [surf[a][c], surf[a][c + 1], surf[a + 1][c + 1], surf[a + 1][c]];
-        const P = polyP(cam, q4), z = (P[0][2] + P[1][2] + P[2][2] + P[3][2]) / 4;
-        const nn = C.unit(C.cross3(C.sub(q4[2], q4[0]), C.sub(q4[3], q4[1])));
-        const nv = Q.rot(cam.q, nn), lam = 0.35 + 0.65 * Math.abs(C.dot(nv, C.unit(light)));
-        Paint.add(z, () => { D.fillPoly(P, shade(COL.surf, lam), 0.92 * zG); D.poly(P.concat([P[0]]), alpha('#ffffff', 0.08), 0.6, null, false, zG); });
+        let nn = C.unit(C.cross3(C.sub(q4[2], q4[0]), C.sub(q4[3], q4[1])));
+        if (C.dot(nn, C.sub(q4[0], fn.xstar)) < 0) nn = C.scale(nn, -1);
+        const nv = Q.rot(cam.q, nn); if (nv[2] < -0.02) continue;
+        const P = polyP(cam, q4), z = (P[0][2] + P[1][2] + P[2][2] + P[3][2]) / 4, col = shade(COL.surf, 0.3 + 0.7 * Math.max(0, C.dot(nv, LIGHT)));
+        Paint.add(z, () => { D.fillPoly(P, col, zG); D.poly(P.concat([P[0]]), col, 0.8, null, false, zG); });
       }
+      Paint.flush();
     }
-    // local patch of the surface
-    const zL = 1 - zG, patchA = zL * (1 - 0.85 * face);
+    // the round piece of the surface around x (gone when a card is seen face-on)
+    const patchA = zL * (1 - face);
     if (patchA > 0.01) {
-      for (let a = 0; a < patch.length - 1; a++) for (let c = 0; c < patch[a].length - 1; c++) {
-        const q4 = [patch[a][c], patch[a][c + 1], patch[a + 1][c + 1], patch[a + 1][c]];
-        if (q4.some(v => !v)) continue;
-        const P = polyP(cam, q4), z = (P[0][2] + P[1][2] + P[2][2] + P[3][2]) / 4;
-        const nv = Q.rot(cam.q, n), lam = 0.45 + 0.55 * Math.abs(C.dot(nv, C.unit(light)));
-        Paint.add(z, () => { D.fillPoly(P, shade(COL.surf, lam), 0.42 * patchA); D.poly(P.concat([P[0]]), alpha('#ffffff', 0.18), 0.6, null, false, patchA); });
+      const rim = patch[patch.length - 1].filter(Boolean), Rs = polyP(cam, rim);
+      let ylo = Infinity, yhi = -Infinity; for (const q of Rs) { ylo = Math.min(ylo, q[1]); yhi = Math.max(yhi, q[1]); }
+      const lam = 0.45 + 0.55 * Math.max(0, (fromAbove ? 1 : -1) * C.dot(Q.rot(cam.q, n), LIGHT));
+      const gr = ctx.createLinearGradient(0, ylo, 0, yhi);
+      gr.addColorStop(0, shade(COL.surf, COL.dark ? lam : Math.min(1.25, lam + 0.3))); gr.addColorStop(1, shade(COL.surf, COL.dark ? lam - 0.25 : lam));
+      D.fillPoly(Rs, gr, 0.86 * patchA);
+      D.poly(Rs, shade(COL.surf, 0.5), 1.2, null, true, 0.7 * patchA);
+    }
+    // the cards: under the surface faint and dashed, above it brighter; face-on, the better side tinted as in step 1
+    const cardIds = [...new Set([...p.cards, ...b.cards])];
+    for (const j of cardIds) {
+      const G = planes[j], cw = W8(p.cards.includes(j), b.cards.includes(j)) * zL, col = colOf(j);
+      if (cw < 0.01) continue;
+      const far = fromAbove ? G.below : G.above, near = fromAbove ? G.above : G.below;
+      const rimFar = fromAbove ? G.rimBelow : G.rimAbove, rimNear = fromAbove ? G.rimAbove : G.rimBelow;
+      if (G.below.length && face > 0.01) D.fillPoly(polyP(cam, G.below), COL.sx, cw * face);
+      if (far.length) D.fillPoly(polyP(cam, far), col, cw * lerp(0.1, 0.07, face));
+      if (rimFar.length) D.poly(polyP(cam, rimFar), col, 1.4, face < 0.5 ? [5, 4] : null, false, cw * lerp(0.6, 0.9, face));
+      if (near.length) D.fillPoly(polyP(cam, near), col, cw * lerp(0.26, 0.07, face));
+      if (rimNear.length) D.poly(polyP(cam, rimNear), col, 1.8, null, false, cw * 0.95);
+      if (G.cut.length > 1) D.poly(polyP(cam, G.cut), COL.ink, 2.6, null, false, cw);
+      if (cw > 0.5) {                                         // the name at the top of the card, clear of the lines through x
+        let top = null; for (const q of polyP(cam, G.rimAbove.concat(G.rimBelow))) if (!top || q[1] < top[1]) top = q;
+        Labels.add('pl' + j, top[0], top[1] - 11, 'plane ' + (j + 1), 'small c-p' + (j + 1));
       }
     }
-    // planes
-    if (zL > 0.01) for (const j of b.planes) {
-      const P = planeInfo[j], active = j === b.active, col = j === 0 ? COL.plane1 : COL.plane2;
-      const isNew = !p.planes.includes(j), k = isNew ? t : 1;
-      const aBase = (active ? 0.2 : 0.08) * zL * k * (j === fIdx ? 1 - 0.6 * face : 1 - 0.5 * face);
-      const ns = 36;
-      for (let sct = 0; sct < ns; sct++) {
-        const th0 = 2 * Math.PI * sct / ns, th1 = 2 * Math.PI * (sct + 1) / ns;
-        const w0 = C.lin(Math.cos(th0), P.a, Math.sin(th0), P.b), w1 = C.lin(Math.cos(th1), P.a, Math.sin(th1), P.b);
-        const tri = [x, C.axpy(x, RD * h, w0), C.axpy(x, RD * h, w1)], Pp = polyP(cam, tri), z = (Pp[1][2] + Pp[2][2]) / 2;
-        Paint.add(z, () => D.fillPoly(Pp, col, aBase));
-      }
-      const ring = []; for (let s2 = 0; s2 <= 72; s2++) { const th = 2 * Math.PI * s2 / 72; ring.push(Cam.P(cam, C.axpy(x, RD * h, C.lin(Math.cos(th), P.a, Math.sin(th), P.b)))); }
-      Paint.add(1e3, () => D.poly(ring, col, active ? 2 : 1.2, null, true, zL * k * (active ? 0.9 : 0.45)));
-    }
-    Paint.flush();
-    // the sphere of radius h
-    if (zL > 0.01) D.circle([X[0], X[1]], Rh, COL.muted, 1.2, [4, 5], zL * 0.8);
-    // active plane: in-plane level curve, better side, great circle, tests, bracket
-    if (zL > 0.01 && b.active >= 0) {
-      const P = planeInfo[b.active], half = RD * h;
-      const curve = C.localCurve(fn, x, P.tp, P.mp, half * 1.02, 60).filter(Boolean);
-      const inDisk = curve.filter(q => C.norm(C.sub(q, x)) <= half);
-      const aC = zL * (0.35 + 0.65 * face);
-      if (inDisk.length > 2) {
-        // better side inside the disk: curve, then the disk arc through -mp
-        const s0 = C.sub(inDisk[0], x), s1 = C.sub(inDisk[inDisk.length - 1], x);
-        const ang = q => Math.atan2(C.dot(q, P.mp), C.dot(q, P.tp));
-        let aR = ang(s1), aL = ang(s0);
-        if (aL > aR) aL -= 2 * Math.PI;
-        const arc = []; for (let s2 = 0; s2 <= 40; s2++) { const th = aR + (aL - aR) * s2 / 40; arc.push(C.axpy(x, half, C.lin(Math.cos(th), P.tp, Math.sin(th), P.mp))); }
-        D.fillPoly(polyP(cam, inDisk.concat(arc)), COL.sx, Math.min(1, aC * 1.6));
-        D.poly(polyP(cam, inDisk), COL.ink, 2.4, null, false, aC);
-      }
-      const gc = []; for (let s2 = 0; s2 <= 72; s2++) { const th = 2 * Math.PI * s2 / 72; gc.push(Cam.P(cam, C.axpy(x, h, C.lin(Math.cos(th), P.a, Math.sin(th), P.b)))); }
-      D.poly(gc, COL.muted, 1.4, [5, 5], true, zL);
-      if (b.axes && !b.ys.includes(b.active)) {
-        const axesNow = [['ab', b.axes.abar, '\\bar a']];
-        if (b.tests.some(q => q.tag === 'b')) axesNow.push(['bb', b.axes.bbar, '\\bar b']);
-        for (const [key, u, lab] of axesNow) {
-          const tip = Cam.P(cam, C.axpy(x, 1.3 * h, u));
-          D.arrow(X, tip, COL.muted, 1.7, 10, zL * (b.bracket ? 0.45 : 1));
-          const lt = Cam.P(cam, C.axpy(x, 1.47 * h, u)); Labels.add('t2' + key, lt[0], lt[1], tex1(lab), 'small');
-        }
-      }
-      if (b.bracket) {
-        let uM = b.bracket.uM, uP = b.bracket.uP;
-        if (p.bracket && p.active === b.active && t < 1 && p.bracket !== b.bracket) { uM = slerp3(p.bracket.uM, uM, t); uP = slerp3(p.bracket.uP, uP, t); }
-        const arcP = []; for (let s2 = 0; s2 <= 30; s2++) arcP.push(Cam.P(cam, C.axpy(x, h, slerp3(uM, uP, s2 / 30))));
-        D.poly(arcP, COL.arc, 7, null, false, 0.9 * zL);
-      }
-      b.tests.forEach((q, j) => {
-        const fresh = j >= p.tests.length || p.active !== b.active;
-        const Pt = Cam.P(cam, C.axpy(x, q.h, q.u));
-        D.line(X, Pt, COL.muted, 1.1, [4, 4], fresh ? t : 0.7);
-        D.test(Pt, q.better, fresh ? t : 1);
-      });
-      if (b.ls) { const a1 = Cam.P(cam, C.axpy(x, b.ls.h, b.ls.u)), a2 = Cam.P(cam, C.axpy(x, -b.ls.h, b.ls.u)); D.test(a1, false, t); D.test(a2, false, t); }
-    }
-    // frame q_i and the vectors v_i, y_i, nhat
-    if (zL > 0.01 && b.frame) {
-      const kF = p.frame ? 1 : t;
-      est.q.forEach((q, j) => {
-        const tip = Cam.P(cam, C.axpy(x, 1.05 * h, q));
-        D.arrow(X, tip, COL.faint, 1.5, 9, zL * kF * (b.est ? 0.4 : 0.8) * (1 - 0.75 * face));
-        const lt = Cam.P(cam, C.axpy(x, 1.2 * h, q)); Labels.add('q' + j, lt[0], lt[1], tex1('q_' + (j + 1)), 'small');
-      });
-      // the current v (with rotation animation)
-      const vi = b.vs[b.vs.length - 1];
-      let vv = est.vs[vi];
-      if (b.vAnim !== null && b.vAnim !== undefined && t < 1) vv = slerp3(est.vs[b.vAnim], est.vs[b.vAnim + 1], t);
-      if (!b.est) {
-        const tip = Cam.P(cam, C.axpy(x, 1.18 * h, vv));
-        D.arrow(X, tip, COL.ink, 2.6, 12, zL * kF * (1 - 0.6 * face));
-        const lt = Cam.P(cam, C.axpy(x, 1.36 * h, vv)); Labels.add('v', lt[0], lt[1], tex1('v_' + (b.vAnim !== null && b.vAnim !== undefined && t < 0.5 ? b.vAnim + 1 : vi + 1)), '');
-      }
-      for (const j of b.ys) {
-        const y = est.ys[j], k = p.ys.includes(j) ? 1 : t, Lr = 1.55 * h * k;
-        const a1 = Cam.P(cam, C.axpy(x, Lr, y)), a2 = Cam.P(cam, C.axpy(x, -Lr, y));
-        D.line(a2, a1, COL.tan, 3.4, null, zL);
-        const lt = Cam.P(cam, C.axpy(x, Lr + 0.18 * h, y)); Labels.add('y' + j, lt[0], lt[1], tex1('y_' + (j + 1)), 'c-tan');
-      }
-      if (b.fin) {
-        const F = b.fin, k = p.fin ? 1 : t;
-        const Pt = Cam.P(cam, C.axpy(x, F.h, F.vd)); D.line(X, Pt, COL.muted, 1.1, [4, 4], k); D.test(Pt, F.better, k);
-        const tip = Cam.P(cam, C.axpy(x, 1.5 * h * k, est.nhat)); D.arrow(X, tip, COL.nhat, 3.6, 14);
-        const lt = Cam.P(cam, C.axpy(x, (1.5 * k + 0.2) * h, est.nhat)); Labels.add('nh', lt[0], lt[1], tex1('\\hat n'), 'c-nhat');
-      }
-      if (b.est) {
-        const k = p.est ? 1 : t, y1 = est.ys[0], y2 = est.ys[1], L = 1.45 * h;
-        const sq = [C.axpy(C.axpy(x, L, y1), L, y2), C.axpy(C.axpy(x, L, y1), -L, y2), C.axpy(C.axpy(x, -L, y1), -L, y2), C.axpy(C.axpy(x, -L, y1), L, y2)];
-        D.fillPoly(polyP(cam, sq), COL.tan, 0.16 * k); D.poly(polyP(cam, sq), COL.tan, 1.4, null, true, 0.7 * k);
-      }
-      if (S.truth && (b.ys.length || b.fin)) {
-        const tip = Cam.P(cam, C.axpy(x, 1.35 * h, n)); D.arrow(X, tip, COL.ink, 2, 11, 0.85, [6, 4]);
-        const lt = Cam.P(cam, C.axpy(x, 1.52 * h, n)); Labels.add('nt', lt[0], lt[1], tex1('n'), 'small');
+    // the circle of radius h on the active card (with the comparisons: face-on)
+    const circW = W8(p.circ, b.circ) * zL;
+    if (circW > 0.01 && fIdx >= 0) {
+      const G = planes[fIdx], Pc = polyP(cam, G.circ);
+      for (let k = 0; k < Pc.length - 1; k += 2) {           // every other segment: a dashed circle, as in step 1
+        const under = G.circUnder[k] && G.circUnder[k + 1], hid = fromAbove ? under : !under;
+        D.line(Pc[k], Pc[k + 1], COL.muted, 1.4, null, circW * (hid ? lerp(0.35, 1, face) : 1));
       }
     }
-    if (zG > 0.01) { const XS = Cam.P(cam, fn.xstar); D.cross(XS, 7, COL.ink, 2.2, zG * 0.7); }
+    // what step 1 does in the plane: the directions, the tests, the bracket (fading out on the way back to 3D)
+    if (fIdx >= 0 && (b.tests.length || b.ls || b.bracket)) planeContent(b, p, cam, X, zL, t, true);
+    else if (b.face < 0 && p.face >= 0 && (p.tests.length || p.bracket)) planeContent(p, p, cam, X, zL * (1 - t), 1, false);
+    if (b.ls && b.ls.free) { const a1 = P3(C.axpy(x, b.ls.h, b.ls.u)), a2 = P3(C.axpy(x, -b.ls.h, b.ls.u)); D.test(a1, false, t); D.test(a2, false, t); }
+    // the tangent directions found so far, in the colors of their planes
+    for (const j of b.ys) {
+      const y = est.ys[j], k = p.ys.includes(j) ? 1 : t, Lr = 1.55 * h * k;
+      const aY = zL * (fIdx >= 0 && fIdx !== j ? 1 - face : 1);
+      if (aY < 0.01) continue;
+      const a1 = P3(C.axpy(x, Lr, y)), a2 = P3(C.axpy(x, -Lr, y));
+      D.line(a2, a1, COL.halo, 6.5, null, 0.8 * aY); D.line(a2, a1, colOf(j), 3.4, null, aY);
+      if (aY > 0.5) { const lt = P3(C.axpy(x, Lr + 0.2 * h, y)); Labels.add('y' + j, lt[0], lt[1], tex1('y_' + (j + 1)), 'c-p' + (j + 1)); }
+    }
+    // frame vectors, only where they matter; a vector that points under the surface is dashed
+    const AR = { V2: ['v_2', COL.ink, 2.6], Q3: ['q_3', COL.muted, 2.2], V3: ['v_3', COL.ink, 2.6] };
+    for (const id of new Set([...p.arrows, ...b.arrows])) {
+      const w = W8(p.arrows.includes(id), b.arrows.includes(id)) * zL * (1 - face);
+      if (w < 0.01) continue;
+      const [lab, col, lw] = AR[id], u = V[id], under = C.dot(u, n) < -0.08;
+      D.arrow(X, P3(C.axpy(x, 1.25 * h, u)), col, lw, 11, w * (under ? 0.8 : 1), under ? [5, 4] : null);
+      if (w > 0.5) { const lt = P3(C.axpy(x, 1.43 * h, u)); Labels.add('a' + id, lt[0], lt[1], tex1(lab), id === 'Q3' ? 'small' : ''); }
+    }
+    // right angles
+    const key = r => r.join('|'), rset = new Map();
+    for (const r of p.rights) rset.set(key(r), r); for (const r of b.rights) rset.set(key(r), r);
+    for (const [kk, r] of rset) {
+      const w = W8(p.rights.some(q => key(q) === kk), b.rights.some(q => key(q) === kk)) * zL * (1 - face);
+      if (w < 0.01) continue;
+      const s = 0.22 * h, u = V[r[0]], v = V[r[1]];
+      D.poly(polyP(cam, [C.axpy(x, s, u), C.axpy(C.axpy(x, s, u), s, v), C.axpy(x, s, v)]), COL.muted, 1.3, null, false, w);
+    }
+    // the sign test and n-hat
+    if (b.fin) {
+      const F = b.fin, k = p.fin ? 1 : t;
+      const Pt = P3(C.axpy(x, F.h, F.vd)); D.line(X, Pt, COL.muted, 1.1, [4, 4], k); D.test(Pt, F.better, k);
+      D.arrow(X, P3(C.axpy(x, 1.5 * h * k, est.nhat)), COL.nhat, 3.6, 14);
+      const lt = P3(C.axpy(x, (1.5 * k + 0.2) * h, est.nhat)); Labels.add('nh', lt[0], lt[1], tex1('\\hat n'), 'c-nhat');
+    }
+    if (S.truth && (b.ys.length || b.fin) && zL > 0.5) {
+      D.arrow(X, P3(C.axpy(x, 1.35 * h, n)), COL.ink, 2, 11, 0.85, [6, 4]);
+      const lt = P3(C.axpy(x, 1.52 * h, n)); Labels.add('nt', lt[0], lt[1], tex1('n'), 'small');
+    }
     D.dot([X[0], X[1]], 6, COL.ink, COL.panel, 2.2);
     Labels.add('x', X[0] - 14, X[1] + 16, tex1('x'), '', 0.5, 0.5);
+    // face-on: where the card is, in a small 3D overview
+    const mini = document.getElementById('mini');
+    if (zL > 0.5 && face > 0.6 && fIdx >= 0) { mini.classList.add('on'); drawMini(fIdx); } else mini.classList.remove('on');
+  }
+  /** Step 1 inside the card of beat bt: the directions a-bar and b-bar, the tests, the bracket (as in step 1). */
+  function planeContent(bt, pb, cam, X, alphaV, t, live) {
+    const P3 = q => Cam.P(cam, q), h = S.h, same = live && pb.face === bt.face;
+    if (bt.axes && !bt.ys.includes(bt.face)) {
+      const axesNow = [['ab', bt.axes.abar, '\\bar a']];
+      if (bt.tests.some(q => q.tag === 'b')) axesNow.push(['bb', bt.axes.bbar, '\\bar b']);
+      for (const [key, u, lab] of axesNow) {
+        D.arrow(X, P3(C.axpy(x, 1.3 * h, u)), COL.muted, 1.7, 10, alphaV * (bt.bracket ? 0.45 : 1));
+        if (alphaV > 0.5) { const lt = P3(C.axpy(x, 1.47 * h, u)); Labels.add('t2' + key, lt[0], lt[1], tex1(lab), 'small'); }
+      }
+    }
+    if (bt.bracket) {
+      let uM = bt.bracket.uM, uP = bt.bracket.uP;
+      if (same && pb.bracket && t < 1 && pb.bracket !== bt.bracket) { uM = slerp3(pb.bracket.uM, uM, t); uP = slerp3(pb.bracket.uP, uP, t); }
+      const arcP = []; for (let s2 = 0; s2 <= 30; s2++) arcP.push(P3(C.axpy(x, h, slerp3(uM, uP, s2 / 30))));
+      D.poly(arcP, COL.arc, 7, null, false, 0.9 * alphaV);
+    }
+    bt.tests.forEach((q, j) => {
+      const fresh = live && (j >= pb.tests.length || !same);
+      const Pt = P3(C.axpy(x, q.h, q.u));
+      D.line(X, Pt, COL.muted, 1.1, [4, 4], alphaV * (fresh ? t : 0.7));
+      D.test(Pt, q.better, fresh ? t : 1, alphaV);
+    });
+    if (bt.ls && !bt.ls.free) { const a1 = P3(C.axpy(x, bt.ls.h, bt.ls.u)), a2 = P3(C.axpy(x, -bt.ls.h, bt.ls.u)); D.test(a1, false, live ? t : 1, alphaV); D.test(a2, false, live ? t : 1, alphaV); }
+  }
+  /** The overview in the corner while a card is seen face-on: the surface piece, the card through it, x. */
+  function drawMini(j) {
+    const mc = document.getElementById('miniCv'), r = mc.getBoundingClientRect();
+    if (!r.width) return;
+    const key = [j, COL.dark, r.width, r.height, S.kind, S.seed, S.h, S.T, S.mode, S.xdir.join()].join('|');
+    if (mc._key === key) return;
+    mc._key = key;
+    const dpr = VIEW.dpr; mc.width = Math.round(r.width * dpr); mc.height = Math.round(r.height * dpr);
+    const g = mc.getContext('2d'); g.setTransform(dpr, 0, 0, dpr, 0, 0); g.clearRect(0, 0, r.width, r.height);
+    const cam = Cam.make(camP[j].q, Math.min(r.width, r.height) * 0.38 / (RP * S.h), x, r.width / 2, r.height / 2 + 8);
+    const path = pts => { g.beginPath(); pts.forEach((q, k) => { const P = Cam.P(cam, q); k ? g.lineTo(P[0], P[1]) : g.moveTo(P[0], P[1]); }); };
+    const fill = (pts, col, a) => { if (pts.length < 3) return; g.globalAlpha = a; g.fillStyle = col; path(pts); g.closePath(); g.fill(); };
+    const line = (pts, col, w, a, dash) => { if (pts.length < 2) return; g.globalAlpha = a; g.strokeStyle = col; g.lineWidth = w; g.setLineDash(dash || []); path(pts); g.stroke(); g.setLineDash([]); };
+    const rim = patch[patch.length - 1].filter(Boolean), G = planes[j], col = colOf(j);
+    fill(rim, COL.surf, 0.75); line(rim, shade(COL.surf, 0.5), 1, 0.8);
+    fill(G.below, col, 0.12); line(G.rimBelow, col, 1, 0.75, [3, 3]);
+    fill(G.above, col, 0.32); line(G.rimAbove, col, 1.4, 1);
+    line(G.cut, COL.ink, 1.6, 0.95);
+    const X = Cam.P(cam, x); g.globalAlpha = 1; g.fillStyle = COL.ink; g.beginPath(); g.arc(X[0], X[1], 2.6, 0, 2 * Math.PI); g.fill();
   }
   function slerp3(a, b, f) {
     const c = Math.max(-1, Math.min(1, C.dot(a, b))), th = Math.acos(c);
@@ -1858,7 +1960,7 @@ TABS['2'] = (() => {
       '<div class="row"><span class="rl">Bisection steps $T$</span><input type="range" id="t2Tr" min="1" max="8" step="1"><span class="rv" id="t2TrV"></span></div>' +
       '<label class="chk"><input type="checkbox" id="t2truth"> Show the true normal</label>' +
       '<div class="btns"><button class="btn" id="t2frame">New random frame</button><button class="btn" id="t2pt">New point $x$</button></div>' +
-      '<div class="hint">Drag the scene to turn it. During the bisections the camera faces the active plane; the round-arrow button in the bottom bar (or <kbd>R</kbd>) undoes your rotation.</div>' +
+      '<div class="hint">Drag the scene to turn it. For each plane the camera turns to a view that shows it; during the bisections it faces the plane. The round-arrow button in the bottom bar (or <kbd>R</kbd>) undoes your rotation.</div>' +
       '</details>';
   }
   function updatePanel() {
@@ -1907,17 +2009,22 @@ TABS['2'] = (() => {
     stage.addEventListener('pointerdown', onDown); stage.addEventListener('pointermove', onMove); stage.addEventListener('pointerup', onUp);
     setup(false);
   }
-  function unmount() { stage.removeEventListener('pointerdown', onDown); stage.removeEventListener('pointermove', onMove); stage.removeEventListener('pointerup', onUp); }
+  function unmount() {
+    stage.removeEventListener('pointerdown', onDown); stage.removeEventListener('pointermove', onMove); stage.removeEventListener('pointerup', onUp);
+    document.getElementById('mini').classList.remove('on');
+  }
   return {
     panelHTML, mount, unmount, draw, onBeat,
     methodBarHTML: () => '<div class="mgroup"><span class="mlab">Comparison radius</span><div class="seg" id="t2seg"><button data-v="fixed" class="' + (S.mode === 'fixed' ? 'on' : '') + '">fixed radius $h$</button><button data-v="line" class="' + (S.mode === 'line' ? 'on' : '') + '">line search</button></div></div>',
     legendHTML: () => '<div class="lr"><span class="sym"><span class="lg-b"></span></span>better than $x$</div><div class="lr"><span class="sym"><span class="lg-w"></span></span>worse than $x$</div>' +
       '<div class="lr"><span class="sym"><span class="lg-p"></span></span>level surface of $x$</div><div class="lr"><span class="sym"><span class="lg-p1"></span></span>plane 1 $=\\mathrm{span}\\{v_1,q_2\\}$</div>' +
-      '<div class="lr"><span class="sym"><span class="lg-p2"></span></span>plane 2 $=\\mathrm{span}\\{v_2,q_3\\}$</div><div class="lr"><span class="sym"><span class="lg-t"></span></span>tangent directions $y_i$</div>' +
+      '<div class="lr"><span class="sym"><span class="lg-p2"></span></span>plane 2 $=\\mathrm{span}\\{v_2,q_3\\}$</div><div class="lr"><span class="sym"><span class="lg-g"></span></span>under the surface</div>' +
+      '<div class="lr"><span class="sym"><span class="lg-y1"></span></span>$y_1$, from plane 1</div><div class="lr"><span class="sym"><span class="lg-y2"></span></span>$y_2$, from plane 2</div>' +
       '<div class="lr"><span class="sym"><span class="lg-n"></span></span>normal estimate $\\hat n$</div>',
     hasView: true,
-    resize: () => { if (fn) { cameras(); runHD(); } },
-    themeChanged: () => {}, state: S
+    resize: () => { if (fn) { cameras(); runHD(); const mc = document.getElementById('miniCv'); if (mc) mc._key = null; } },
+    themeChanged: () => { const mc = document.getElementById('miniCv'); if (mc) mc._key = null; }, state: S,
+    geom: () => ({ x, n, planes, camP, camE })      // read-only, for checks
   };
 })();
 
