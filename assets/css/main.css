@@ -514,3 +514,4 @@ ul.plain-list {
   .news-table td.news-date { width: auto; padding-right: 0; padding-bottom: 0; }
   .news-table tr + tr td + td, .news-table td + td { border-top: none; padding-top: 0.15rem; }
 }
+.pub-preview-card[data-preview="fairwasp"] video { aspect-ratio: 4 / 3; }

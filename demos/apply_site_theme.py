@@ -16,6 +16,7 @@ HERE = pathlib.Path(__file__).resolve().parent
 TITLES = {
     'comparison': 'Color Picking by Comparison Feedback',
     'photo': 'Photo Editing by Comparison Feedback',
+    'fairwasp': 'How Little Must Data Change to Be Fair?',
     'ndd': 'Normal Direction Descent (NDD)',
     'rounding': 'Does Symmetry Help Rounding?',
     'pdhg-lp-hardness': 'Why Is This LP Hard?',
@@ -23,6 +24,7 @@ TITLES = {
 }
 
 DESCRIPTIONS = {
+    'fairwasp': 'Interactive demo by Zikai Xiong: make loan data fair while moving it as little as possible, and compare FairWASP with reweighing.',
     'photo': 'Interactive demo by Zikai Xiong: edit a photo by answering only which of two versions is better, and watch an optimization algorithm learn from comparisons alone.',
     'comparison': 'Interactive demo by Zikai Xiong: find a color by answering only which of two colors is closer, and watch an optimization algorithm learn from comparisons alone.',
     'ndd': 'Interactive animation by Zikai Xiong: how comparisons alone give a normal direction, and the two descent methods NDD and adaNDD built on it.',
@@ -34,6 +36,7 @@ DESCRIPTIONS = {
 PAPERS = {
     'comparison': ('Scheinberg &amp; Xiong', ['2604.26867']),
     'photo': ('Scheinberg &amp; Xiong', ['2604.26867']),
+    'fairwasp': ('Xiong, Dalmasso, Mishler, Potluru, Balch &amp; Veloso', ['2311.00109']),
     'ndd': ('Scheinberg &amp; Xiong', ['2604.26867']),
     'rounding': ('Xiong &amp; Freund', ['2608.30876']),
     'pdhg-lp-hardness': ('Xiong', ['2410.04043']),
@@ -138,7 +141,7 @@ def apply(s, name):
             new += ' data-theme="light"'
         s = s.replace(tag, new + '>', 1)
 
-    if 'demo-theme.css' not in s:
+    if 'href="../demo-theme.css"' not in s:
         s = replace_once(s, '<meta charset="utf-8">\n', '<meta charset="utf-8">\n' + HEAD)
     # description and link-preview tags (shown when the link is shared)
     if 'property="og:image"' not in s:
@@ -177,7 +180,7 @@ def apply(s, name):
             s = replace_once(s, '</html>', NAVJS + '</html>')
 
     # byline under the title
-    if name in ('comparison', 'rounding', 'photo'):
+    if name in ('comparison', 'rounding', 'photo', 'fairwasp'):
         s = re.sub(r'<p class="cite">.*?</p>', '<p class="cite">' + byline(name) + '</p>', s, count=1, flags=re.S)
 
     if name.startswith('pdhg') and 'class="cite"' not in s:
