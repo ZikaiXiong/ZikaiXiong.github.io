@@ -73,7 +73,7 @@ button:focus-visible,select:focus-visible,input:focus-visible,summary:focus-visi
 .step-btn .txt small{display:block;color:var(--muted);font-size:.85rem;line-height:1.35}
 .step-btn .res{grid-column:2;font:600 .95rem var(--mono);color:var(--accent);min-height:1.25em}
 .step-btn.next{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
-.step-btn.next .num{background:var(--accent);color:var(--on-accent);animation:ring 1.8s ease-in-out infinite}
+.step-btn.next .num{background:var(--accent);color:var(--on-accent);animation:ring 1.8s ease-in-out 2}
 .step-btn.busy{opacity:.75;cursor:progress}
 @keyframes ring{0%,100%{box-shadow:0 0 0 0 var(--accent-soft)}50%{box-shadow:0 0 0 8px var(--accent-soft)}}
 .story-out{font:1.05rem/1.5 var(--serif);margin:12px 4px 2px}
@@ -157,7 +157,7 @@ button:focus-visible,select:focus-visible,input:focus-visible,summary:focus-visi
 pre.tests{font:12px/1.45 var(--mono);background:var(--bg);border:1px solid var(--rule);border-radius:10px;padding:10px;white-space:pre-wrap;max-height:320px;overflow:auto;margin:8px 0 0}
 footer{color:var(--muted);font-size:.82rem;margin-top:18px;max-width:110ch}
 @keyframes pulse{50%{opacity:.25}}
-.pulse{animation:pulse .9s ease-in-out infinite}
+.pulse{animation:pulse .9s ease-in-out 2}
 @media (max-width:640px){
   .steps{gap:6px}
   .story{padding:8px}
@@ -173,6 +173,60 @@ footer{color:var(--muted);font-size:.82rem;margin-top:18px;max-width:110ch}
 }
 @media (max-width:520px){.counter{left:8px;top:6px}.counter small{font-size:.68rem}.counter small.ratio{font-size:.72rem}}
 @media (prefers-reduced-motion:reduce){.pulse,.step-btn.next .num{animation:none}}
+</style>
+<style>
+/* short points instead of paragraphs; new points appear one at a time (delays in --t), and what has appeared stays */
+.takeaways { list-style: none; margin: 4px 0 0; padding: 0; display: grid; gap: 6px; }
+.takeaways li { position: relative; padding-left: 18px; font: 1rem/1.45 var(--body); }
+.takeaways li::before { content: ""; position: absolute; left: 3px; top: .6em; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+.takeaways b { color: var(--accent); font-weight: 600; font-variant-numeric: tabular-nums; }
+.takeaways.small li { font-size: .88rem; color: var(--muted); }
+#vPhi.undef { font: 500 1rem var(--body); color: var(--muted); }
+/* formulas: KaTeX everywhere, as in "The math"; in the SVG figures the same fonts by hand */
+.katex { font-size: 1.08em; }
+.formula .katex, .chip .k .katex { font-size: 1em; }
+#vPhi .katex { font-size: .82em; }
+.nw { white-space: nowrap; }
+/* the closed form of Φ under its perturbation form */
+.phi-closed { margin-top: 10px; padding-top: 8px; border-top: 1px solid var(--rule); }
+.phi-cf-lab { margin: 0; font-size: .88rem; color: var(--muted); }
+.phi-cf .katex-display { margin: .45em 0 .15em; padding: 2px 0; overflow-x: auto; overflow-y: hidden; }
+.phi-cf-v { text-align: center; min-height: 1.6em; }
+.phi-cf.narrow { display: none; }
+/* one line when the card is wide enough, two lines otherwise (the card's own width, not the window's) */
+.phi-closed { container-type: inline-size; }
+@container (max-width: 480px) {
+  .phi-cf.wide { display: none; }
+  .phi-cf.narrow { display: block; }
+}
+@container (max-width: 360px) {
+  .phi-cf .katex-display > .katex, .phi-cf-v .katex { font-size: .92em; }
+}
+.phi-cf-v .katex { font-size: 1.05em; }
+.plane .mi, .plot .mi { font-family: KaTeX_Math, "Times New Roman", serif; font-style: italic; }
+.plane .mn, .plot .mn { font-family: KaTeX_Main, "Times New Roman", serif; font-style: normal; }
+.plane .tx, .plot .tx { font-family: var(--body); font-style: normal; }
+.plot .tk { font: 12px KaTeX_Main, "Times New Roman", serif; }
+.takeaways.small li::before { width: 5px; height: 5px; background: var(--muted); }
+.takeaways.why { margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--rule); font: inherit; }
+.story-out.takeaways { margin: 14px 6px 4px; }
+.takeaways.build li { animation: rise .45s ease-out both; animation-delay: calc(var(--t, 0) * 1s); }
+@keyframes rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+/* "The math" is the last thing on the page, so readers know there is more to open */
+/* folds inside a card: closed by default, opened by those who want the details */
+details.fold { margin-top: 10px; border-top: 1px solid var(--rule); padding-top: 8px; }
+details.fold > summary { cursor: pointer; list-style: none; font-size: .9rem; color: var(--accent); }
+details.fold > summary::-webkit-details-marker { display: none; }
+details.fold > summary::before { content: "▸"; display: inline-block; width: 1em; color: var(--muted); }
+details.fold[open] > summary::before { content: "▾"; }
+details.fold > .algo { margin-top: 8px; }
+details.fold .note { margin: 8px 0 0; }
+.endnote { color: var(--muted); font-size: .88rem; }
+.refs-card { margin-top: 18px; }
+ol.refs { list-style: none; padding-left: 0; margin: 0; }
+ol.refs li { scroll-margin-top: 4.5rem; padding: 2px 4px; margin: 3px -4px; border-radius: 4px; }
+ol.refs li.hit { background: #F7EFF0; }
+@media (prefers-reduced-motion: reduce) { .takeaways.build li { animation: none; } }
 </style>
 </head>
 <body>
@@ -198,57 +252,53 @@ footer{color:var(--muted);font-size:.82rem;margin-top:18px;max-width:110ch}
   <header class="top">
     <div class="titles">
       <h1>Why is this LP hard?</h1>
-      <p class="cite">Created by Zikai Xiong · Based on Xiong, <a href="https://arxiv.org/abs/2410.04043" target="_blank" rel="noopener">arXiv:2410.04043</a></p>
-      <p class="lede">Restarted PDHG (rPDHG) is a first-order method for linear programs. Here it solves a tiny LP (4 variables, 2 constraints) and its dual at the same time. Start with the three steps below.</p>
+      <p class="cite">Created by <a href="../../index.html">Zikai Xiong</a> · Based on Xiong, <a href="https://doi.org/10.1287/moor.2024.0738" target="_blank" rel="noopener">Math. Oper. Res. 2026</a></p>
+      <p class="lede">Restarted PDHG (rPDHG) solves a small LP (4 variables, 2 constraints) and its dual simultaneously.<br>Three steps show what makes an LP hard for rPDHG.</p>
     </div>
     <nav class="toplinks">
       <a href="../pdhg-random-lps/index.html">Many random LPs →</a>
-      <button class="btn small" id="mathBtn" title="M" aria-expanded="false" aria-controls="math">The math</button>
-      <button class="btn small icon" id="themeBtn" title="Dark theme (D)" aria-label="Toggle dark theme">◐</button>
     </nav>
   </header>
 
   <section class="story" id="story" aria-label="Start here">
     <ol class="steps">
-      <li><button class="step-btn next" id="step1"><span class="num">1</span><span class="txt"><b>Solve the LP</b><small>Watch rPDHG find x* and y* at once.</small></span><span class="res" id="res1"></span></button></li>
-      <li><button class="step-btn" id="step2"><span class="num">2</span><span class="txt"><b>Turn the arrow −c</b><small>to 0.017° from straight down. Watch the dual.</small></span><span class="res" id="res2"></span></button></li>
-      <li><button class="step-btn" id="step3"><span class="num">3</span><span class="txt"><b>Turn the arrow b</b><small>to 0.017° from straight up. Watch the LP.</small></span><span class="res" id="res3"></span></button></li>
+      <li><button class="step-btn next" id="step1"><span class="num">1</span><span class="txt"><b>Solve the LP</b><small>Watch rPDHG find $x^\star$ and $y^\star$ simultaneously.</small></span><span class="res" id="res1"></span></button></li>
+      <li><button class="step-btn" id="step2"><span class="num">2</span><span class="txt"><b>Turn the arrow $-c$</b><small>to $0.017^\circ$ from straight down. Watch both pictures.</small></span><span class="res" id="res2"></span></button></li>
+      <li><button class="step-btn" id="step3"><span class="num">3</span><span class="txt"><b>Turn the arrow $b$</b><small>to $0.017^\circ$ from straight up. Watch both pictures.</small></span><span class="res" id="res3"></span></button></li>
     </ol>
-    <p class="story-out" id="storyOut" hidden></p>
+    <ul class="takeaways story-out" id="storyOut" hidden></ul>
   </section>
 
   <div class="pics">
     <section class="card" id="cardP">
-      <div class="card-head"><h3>The LP</h3><span class="formula">min c<sup>⊤</sup>x &nbsp;s.t.&nbsp; Ax = b, x ≥ 0</span></div>
+      <div class="card-head"><h3>The LP</h3><span class="formula">$\min\ c^\top x\quad \text{s.t.}\ \ Ax=b,\ x\ge 0$</span></div>
       <div class="plane-box">
         <svg id="planeP" class="plane" viewBox="0 0 640 540" role="img" aria-label="The feasible polygon of the LP, the arrow −c, and the primal path of rPDHG"></svg>
         <div class="counter" id="counterP" aria-live="off"></div>
       </div>
       <div class="fine">
-        <label for="fineC">Angle θ<sub>p</sub> to the nearest tie</label>
-        <input id="fineC" type="range" min="-4" max="1.4" step="0.01" value="1.3">
+        <label for="fineC">Angle $\theta_p$ to the nearest tie</label>
+        <input id="fineC" type="range" min="-1.76" max="1.4" step="0.01" value="1.3">
         <b id="fineCVal">–</b>
-        <button class="btn small" id="tieC">Exact tie</button>
       </div>
     </section>
     <section class="card" id="cardD">
-      <div class="card-head"><h3>Its dual</h3><span class="formula">max b<sup>⊤</sup>y &nbsp;s.t.&nbsp; A<sup>⊤</sup>y ≤ c</span></div>
+      <div class="card-head"><h3>Its dual</h3><span class="formula">$\max\ b^\top y\quad \text{s.t.}\ \ A^\top y\le c$</span></div>
       <div class="plane-box">
         <svg id="planeD" class="plane" viewBox="0 0 640 540" role="img" aria-label="The feasible region of the dual, the arrow b, and the dual path of rPDHG"></svg>
         <div class="counter" id="counterD" aria-live="off"></div>
       </div>
       <div class="fine">
-        <label for="fineB">Angle θ<sub>d</sub> to the nearest tie</label>
-        <input id="fineB" type="range" min="-4" max="1.4" step="0.01" value="1.3">
+        <label for="fineB">Angle $\theta_d$ to the nearest tie</label>
+        <input id="fineB" type="range" min="-1.76" max="1.4" step="0.01" value="1.3">
         <b id="fineBVal">–</b>
-        <button class="btn small" id="tieB">Exact tie</button>
       </div>
     </section>
   </div>
 
   <section class="card pic-bar" aria-label="Playback and legend">
     <ul class="legend" id="legend"></ul>
-    <p class="caption" id="caption"></p>
+    <ul class="takeaways small" id="caption"></ul>
     <div class="row">
       <button class="btn small" id="runBtn" title="Space">Replay</button>
       <button class="btn small" id="stepBtn" title="Right arrow">Step</button>
@@ -257,95 +307,86 @@ footer{color:var(--muted);font-size:.82rem;margin-top:18px;max-width:110ch}
       <button class="btn small" id="randomBtn">New random LP</button>
       <button class="btn small" id="startOver">Start over</button>
     </div>
+    <details class="fold">
+      <summary>Setup</summary>
+      <p class="note">$\min\, c^\top x$ s.t. $Ax=b,\ x\ge 0$ and its dual $\max\, b^\top y$ s.t. $A^\top y+s=c,\ s\ge 0$, with $A\in\mathbb{R}^{2\times 4}$, $AA^\top=I$ (so $\kappa=1$), $Ac=0$ and $\|c\|=\|b\|=1$, as in [<a class="cite" href="#ref-1">1</a>]. The LP is drawn on the plane $Ax=b$ with true distances and angles; the arc on the dial of $b$ marks the directions for which the LP is feasible.</p>
+    </details>
   </section>
 
   <div class="bench">
     <div class="col">
       <section class="card" id="iterCard">
-        <h3>Iterations of <span class="nt">rPDHG</span> to reach <span class="nt">ε = 10⁻⁶</span></h3>
+        <h3>Iterations of <span class="nt">rPDHG</span> to reach <span class="nt">$\varepsilon = 10^{-6}$</span></h3>
         <div class="bignum" id="iterNum">–</div>
-        <p class="why" id="why"></p>
+        <ul class="takeaways why" id="why"></ul>
       </section>
       <section class="card" id="phiCard">
-        <h3>What makes it hard: <span class="nt">Φ</span></h3>
+        <h3>What makes it hard: <span class="nt">$\Phi$</span></h3>
         <div class="phi-eq">
-          <span>Φ =</span>
+          <span>$\Phi =$</span>
           <span class="phi-frac">
-            <span class="phi-num"><button type="button" class="chip" id="chL1" data-tip="Size of the optimal solution x* and of the optimal dual slack s* = c − Aᵀy*: the numerator of Φ."><span class="k">‖x*‖₁ + ‖s*‖₁</span><b id="vL1">–</b></button></span>
-            <span class="phi-den">min{ <button type="button" class="chip" id="chC" data-tip="ζp of [A]: the smallest change ‖Δc‖ that changes the optimal basis. In the LP’s picture it is ‖c‖ sin θp, where θp is the angle between the level line through x* and the nearest edge."><span class="k">‖c‖ sin θ<sub>p</sub></span><b id="vC">–</b></button> , <button type="button" class="chip" id="chB" data-tip="ζd of [A]: the smallest change ‖Δb‖ that changes the optimal basis (here AAᵀ = I). In the dual’s picture it is ‖b‖ sin θd, where θd is the angle between the level line through y* and the nearest edge."><span class="k">‖b‖ sin θ<sub>d</sub></span><b id="vB">–</b></button> }</span>
+            <span class="phi-num"><button type="button" class="chip" id="chL1" data-tip="Size of the optimal solution $x^\star$ and of the optimal dual slack $s^\star = c - A^\top y^\star$: the numerator of $\Phi$."><span class="k">$\|x^\star\|_1 + \|s^\star\|_1$</span><b id="vL1">–</b></button></span>
+            <span class="phi-den">$\min\{$ <button type="button" class="chip" id="chC" data-tip="$\zeta_p$ in [1]: the smallest change $\|\Delta c\|$ that changes the optimal basis. In the LP’s picture it is $\|c\|\sin\theta_p$, where $\theta_p$ is the angle between the level line through $x^\star$ and the nearest edge."><span class="k">$\|c\|\sin\theta_p$</span><b id="vC">–</b></button> , <button type="button" class="chip" id="chB" data-tip="$\zeta_d$ in [1]: the smallest change $\|\Delta b\|$ that changes the optimal basis (here $AA^\top = I$). In the dual’s picture it is $\|b\|\sin\theta_d$, where $\theta_d$ is the angle between the level line through $y^\star$ and the nearest edge."><span class="k">$\|b\|\sin\theta_d$</span><b id="vB">–</b></button> $\}$</span>
           </span>
-          <span>= <b class="phi-val" id="vPhi">–</b></span>
+          <span>$=$ <b class="phi-val" id="vPhi">–</b></span>
         </div>
-        <p class="note" id="phiNote">θ<sub>p</sub> and θ<sub>d</sub> are the angles marked in the two pictures (here ‖c‖ = ‖b‖ = 1). The iteration bound of [A] grows with Φ. Hover over a term for its meaning.</p>
+        <div class="phi-closed">
+          <p class="phi-cf-lab">Closed form [<a class="cite" href="#ref-1">1</a>], with the optimal basis $B$, the other indices $N$ and <span class="nw">$T=B^{-1}N$:</span></p>
+          <div class="phi-cf wide">\[\Phi=\big(\|x^\star\|_1+\|s^\star\|_1\big)\cdot\max\Big\{\max_j\frac{\sqrt{\|T_{:,j}\|^2+1}}{s^\star_{N_j}},\ \max_i\frac{\sqrt{\|T_{i,:}\|^2+1}}{x^\star_{B_i}}\Big\}\]</div>
+          <div class="phi-cf narrow">\[\begin{aligned}\Phi=\big(\|x^\star\|_1+\|s^\star\|_1\big)\cdot\max\Big\{&\max_j\frac{\sqrt{\|T_{:,j}\|^2+1}}{s^\star_{N_j}},\\ &\max_i\frac{\sqrt{\|T_{i,:}\|^2+1}}{x^\star_{B_i}}\Big\}\end{aligned}\]</div>
+          <div class="phi-cf-v" id="phiCFv"></div>
+        </div>
+        <ul class="takeaways small" id="phiNote"><li>With a unique optimum, rPDHG needs $O\big(\kappa\Phi\ln(\kappa\Phi\|w^\star\|/\varepsilon)\big)$ iterations [<a class="cite" href="#ref-1">1</a>], where $w^\star=(x^\star,s^\star)$; here $\kappa=1$</li><li>$\zeta_p=\|c\|\sin\theta_p$ and $\zeta_d=\|b\|\sin\theta_d$: the smallest changes of $c$ and of $b$ that change the optimal basis</li><li>Hover over a term for its meaning</li></ul>
       </section>
     </div>
     <div class="col">
       <section class="card locked" id="landCard">
         <div class="card-head"><h3>Every direction of the arrows</h3>
-          <span class="chart-legend"><span><svg width="18" height="8"><line x1="0" y1="4" x2="18" y2="4" stroke="var(--ink)" stroke-width="2"/></svg>iterations</span><span><svg width="18" height="8"><line x1="0" y1="4" x2="18" y2="4" stroke="var(--accent)" stroke-width="2" stroke-dasharray="4 3"/></svg>Φ</span><span><svg width="12" height="12"><circle cx="6" cy="6" r="4" fill="var(--surface)" stroke="var(--path)" stroke-width="2"/></svg>exact tie</span></span></div>
+          <span class="chart-legend"><span><svg width="18" height="8"><line x1="0" y1="4" x2="18" y2="4" stroke="var(--ink)" stroke-width="2"/></svg>iterations</span><span><svg width="18" height="8"><line x1="0" y1="4" x2="18" y2="4" stroke="var(--accent)" stroke-width="2" stroke-dasharray="4 3"/></svg>$\Phi$</span></span></div>
         <div class="lands">
           <svg id="landC" class="plot" viewBox="0 0 520 190" role="img" aria-label="Iterations against the direction of −c"></svg>
           <svg id="landB" class="plot" viewBox="0 0 520 190" role="img" aria-label="Iterations against the direction of b"></svg>
         </div>
-        <p class="note" id="landNote"></p>
-        <div class="lock-msg"><p>After step 3, these charts show the iterations for every direction of each arrow.</p><button class="btn small" id="unlockLand">Show them now</button></div>
+        <ul class="takeaways small" id="landNote"></ul>
+        <div class="lock-msg"><p>Iterations for every direction of each arrow, shown after step 3.</p><button class="btn small" id="unlockLand">Show them now</button></div>
       </section>
       <section class="card" id="convCard">
         <div class="card-head"><h3>Convergence of this run</h3>
           <span class="chart-legend"><span><svg width="18" height="8"><line x1="0" y1="4" x2="18" y2="4" stroke="var(--path)" stroke-width="2.2"/></svg>error</span><span><svg width="10" height="10"><line x1="5" y1="1" x2="5" y2="9" stroke="var(--muted)" stroke-width="1.5"/></svg>restart</span></span></div>
         <svg id="conv" class="plot" viewBox="0 0 520 200" role="img" aria-label="Error of the average iterate against the iteration count"></svg>
-        <p class="note">The error of rPDHG’s average iterate; ticks mark restarts. Near a tie, each restart cycle takes longer.</p>
+        <ul class="takeaways small"><li>Error of rPDHG’s average iterate; ticks mark restarts</li><li>Near a tie, each restart cycle takes longer</li></ul>
+        <details class="fold" id="algoBox">
+          <summary>rPDHG (Algorithm 1 of [<a class="cite" href="#ref-1">1</a>])</summary>
+          <div class="algo" id="algo">
+            <div class="ln" id="alg0">Input: <span class="nw">$z^{0,0}=(0,0)$,</span> <span class="nw">$\tau=\frac{1}{2\kappa}$,</span> <span class="nw">$\sigma=\frac{1}{2\lambda_{\max}\lambda_{\min}}$,</span> <span class="nw">$\beta=1/e$.</span></div>
+            <div class="ln">repeat (outer loop $\ell=0,1,\dots$)</div>
+            <div class="ln ind1">repeat (inner loop $k=0,1,\dots$)</div>
+            <div class="ln ind2" id="alg1"><span class="nw">$x^{+}=\max\{0,\,x-\tau(c-A^\top y)\}$,</span> $\ y^{+}=y+\sigma\,(b-A(2x^{+}-x))$</div>
+            <div class="ln ind2" id="alg2">$\bar z^{\ell,k+1}=$ average of $z^{\ell,1},\dots,z^{\ell,k+1}$</div>
+            <div class="ln ind1" id="alg3">until the $\beta$-restart condition holds</div>
+            <div class="ln ind1" id="alg4">restart: $z^{\ell+1,0}\leftarrow \bar z^{\ell,k}$</div>
+            <div class="ln" id="alg5">until the average iterate is $\varepsilon$-optimal</div>
+            <div class="cnt" id="algCnt"></div>
+          </div>
+          <p class="note"><b>Restart</b> when the normalized duality gap of the average iterate has dropped by the factor <span class="nw">$\beta$;</span> <b>stop</b> when its primal residual, dual infeasibility and duality gap are all at most <span class="nw">$\varepsilon=10^{-6}$.</span></p>
+        </details>
       </section>
     </div>
   </div>
 
-  <section class="card wide math" id="math" hidden>
-    <div class="math-grid">
-      <div>
-        <h4>The LP, its dual and the two pictures</h4>
-        <p>The LP is $\min\, c^\top x$ subject to $Ax=b,\ x\ge 0$ with $A\in\mathbb{R}^{2\times 4}$; its dual is $\max\, b^\top y$ subject to $A^\top y+s=c,\ s\ge 0$.</p>
-        <p>Take a $4\times4$ orthogonal matrix $Q=[U\ W]$ with rows $(u_j^\top, w_j^\top)$, and let $A=W^\top$ and $c=U\gamma$. Then $AA^\top=I$ (so $\kappa=1$) and $Ac=0$, as [A] assumes. Here $\|c\|=\|b\|=1$.</p>
-        <ul>
-          <li>The LP’s picture: $x=Wb+Uv$ with $v\in\mathbb{R}^2$. Edge $j$ is where $x_j=w_j^\top b+u_j^\top v=0$, and $c^\top x=\gamma^\top v$. The path shows $U^\top x$ for rPDHG’s iterates $x$, which are generally not on the plane $Ax=b$.</li>
-          <li>The dual’s picture: $y$ itself. Edge $j$ is where $s_j=u_j^\top\gamma-w_j^\top y=0$. The path shows rPDHG’s iterates $y$.</li>
-        </ul>
-        <p>Both pictures are exact, with true distances and angles. Changing $c$ moves the dual’s edges, and changing $b$ moves the LP’s edges, so a tie in one picture is a degenerate vertex in the other. The LP is feasible only when $b$ lies in the cone of the columns of $A$, marked by the arc on the dial of $b$.</p>
-        <h4>rPDHG (Algorithm 1 of [A])</h4>
-        <div class="algo" id="algo">
-          <div class="ln" id="alg0">Input: $z^{0,0}=(0,0)$, $\tau=\frac{1}{2\kappa}$, $\sigma=\frac{1}{2\lambda_{\max}\lambda_{\min}}$, $\beta=1/e$.</div>
-          <div class="ln">repeat (outer loop $\ell=0,1,\dots$)</div>
-          <div class="ln ind1">repeat (inner loop $k=0,1,\dots$)</div>
-          <div class="ln ind2" id="alg1">$x^{+}=\max\{0,\,x-\tau(c-A^\top y)\}$, $\ y^{+}=y+\sigma\,(b-A(2x^{+}-x))$</div>
-          <div class="ln ind2" id="alg2">$\bar z^{\ell,k+1}=$ average of $z^{\ell,1},\dots,z^{\ell,k+1}$</div>
-          <div class="ln ind1" id="alg3">until the $\beta$-restart condition holds</div>
-          <div class="ln ind1" id="alg4">restart: $z^{\ell+1,0}\leftarrow \bar z^{\ell,k}$</div>
-          <div class="ln" id="alg5">until the average iterate is $\varepsilon$-optimal</div>
-          <div class="cnt" id="algCnt"></div>
-        </div>
-        <p><b>Restart</b> when the normalized duality gap of the average has dropped by the factor $\beta$ since the last restart. <b>Stop</b> when the average iterate has primal residual, dual infeasibility and duality gap all at most $\varepsilon=10^{-6}$.</p>
-      </div>
-      <div>
-        <h4>The condition number Φ of [A]</h4>
-        <p>With the optimal basis $B$, the other indices $N$ and $T=B^{-1}N$:</p>
-        <ul>
-          <li>$\Phi=(\|x^\star\|_1+\|s^\star\|_1)/\min\{\zeta_p,\zeta_d\}$, where $\zeta_p=\min_j s^\star_{N_j}/\sqrt{\|T_{:,j}\|^2+1}$ is the smallest $\|\Delta c\|$ that changes the optimal basis, and $\zeta_d=\min_i x^\star_{B_i}/\sqrt{\|T_{i,:}\|^2+1}$ is the smallest $\|\Delta b\|_{(AA^\top)^{-1}}$ that does.</li>
-          <li>In the two pictures, $\zeta_p=\|c\|\sin\theta_p$ and $\zeta_d=\|b\|\sin\theta_d$, where $\theta_p$ and $\theta_d$ are the marked angles between the level line and the nearest edge at $x^\star$ and at $y^\star$.</li>
-          <li>As $\theta_p\to0$, the reduced cost $s^\star_k$ of a nonbasic variable tends to $0$, so edge $s_k$ passes closer and closer to $y^\star$. As $\theta_d\to0$, a basic variable $x^\star_l$ tends to $0$, so edge $x_l$ passes closer and closer to $x^\star$.</li>
-        </ul>
-        <h4>What [A] proves</h4>
-        <p>With $Ac=0$, a unique optimum and the step sizes above, rPDHG reaches $\varepsilon$-optimality within $O\big(\kappa\Phi\ln(\kappa\Phi\|w^\star\|/\varepsilon)\big)$ iterations, where $w^\star=(x^\star,s^\star)$. This is an $O(\cdot)$ bound: the charts draw $\Phi$ next to the iteration counts without any fitted constant, and the page never treats it as a prediction of exact counts.</p>
-        <h4>Source</h4>
-        <ul class="refs">
-          <li>[A] Z. Xiong. Accessible complexity bounds for restarted PDHG on linear programs with a unique optimizer. Mathematics of Operations Research, 2026. <a href="https://arxiv.org/abs/2410.04043">arXiv:2410.04043</a></li>
-        </ul>
-        <h4>Self-tests</h4>
+  <section class="card refs-card" id="refs" aria-label="References">
+    <h3>References</h3>
+    <ol class="refs">
+      <li id="ref-1">[1] Z. Xiong. Accessible complexity bounds for restarted PDHG on linear programs with a unique optimizer. <em>Mathematics of Operations Research</em>, 2026. <a href="https://doi.org/10.1287/moor.2024.0738" target="_blank" rel="noopener">doi:10.1287/moor.2024.0738</a></li>
+    </ol>
+        <div id="debug" hidden>
+        <h3>Self-tests</h3>
         <button class="btn" id="testBtn">Run self-tests</button>
         <pre class="tests" id="testOut" hidden></pre>
-      </div>
-    </div>
+        </div>
   </section>
 
-  <footer>Next: <a href="../pdhg-random-lps/index.html">how hard is a random LP?</a> · All numbers are computed in your browser: both pictures and Φ by exact vertex enumeration, and rPDHG exactly as analyzed in the papers. Keys: Space replay/pause · → step · R rewind · [ ] turn −c · , . turn b · M the math · D dark theme.</footer>
+  <footer>Next: <a href="../pdhg-random-lps/index.html">how hard is a random LP?</a> · Everything is computed in your browser.</footer>
 </div>
 
 <div class="tip" id="tip" role="tooltip" hidden></div>
@@ -1328,6 +1369,44 @@ footer{color:var(--muted);font-size:.82rem;margin-top:18px;max-width:110ch}
   const sub = k => String(k).split('').map(d => SUBS[+d]).join('');
   const sup = k => String(k).split('').map(ch => SUPS[ch] || ch).join('');
   const xe = j => 'x' + sub(j + 1), se = j => 's' + sub(j + 1);
+  // ---------- formulas ----------
+  // HTML: write TeX between $...$ and call tex(el); KaTeX loads after this script, so early calls wait for it.
+  const TEX = { delimiters: [{ left: '\\[', right: '\\]', display: true }, { left: '$', right: '$', display: false }], throwOnError: false, ignoredClasses: ['katex', 'math'] };
+  const texWaiting = new Set();
+  function tex(el) {
+    if (!el) return el;
+    if (window.renderMathInElement) window.renderMathInElement(el, TEX); else texWaiting.add(el);
+    return el;
+  }
+  function texInto(el, src, plain) { if (window.katex) window.katex.render(src, el, { throwOnError: false }); else el.textContent = plain; }
+  const xT = j => 'x_{' + (j + 1) + '}', sT = j => 's_{' + (j + 1) + '}';
+  const degT = rad => fmtDeg(rad).replace('°', '^\\circ');
+  // a number in TeX: thousands with {,}, small and large ones as a × 10^k
+  function numT(v, d) {
+    d = d || 3;
+    if (v == null || !isFinite(v)) return '\\text{–}';
+    const a = Math.abs(v);
+    if (a === 0) return '0';
+    if (a >= 1e6 || a < 1e-3) { const e = Math.floor(Math.log10(a)); return (v / Math.pow(10, e)).toFixed(d - 2) + '\\times 10^{' + e + '}'; }
+    if (a >= 1000) return fmtInt(v).replace(/,/g, '{,}');
+    return String(Number(v.toPrecision(d)));
+  }
+  // SVG: the same look by hand. Italic letters in KaTeX_Math, digits and signs in KaTeX_Main, real sub- and superscripts.
+  // parts: [['i', 'x'], ['sub', '2']], kinds 'i' (variable), 'n' (upright), 't' (text), 'sub', 'sup'; fs is the font size in px
+  function svgMath(fs, parts) {
+    let s = '', shift = 0;
+    for (const [k, txt] of parts) {
+      let dy, cls, size = '';
+      if (k === 'sub' || k === 'sup') {
+        const to = k === 'sub' ? 0.22 * fs : -0.45 * fs;
+        dy = to - shift; shift = to; size = ' font-size="' + f1(0.7 * fs) + '"';
+        cls = /^[a-zA-Zα-ω]+$/.test(txt) ? 'mi' : 'mn';
+      } else { dy = -shift; shift = 0; cls = k === 'i' ? 'mi' : k === 'n' ? 'mn' : 'tx'; }
+      s += '<tspan class="' + cls + '"' + (dy ? ' dy="' + f1(dy) + '"' : '') + size + '>' + txt + '</tspan>';
+    }
+    return s;
+  }
+  const pow10Svg = (k, fs) => svgMath(fs, [['n', '10'], ['sup', String(k).replace('-', '−')]]);
   const fmtInt = v => Math.round(v).toLocaleString('en-US');
   function fmtNum(v, d) {
     d = d || 3;
@@ -1347,7 +1426,7 @@ footer{color:var(--muted);font-size:.82rem;margin-top:18px;max-width:110ch}
     if (d >= 1) return d.toFixed(2) + '°';
     return String(Number(d.toPrecision(2))) + '°';
   }
-  const decadeLabel = k => (k >= 0 && k <= 3) ? fmtInt(Math.pow(10, k)) : '10' + sup(k);
+  const decadeLabel = k => (k >= 0 && k <= 3) ? fmtInt(Math.pow(10, k)) : pow10Svg(k, 12);
   const wrap180 = d => { d = ((d + 180) % 360 + 360) % 360 - 180; return d; };
   const norm360 = d => ((d % 360) + 360) % 360;
   const f1 = v => v.toFixed(1);
@@ -1378,8 +1457,8 @@ footer{color:var(--muted);font-size:.82rem;margin-top:18px;max-width:110ch}
   };
   function nextSeed() { S.seed = (Math.imul(S.seed, 1103515245) + 12345) >>> 0; return S.seed; }
   const PIC = {
-    P: { svg: $('planeP'), counter: $('counterP'), edge: xe, star: 'x*', arrow: '−c', start: 'start (x = 0)', th: 'p' },
-    D: { svg: $('planeD'), counter: $('counterD'), edge: se, star: 'y*', arrow: 'b', start: 'start (y = 0)', th: 'd' }
+    P: { svg: $('planeP'), counter: $('counterP'), v: 'x', s: 'y', arrow: [['n', '−'], ['i', 'c']], th: 'p' },
+    D: { svg: $('planeD'), counter: $('counterD'), v: 's', s: 'y', arrow: [['i', 'b']], th: 'd' }
   };
   const instOf = k => (k === 'P' ? S.inst : S.dual);
   const solOf = k => (k === 'P' ? S.sol : S.dsol);
@@ -1615,7 +1694,7 @@ footer{color:var(--muted);font-size:.82rem;margin-top:18px;max-width:110ch}
       }
       const q = w2s(mid), on = [-u[0] / nu, u[1] / nu];
       const lx = Math.min(W - 14, Math.max(14, q[0] + 15 * kf * on[0])), ly = Math.min(H - 6, Math.max(18, q[1] + 15 * kf * on[1] + 5 * kf));
-      s += '<text x="' + f1(lx) + '" y="' + f1(ly) + '" text-anchor="middle" font-size="' + f1(14.5 * kf) + '" fill="' + (j === hot ? 'var(--warn)' : 'var(--muted)') + '" font-weight="' + (j === hot ? 600 : 400) + '" ' + halo + '>' + pc.edge(j) + '</text>';
+      s += '<text x="' + f1(lx) + '" y="' + f1(ly) + '" text-anchor="middle" font-size="' + f1(14.5 * kf) + '" fill="' + (j === hot ? 'var(--warn)' : 'var(--muted)') + '" font-weight="' + (j === hot ? 600 : 400) + '" ' + halo + '>' + svgMath(14.5 * kf, [['i', pc.v], ['sub', String(j + 1)]]) + '</text>';
     }
     if (ok) {
       const xs = w2s(sol.vstar);
@@ -1633,20 +1712,20 @@ footer{color:var(--muted);font-size:.82rem;margin-top:18px;max-width:110ch}
         const R = 46, p1 = [xs[0] + R * Math.cos(a1), xs[1] + R * Math.sin(a1)], p2 = [xs[0] + R * Math.cos(a2), xs[1] + R * Math.sin(a2)];
         s += '<path d="M' + f1(xs[0]) + ',' + f1(xs[1]) + ' L' + f1(p1[0]) + ',' + f1(p1[1]) + ' A' + R + ',' + R + ' 0 0 ' + (da > 0 ? 1 : 0) + ' ' + f1(p2[0]) + ',' + f1(p2[1]) + ' Z" fill="var(--theta)" fill-opacity=".2" stroke="var(--theta)" stroke-width="1.3"/>';
         const lp = labelSpot(xs, poly.map(w2s), [ld[0], -ld[1]], sol.rays, [xs[0] - 22 * kf * gh[0], xs[1] + 22 * kf * gh[1]], hot >= 0 ? U[hot] : null, kf, fmtDeg(sol.thetaMin).length + 5);
-        s += '<text x="' + f1(lp[0]) + '" y="' + f1(lp[1]) + '" text-anchor="middle" font-size="' + f1(14.5 * kf) + '" font-weight="600" fill="var(--theta)" ' + halo + '>θ<tspan font-size="' + f1(10.5 * kf) + '" dy="' + f1(3 * kf) + '">' + pc.th + '</tspan><tspan dy="' + f1(-3 * kf) + '"> = ' + fmtDeg(sol.thetaMin) + '</tspan></text>';
+        s += '<text x="' + f1(lp[0]) + '" y="' + f1(lp[1]) + '" text-anchor="middle" font-size="' + f1(14.5 * kf) + '" font-weight="600" fill="var(--theta)" ' + halo + '>' + svgMath(14.5 * kf, [['i', 'θ'], ['sub', pc.th], ['n', ' = ' + fmtDeg(sol.thetaMin)]]) + '</text>';
       }
       for (const p of sol.vertices) { const q = w2s(p.v); s += '<circle cx="' + f1(q[0]) + '" cy="' + f1(q[1]) + '" r="2.6" fill="var(--edge)"/>'; }
       for (const p of sol.optimal) { const q = w2s(p.v); s += '<circle cx="' + f1(q[0]) + '" cy="' + f1(q[1]) + '" r="7" fill="var(--accent)" stroke="var(--surface)" stroke-width="1.6"/>'; }
       if (sol.degenerate) s += '<circle cx="' + f1(xs[0]) + '" cy="' + f1(xs[1]) + '" r="13" fill="none" stroke="var(--warn)" stroke-width="2" stroke-dasharray="4 3"/>';
       const lab = [xs[0] - 22 * kf * gh[0], xs[1] + 22 * kf * gh[1]];
-      s += '<text x="' + f1(lab[0]) + '" y="' + f1(lab[1] + 5 * kf) + '" text-anchor="middle" font-size="' + f1(16 * kf) + '" font-weight="600" fill="var(--accent)" ' + halo + '>' + pc.star + '</text>';
+      s += '<text x="' + f1(lab[0]) + '" y="' + f1(lab[1] + 5 * kf) + '" text-anchor="middle" font-size="' + f1(16 * kf) + '" font-weight="600" fill="var(--accent)" ' + halo + '>' + svgMath(16 * kf, [['i', key === 'P' ? 'x' : 'y'], ['sup', '⋆']]) + '</text>';
     }
     // the start point x = 0 (left: its projection) or y = 0 (right)
     const q0 = w2s([0, 0]);
     if (q0[0] > 0 && q0[0] < W && q0[1] > 96 && q0[1] < H) {
       s += '<path d="M' + f1(q0[0] - 5) + ',' + f1(q0[1] - 5) + ' l10,10 m0,-10 l-10,10" stroke="var(--muted)" stroke-width="1.6"/>';
       const right = q0[0] > W - 110 * kf;
-      s += '<text x="' + f1(q0[0] + (right ? -8 : 8)) + '" y="' + f1(q0[1] - 7) + '" text-anchor="' + (right ? 'end' : 'start') + '" font-size="' + f1(12 * kf) + '" fill="var(--muted)" ' + halo + '>' + pc.start + '</text>';
+      s += '<text x="' + f1(q0[0] + (right ? -8 : 8)) + '" y="' + f1(q0[1] - 7) + '" text-anchor="' + (right ? 'end' : 'start') + '" font-size="' + f1(12 * kf) + '" fill="var(--muted)" ' + halo + '>' + svgMath(12 * kf, [['t', 'start '], ['n', '('], ['i', key === 'P' ? 'x' : 'y'], ['n', ' = 0)']]) + '</text>';
     }
     s += '<g id="pathG' + key + '" pointer-events="none"></g>';
     // the dial: the arrow is -gamma (in the LP's picture -c; in the dual's b)
@@ -1663,7 +1742,7 @@ footer{color:var(--muted);font-size:.82rem;margin-top:18px;max-width:110ch}
       '<circle class="dial-hit" cx="' + DX + '" cy="' + DY + '" r="' + (DR + 13) + '" fill="var(--surface)" fill-opacity=".9" stroke="var(--rule)"/>' + arc +
       L(tail, [DX + DR * 0.82 * ax, DY + DR * 0.82 * ay], 'stroke="var(--accent)" stroke-width="3.2" marker-end="url(#ah' + key + ')" pointer-events="none"') +
       '<circle class="handle" cx="' + f1(tip[0]) + '" cy="' + f1(tip[1]) + '" r="10" fill="var(--accent)" fill-opacity=".16" stroke="var(--accent)" stroke-width="1.6"/>' +
-      '<text x="' + (DX - DR - 18) + '" y="' + (DY + 5) + '" text-anchor="end" font-size="' + f1(14 * kf) + '" fill="var(--muted)" pointer-events="none">' + pc.arrow + '</text></g>';
+      '<text x="' + (DX - DR - 18) + '" y="' + (DY + 5) + '" text-anchor="end" font-size="' + f1(14 * kf) + '" fill="var(--muted)" pointer-events="none">' + svgMath(14 * kf, pc.arrow) + '</text></g>';
     svg.innerHTML = s;
     renderPath(key);
   }
@@ -1727,8 +1806,9 @@ footer{color:var(--muted);font-size:.82rem;margin-top:18px;max-width:110ch}
     else if (!S.run) el.innerHTML = '–<small>' + (S.drag ? 'release to run' : 'start with step 1 above') + '</small>';
     else {
       const done = S.cursor >= S.run.iters;
-      el.innerHTML = fmtInt(S.cursor) + '<small>' + (done ? (S.run.converged ? 'iterations to ε = 10⁻⁶' : 'iterations, cap reached') : 'iterations') + '</small>' +
+      el.innerHTML = fmtInt(S.cursor) + '<small>' + (done ? (S.run.converged ? 'iterations to $\\varepsilon = 10^{-6}$' : 'iterations, cap reached') : 'iterations') + '</small>' +
         (done && S.ratioNote ? '<small class="ratio">' + S.ratioNote + '</small>' : '');
+      tex(el);
     }
   }
 
@@ -1736,40 +1816,51 @@ footer{color:var(--muted);font-size:.82rem;margin-top:18px;max-width:110ch}
   function renderPhi() {
     const sp = S.sol, sd = S.dsol, cn = S.inst.cnorm, bn = Math.hypot(S.inst.b[0], S.inst.b[1]);
     const zc = cn * Math.sin(sp.thetaMin), zb = bn * Math.sin(sd.thetaMin);
-    $('vL1').textContent = sp.l1 != null ? fmtNum(sp.l1) : '–';
-    $('vC').textContent = sp.tie ? '0' : fmtNum(zc);
-    $('vB').textContent = sd.tie ? '0' : fmtNum(zb);
-    $('vPhi').textContent = fmtNum(sp.Phi);
+    texInto($('vL1'), sp.unique && sp.l1 != null ? numT(sp.l1) : '\\text{–}', sp.unique && sp.l1 != null ? fmtNum(sp.l1) : '–');   // x* and s* are not unique at a tie
+    texInto($('vC'), sp.tie ? '0' : numT(zc), sp.tie ? '0' : fmtNum(zc));
+    texInto($('vB'), sd.tie ? '0' : numT(zb), sd.tie ? '0' : fmtNum(zb));
+    // Φ is defined only with a unique optimum (always the case here, since keepOffTies() avoids ties)
+    if (sp.unique) texInto($('vPhi'), numT(sp.Phi), fmtNum(sp.Phi)); else $('vPhi').textContent = 'undefined';
+    $('vPhi').classList.toggle('undef', !sp.unique);
     const bindC = sp.unique ? sp.binding === 'c' : !!sp.tie, bindB = sp.unique ? sp.binding === 'b' : !!sd.tie;
     $('chC').classList.toggle('bind', bindC);
     $('chB').classList.toggle('bind', bindB);
+    // the closed form with the same numbers: its two inner maxima are 1/ζp and 1/ζd; the larger one (the binding side) in the angle color
+    if (sp.unique && isFinite(sp.zetaP) && isFinite(sp.zetaD)) {
+      const term = (v, on) => (on ? '\\textcolor{#c2410c}{' : '{') + numT(v) + '}';
+      texInto($('phiCFv'), '= ' + numT(sp.l1) + '\\cdot\\max\\{' + term(1 / sp.zetaP, sp.binding === 'c') + ',\\ ' + term(1 / sp.zetaD, sp.binding === 'b') + '\\} = ' + numT(sp.PhiMaxForm), '');
+    } else $('phiCFv').textContent = '';
   }
-  function whyText() {
+  // what the current arrows mean for Φ, as short points (plain text from xe, se and fmtDeg)
+  function whyItems() {
     const sp = S.sol, sd = S.dsol, r = S.run;
-    if (sp.status !== 'optimal') return '';
+    if (sp.status !== 'optimal') return [];
     const N = r ? fmtInt(r.iters) : '…';
-    const easyAgain = ' Then Φ = ∞ and the bound does not apply, yet rPDHG needs only ' + N + ' iterations: being near a tie hurts, being exactly at one need not.';
-    if (sp.tie) return '−c is exactly perpendicular to edge ' + xe(sp.thetaEdge) + ', so that whole edge is optimal, and three edges of the dual meet at y*.' + easyAgain;
-    if (sd.tie) return 'b is exactly perpendicular to edge ' + se(sd.thetaEdge) + ', so that whole edge is optimal for the dual, and three edges of the LP meet at x*.' + easyAgain;
-    if (!sp.unique) return 'The optimal vertex is degenerate, so Φ = ∞ and the bound does not apply. Here rPDHG needs ' + N + ' iterations.';
+    if (!sp.unique) return ['No unique optimum here, so $\\Phi$ is not defined', 'rPDHG needs <b>' + N + '</b> iterations'];   // not reached: keepOffTies() avoids ties
     const big = sp.Phi >= 300, small = sp.Phi <= 60;
-    const thp = fmtDeg(sp.thetaMin), thd = fmtDeg(sd.thetaMin);
-    if (small) return 'Both arrows are far from a tie (θp = ' + thp + ', θd = ' + thd + '). Only a large change in c or b changes the optimal basis, so Φ is small.';
+    const thp = '<b>$\\theta_p = ' + degT(sp.thetaMin) + '$</b>', thd = '<b>$\\theta_d = ' + degT(sd.thetaMin) + '$</b>';
+    if (small) return ['Both arrows are far from a tie: ' + thp + ', ' + thd, 'Only a large change in $c$ or $b$ changes the optimal basis, so <b>$\\Phi$ is small</b>'];
     if (sp.binding === 'c') {
-      if (big) return '−c is only ' + thp + ' from being perpendicular to edge ' + xe(sp.thetaEdge) + ': a near tie. In the dual, edge ' + se(sp.zetaPEdge) + ' almost passes through y*. A tiny change in c changes the optimal basis, so Φ is large.';
-      return '−c is ' + thp + ' from being perpendicular to edge ' + xe(sp.thetaEdge) + '. At 0°, that whole edge would be optimal.';
+      if (big) return [thp + ': the level line of $c$ through $x^\\star$ is nearly parallel to edge $' + xT(sp.thetaEdge) + '$, a near tie',
+        'In the dual, edge $' + sT(sp.zetaPEdge) + '$ nearly passes through $y^\\star$ ($' + sT(sp.zetaPEdge) + '^\\star \\approx 0$): a nearly degenerate vertex',
+        '$\\zeta_p = \\|c\\|\\sin\\theta_p$ is tiny: a small change in $c$ changes the optimal basis, so <b>$\\Phi$ is large</b>'];
+      return [thp + ' between the level line of $c$ through $x^\\star$ and edge $' + xT(sp.thetaEdge) + '$', 'At $\\theta_p = 0$ the whole edge $' + xT(sp.thetaEdge) + '$ would be optimal'];
     }
-    if (big) return 'b is only ' + thd + ' from being perpendicular to edge ' + se(sd.thetaEdge) + ': a near tie in the dual. In the LP, edge ' + xe(sp.zetaDIdx) + ' almost passes through x*. A tiny change in b changes the optimal basis, so Φ is large.';
-    return 'b is ' + thd + ' from being perpendicular to edge ' + se(sd.thetaEdge) + '. At 0°, that whole edge would be optimal for the dual.';
+    if (big) return [thd + ': the level line of $b$ through $y^\\star$ is nearly parallel to edge $' + sT(sd.thetaEdge) + '$, a near tie in the dual',
+      'In the LP, edge $' + xT(sp.zetaDIdx) + '$ nearly passes through $x^\\star$ ($' + xT(sp.zetaDIdx) + '^\\star \\approx 0$): a nearly degenerate vertex',
+      '$\\zeta_d = \\|b\\|\\sin\\theta_d$ is tiny: a small change in $b$ changes the optimal basis, so <b>$\\Phi$ is large</b>'];
+    return [thd + ' between the level line of $b$ through $y^\\star$ and edge $' + sT(sd.thetaEdge) + '$', 'At $\\theta_d = 0$ the whole edge $' + sT(sd.thetaEdge) + '$ would be optimal for the dual'];
   }
+  const li = list => list.map(h => '<li>' + h + '</li>').join('');
   function renderIterCard() {
     const r = S.run, num = $('iterNum');
     if (!r) { num.textContent = S.runPending ? '…' : '–'; num.classList.add('pending'); }
     else { num.classList.remove('pending'); num.textContent = (r.converged ? '' : '≥ ') + fmtInt(r.iters); }
-    $('why').textContent = (r || S.runPending) ? whyText() : 'Not run yet. Start with step 1 above.';
+    $('why').innerHTML = li((r || S.runPending) ? whyItems() : ['Not run yet. Start with step 1 above']);
+    tex($('why'));
   }
   function renderAlgo() {
-    if ($('math').hidden) return;
+    if (!$('algoBox').open) return;
     for (let k = 0; k <= 5; k++) { const el = $('alg' + k); if (el) el.classList.remove('on'); }
     const r = S.run;
     if (!r) return;
@@ -1796,10 +1887,10 @@ footer{color:var(--muted);font-size:.82rem;margin-top:18px;max-width:110ch}
     ymax = Math.ceil(ymax + 0.05); ymin = Math.floor(ymin);
     const X = it => Lm + (Wc - Lm - Rm) * it / Math.max(1, r.iters), Y = v => Tm + (Hc - Tm - Bm) * (ymax - v) / Math.max(1e-9, ymax - ymin);
     let s = '';
-    for (let k = ymin; k <= ymax; k++) if ((ymax - k) % 2 === 0 || ymax - ymin <= 6) s += '<line class="gridl" x1="' + Lm + '" x2="' + (Wc - Rm) + '" y1="' + f1(Y(k)) + '" y2="' + f1(Y(k)) + '"/><text class="tk" x="' + (Lm - 6) + '" y="' + f1(Y(k) + 4) + '" text-anchor="end">10' + sup(k) + '</text>';
+    for (let k = ymin; k <= ymax; k++) if ((ymax - k) % 2 === 0 || ymax - ymin <= 6) s += '<line class="gridl" x1="' + Lm + '" x2="' + (Wc - Rm) + '" y1="' + f1(Y(k)) + '" y2="' + f1(Y(k)) + '"/><text class="tk" x="' + (Lm - 6) + '" y="' + f1(Y(k) + 4) + '" text-anchor="end">' + pow10Svg(k, 12) + '</text>';
     for (const t of niceTicks(0, r.iters, 4)) s += '<text class="tk" x="' + f1(X(t)) + '" y="' + (Hc - Bm + 15) + '" text-anchor="middle">' + fmtInt(t) + '</text>';
     s += '<text class="lbl" x="' + (Wc - Rm) + '" y="' + (Hc - 3) + '" text-anchor="end">iteration</text>';
-    s += '<line x1="' + Lm + '" x2="' + (Wc - Rm) + '" y1="' + f1(Y(Math.log10(EPS))) + '" y2="' + f1(Y(Math.log10(EPS))) + '" stroke="var(--muted)" stroke-dasharray="4 4"/><text class="tk" x="' + (Wc - Rm - 4) + '" y="' + f1(Y(Math.log10(EPS)) - 5) + '" text-anchor="end">ε</text>';
+    s += '<line x1="' + Lm + '" x2="' + (Wc - Rm) + '" y1="' + f1(Y(Math.log10(EPS))) + '" y2="' + f1(Y(Math.log10(EPS))) + '" stroke="var(--muted)" stroke-dasharray="4 4"/><text class="tk" x="' + (Wc - Rm - 4) + '" y="' + f1(Y(Math.log10(EPS)) - 5) + '" text-anchor="end">' + svgMath(13, [['i', 'ε']]) + '</text>';
     const cur = S.cursor, hiIdx = upperBound(R.it, cur) - 1, pts = [];
     for (let i = 0; i <= hiIdx; i++) { if (!isFinite(R.le[i]) || R.le[i] <= -19) continue; pts.push([X(R.it[i]), Y(R.le[i])]); }
     s += polyline(pts, 'var(--path)', 1.8);
@@ -1810,16 +1901,16 @@ footer{color:var(--muted);font-size:.82rem;margin-top:18px;max-width:110ch}
   }
 
   // ---------- every direction of each arrow ----------
-  const OFFS = [-1, -1.5, -2, -2.5, -3, -3.5, -4];
+  const OFFS = [-1, -1.5, -2, -2.5, -3, Math.log10(0.0003)];   // offsets from a tie in radians, down to NEAR
   function landSamples(w) {
-    const out = [];
+    const out = [], ties = [];
     if (w === 'c') {
       for (let d = 0; d < 360; d++) out.push({ a: d, kind: 'grid' });
       const edges = new Set();
       for (const p of (S.sol.vertices || [])) for (const j of p.active) edges.add(j);
       for (const j of edges) {
         const tie = norm360(Math.atan2(S.inst.U[j][1], S.inst.U[j][0]) * R2D + 180);
-        out.push({ a: tie, kind: 'tie' });
+        ties.push(tie);
         for (const e of OFFS) for (const sg of [1, -1]) out.push({ a: norm360(tie + sg * Math.pow(10, e) * R2D), kind: 'near' });
       }
     } else {
@@ -1829,11 +1920,13 @@ footer{color:var(--muted);font-size:.82rem;margin-top:18px;max-width:110ch}
       for (let i = 0; i < 4; i++) {
         const t = unwrapB(Math.atan2(S.inst.A[1][i], S.inst.A[0][i]) * R2D);
         if (t <= lo + 0.5 || t >= hi - 0.5) continue;
-        out.push({ a: t, kind: 'tie' });
+        ties.push(t);
         for (const e of OFFS) for (const sg of [1, -1]) out.push({ a: t + sg * Math.pow(10, e) * R2D, kind: 'near' });
       }
     }
-    return out;
+    // drop grid points that happen to fall within NEAR of a tie
+    const off = a => Math.min(...ties.map(x => Math.abs(w === 'c' ? wrap180(a - x) : a - x)));
+    return ties.length ? out.filter(s => s.kind === 'near' || off(s.a) >= NEAR * 0.999) : out;
   }
   // The sweep of -c depends on b, and the sweep of b depends on c.
   const landKey = w => (S.Q.seed || 0) + ':' + (w === 'c' ? S.aB : S.aC).toFixed(9);
@@ -1881,8 +1974,8 @@ footer{color:var(--muted);font-size:.82rem;margin-top:18px;max-width:110ch}
     for (let k = yr[0]; k <= yr[1]; k++) s += '<line class="gridl" x1="' + Lm + '" x2="' + (Wc - Rm) + '" y1="' + f1(Y(k)) + '" y2="' + f1(Y(k)) + '"/><text class="tk" x="' + (Lm - 6) + '" y="' + f1(Y(k) + 4) + '" text-anchor="end">' + decadeLabel(k) + '</text>';
     const ticks = w === 'c' ? [0, 90, 180, 270, 360] : niceTicks(x0, x1, 5);
     for (const t of ticks) s += '<text class="tk" x="' + f1(X(t)) + '" y="' + (Hc - Bm + 15) + '" text-anchor="middle">' + Math.round(t) + '°</text>';
-    s += '<text class="lbl" x="' + (Wc - Rm) + '" y="' + (Hc - 3) + '" text-anchor="end">direction of ' + (w === 'c' ? '−c' : 'b') + ' (degrees)</text>';
-    s += '<text class="ttl" x="' + Lm + '" y="14">' + (w === 'c' ? 'Turning −c, with b as now' : 'Turning b, with c as now') + '</text>';
+    s += '<text class="lbl" x="' + (Wc - Rm) + '" y="' + (Hc - 3) + '" text-anchor="end">' + svgMath(11, [['t', 'direction of ']].concat(w === 'c' ? [['n', '−'], ['i', 'c']] : [['i', 'b']], [['t', ' (degrees)']])) + '</text>';
+    s += '<text class="ttl" x="' + Lm + '" y="14">' + svgMath(12, w === 'c' ? [['t', 'Turning '], ['n', '−'], ['i', 'c'], ['t', ', with '], ['i', 'b'], ['t', ' as now']] : [['t', 'Turning '], ['i', 'b'], ['t', ', with '], ['i', 'c'], ['t', ' as now']]) + '</text>';
     const pts = items.filter(it => it.status === 'optimal' && it.kind !== 'tie').map(it => ({ x: it.a, it: it.iters, k: it.kphi })).sort((a, b) => a.x - b.x);
     let g = polyline(pts.filter(p => isFinite(p.k)).map(p => [X(p.x), Y(Math.log10(p.k))]), 'var(--accent)', 1.6, 'stroke-dasharray="5 4" opacity=".9"');
     g += polyline(pts.map(p => [X(p.x), Y(Math.log10(p.it))]), 'var(--ink)', 1.7);
@@ -1901,10 +1994,11 @@ footer{color:var(--muted);font-size:.82rem;margin-top:18px;max-width:110ch}
     renderLandOne('c', yr);
     renderLandOne('b', yr);
     const done = S.land.c && S.land.c.done && S.land.b && S.land.b.done;
-    let note = 'Each chart turns one arrow through every direction and runs rPDHG each time. Spikes are near ties; circles are exact ties. b stays inside the arc on its dial, where the LP is feasible. Click a chart to jump there.';
-    if (S.sol && S.sol.unique && S.sol.binding === 'b' && S.sol.Phi >= 300) note += ' Now b is near a tie, so x* is nearly degenerate, and every −c that makes x* optimal is slow.';
-    if (S.sol && S.sol.unique && S.sol.binding === 'c' && S.sol.Phi >= 300) note += ' Now −c is near a tie, so y* is nearly degenerate, and every b that makes y* optimal is slow.';
-    $('landNote').textContent = done ? note : 'Running rPDHG for every direction of each arrow…';
+    const notes = ['Iterations of rPDHG as one arrow turns through every direction, the other arrow fixed', 'Spikes: near ties; each curve stops $0.017^\\circ$ from a tie', 'Click a chart to jump to that direction'];
+    if (S.sol && S.sol.unique && S.sol.binding === 'b' && S.sol.Phi >= 300) notes.push('Now $b$ is near a tie, so $x^\\star$ is nearly degenerate: every $-c$ that keeps $x^\\star$ optimal is slow');
+    if (S.sol && S.sol.unique && S.sol.binding === 'c' && S.sol.Phi >= 300) notes.push('Now $-c$ is near a tie, so $y^\\star$ is nearly degenerate: every $b$ that keeps $y^\\star$ optimal is slow');
+    $('landNote').innerHTML = li(done ? notes : ['Running rPDHG for every direction of each arrow…']);
+    tex($('landNote'));
   }
 
   // ---------- updates ----------
@@ -1933,8 +2027,26 @@ footer{color:var(--muted);font-size:.82rem;margin-top:18px;max-width:110ch}
   function runAndWait() { return new Promise(res => { runResolvers.push(res); requestRun(); }); }
   let runTimer = 0;
   function scheduleRun(ms) { clearTimeout(runTimer); runTimer = setTimeout(() => { requestRun(); requestLandscape(); }, ms || 250); }
+  // Both arrows stay at least NEAR (0.017 degrees) from a tie, whether dragged, typed, slid or clicked:
+  // closer angles add only round-off, and an exact tie has no unique optimum.
+  const NEAR_RAD = NEAR / R2D;
+  function keepOffTies() {
+    for (let pass = 0; pass < 2; pass++) {
+      let aC = S.aC, aB = S.aB, moved = false;
+      if (!(S.sol.thetaMin >= NEAR_RAD * 0.999)) {
+        const tc = tieOf('c');
+        if (tc != null) { aC = tc + (Math.sign(wrap180(S.aC - tc)) || 1) * NEAR; moved = true; }
+      }
+      if (!(S.dsol.thetaMin >= NEAR_RAD * 0.999)) {
+        const tb = tieOf('b');
+        if (tb != null) { aB = tb + (Math.sign(S.aB - tb) || 1) * NEAR; moved = true; }
+      }
+      if (!moved || !applyState(aC, aB)) return;
+    }
+  }
   function setAngles(aC, aB, live) {
     if (!applyState(aC, aB)) return false;
+    keepOffTies();
     refresh({ run: !live });
     return true;
   }
@@ -1963,7 +2075,8 @@ footer{color:var(--muted);font-size:.82rem;margin-top:18px;max-width:110ch}
   function pause() { S.playing = false; $('runBtn').textContent = 'Replay'; }
   function tick(now) {
     if (!S.playing || !S.run) return;
-    const p = Math.min(1, S.p0 + (now - S.t0) / animDur(S.run.iters));
+    // the first frame's timestamp can precede play(); never let the progress (and the counter) go below zero
+    const p = Math.max(0, Math.min(1, S.p0 + (now - S.t0) / animDur(S.run.iters)));
     S.cursor = p >= 1 ? S.run.iters : iterAt(p, S.run.iters);
     if (p >= 1) pause();
     renderDynamic();
@@ -1986,7 +2099,7 @@ footer{color:var(--muted);font-size:.82rem;margin-top:18px;max-width:110ch}
       $(w === 'c' ? 'fineCVal' : 'fineBVal').textContent = fmtDeg(sol.thetaMin);
       if (!S.fineRef[w] && isFinite(sol.thetaMin)) {
         const deg = sol.thetaMin * R2D;
-        el.value = deg > 0 ? Math.max(-4, Math.min(1.4, Math.log10(deg))) : -4;
+        el.value = deg > 0 ? Math.max(+el.min, Math.min(1.4, Math.log10(deg))) : el.min;
       }
     }
   }
@@ -2009,7 +2122,6 @@ footer{color:var(--muted);font-size:.82rem;margin-top:18px;max-width:110ch}
     const el = $(w === 'c' ? 'fineC' : 'fineB');
     el.addEventListener('input', () => { story.tok = null; setFine(w, Math.pow(10, +el.value), true); });
     el.addEventListener('change', () => { S.fineRef[w] = null; ensureViews(); renderPictures(); unlockLand(); requestRun(); requestLandscape(); });
-    $(w === 'c' ? 'tieC' : 'tieB').addEventListener('click', () => { story.tok = null; setFine(w, 0, false); S.fineRef[w] = null; updateFine(); unlockLand(); requestLandscape(); });
   }
 
   // ---------- dragging the arrows ----------
@@ -2071,24 +2183,18 @@ footer{color:var(--muted);font-size:.82rem;margin-top:18px;max-width:110ch}
     $('speedVal').textContent = (S.speed < 1 ? (S.speed === 0.5 ? '½' : '¼') : S.speed) + '×';
     if (S.playing) { S.p0 = pOf(S.cursor, S.run.iters); S.t0 = performance.now(); }
   });
-  function effectiveDark() { const a = document.documentElement.getAttribute('data-theme'); return a ? a === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches; }
-  function syncThemeBtn() { const d = effectiveDark(); $('themeBtn').title = d ? 'Light theme (D)' : 'Dark theme (D)'; $('themeBtn').setAttribute('aria-pressed', String(d)); }
-  function toggleTheme() { document.documentElement.setAttribute('data-theme', effectiveDark() ? 'light' : 'dark'); syncThemeBtn(); }
-  $('themeBtn').addEventListener('click', toggleTheme);
-  function renderMath() {
-    if (S.mathRendered || !window.renderMathInElement) return;
-    window.renderMathInElement($('math'), { delimiters: [{ left: '$$', right: '$$', display: true }, { left: '$', right: '$', display: false }], throwOnError: false });
-    S.mathRendered = true;
-  }
-  function toggleMath(force) {
-    const el = $('math'), open = force != null ? force : el.hidden;
-    el.hidden = !open;
-    $('mathBtn').setAttribute('aria-expanded', String(open));
-    $('mathBtn').setAttribute('aria-pressed', String(open));
-    if (open) { renderMath(); renderAlgo(); el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
-  }
-  $('mathBtn').addEventListener('click', () => toggleMath());
-  window.addEventListener('load', () => { if (!$('math').hidden) renderMath(); });
+  $('algoBox').addEventListener('toggle', renderAlgo);
+  document.addEventListener('click', e => {
+    const a = e.target.closest && e.target.closest('a.cite');
+    const ref = a && document.querySelector(a.getAttribute('href'));
+    if (!ref) return;
+    e.preventDefault();
+    document.querySelectorAll('.refs li.hit').forEach(li => li.classList.remove('hit'));
+    ref.classList.add('hit');
+    history.replaceState(null, '', a.getAttribute('href'));
+    ref.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  });
+  if (new URLSearchParams(location.search).has('debug')) $('debug').hidden = false;
   $('testBtn').addEventListener('click', () => {
     const out = $('testOut');
     out.hidden = false; out.textContent = 'Running…\n';
@@ -2104,7 +2210,8 @@ footer{color:var(--muted);font-size:.82rem;margin-top:18px;max-width:110ch}
   // ---------- tooltips ----------
   const tipEl = $('tip');
   function showTip(el) {
-    tipEl.textContent = el.getAttribute('data-tip');
+    tipEl.innerHTML = el.getAttribute('data-tip');
+    tex(tipEl);
     tipEl.hidden = false;
     const r = el.getBoundingClientRect(), vw = document.documentElement.clientWidth;
     let left = r.left + window.scrollX;
@@ -2155,7 +2262,7 @@ footer{color:var(--muted);font-size:.82rem;margin-top:18px;max-width:110ch}
     S.pulse = {};
     for (let i = 1; i <= 3; i++) $('step' + i).classList.toggle('busy', i === k);
     try {
-      showCard(k === 2 ? 'cardD' : 'cardP');
+      showCard('cardP');   // on a phone: the top of the two pictures, both of which change
       if (k === 1) {
         if (!isDefault()) loadDefault({ run: false });
         await runAndWait(); if (tok !== story.tok) return;
@@ -2174,7 +2281,7 @@ footer{color:var(--muted);font-size:.82rem;margin-top:18px;max-width:110ch}
         await runAndWait(); if (tok !== story.tok) return;
         requestLandscape();
         story.res[k] = S.run.iters;
-        $('res' + k).textContent = fmtInt(S.run.iters) + ' iterations · ' + Math.round(S.run.iters / story.base) + '× more';
+        $('res' + k).textContent = fmtInt(S.run.iters) + ' iterations · ' + Math.round(S.run.iters / story.base) + '× step 1';
         S.ratioNote = Math.round(S.run.iters / story.base) + '× as many as in step 1';
         setTimeout(() => { if (story.tok === tok) { S.pulse = {}; renderPictures(); } }, 4500);
         if (k === 2) markNext(3);
@@ -2182,9 +2289,18 @@ footer{color:var(--muted);font-size:.82rem;margin-top:18px;max-width:110ch}
           markNext(0);
           const rc = Math.round((story.res[2] || story.nearC) / story.base), rb = Math.round((story.res[3] || story.nearB) / story.base);
           const out = $('storyOut');
+          out.innerHTML = [
+            'Same size, yet <b>' + rc + '×</b> (step 2) and <b>' + rb + '×</b> (step 3) the iterations of step 1, with one arrow $0.017^\\circ$ from a tie',
+            'A near tie in one picture is a nearly degenerate vertex in the other',
+            '$\\Phi$, the condition number in the iteration bound of [<a class="cite" href="#ref-1">1</a>], captures both through $\\min\\{\\zeta_p, \\zeta_d\\}$',
+            '<b>Your turn:</b> drag either arrow'
+          ].map((h, i) => '<li style="--t:' + (0.1 + 0.4 * i).toFixed(2) + '">' + h + '</li>').join('');
           out.hidden = false;
-          out.textContent = 'The LP never changed size, yet rPDHG needed ' + rc + ' and ' + rb + ' times as many iterations when one arrow was 0.017° from a tie. ' +
-            'A near tie in one picture is a nearly degenerate vertex in the other. Φ, the condition number in the iteration bound of [A], measures both. Your turn: drag either arrow.';
+          tex(out);
+          if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+            out.classList.remove('build'); void out.offsetWidth; out.classList.add('build');
+            setTimeout(() => out.classList.remove('build'), 2200);
+          }
           unlockLand();
         }
       }
@@ -2214,8 +2330,6 @@ footer{color:var(--muted);font-size:.82rem;margin-top:18px;max-width:110ch}
     if (k === ' ') { e.preventDefault(); if (S.playing) pause(); else if (S.run) play(); else if (!S.runPending) requestRun(); }
     else if (k === 'ArrowRight') { e.preventDefault(); step(); }
     else if (k === 'r' || k === 'R') reset();
-    else if (k === 'm' || k === 'M') toggleMath();
-    else if (k === 'd' || k === 'D') toggleTheme();
     else if ('[]{},.<>'.indexOf(k) >= 0) {
       const fine = e.shiftKey || '{}<>'.indexOf(k) >= 0, dd = (fine ? 0.1 : 1) * ('[{,<'.indexOf(k) >= 0 ? 1 : -1);
       story.tok = null; S.fineRef = { c: null, b: null };
@@ -2230,13 +2344,15 @@ footer{color:var(--muted);font-size:.82rem;margin-top:18px;max-width:110ch}
   // ---------- start ----------
   $('legend').innerHTML = [
     '<li><svg width="14" height="14"><circle cx="7" cy="7" r="5.5" fill="var(--accent)"/></svg>optimal vertex</li>',
-    '<li><svg width="18" height="12"><path d="M1,11 L17,11 A16,16 0 0 0 15,3 Z" fill="var(--theta)" fill-opacity=".25" stroke="var(--theta)"/></svg>angle θ to the level line</li>',
+    '<li><svg width="18" height="12"><path d="M1,11 L17,11 A16,16 0 0 0 15,3 Z" fill="var(--theta)" fill-opacity=".25" stroke="var(--theta)"/></svg>angle $\\theta$ to the level line</li>',
     '<li><svg width="18" height="8"><line x1="0" y1="4" x2="18" y2="4" stroke="var(--path)" stroke-width="2.2"/></svg>rPDHG’s path</li>',
     '<li><svg width="12" height="12"><circle cx="6" cy="6" r="4" fill="var(--surface)" stroke="var(--path)" stroke-width="1.7"/></svg>restart point</li>',
     '<li><svg width="18" height="8"><line x1="1" y1="4" x2="17" y2="4" stroke="var(--warn)" stroke-width="3" stroke-linecap="round"/></svg>edge almost through the optimal vertex</li>'
   ].join('');
-  $('caption').textContent = 'Each edge is where one variable xⱼ, or one dual slack sⱼ, is zero. Each arrow points where its objective improves. Both paths come from one run of rPDHG, and turning one arrow moves the edges of the other picture.';
-  syncThemeBtn();
+  $('caption').innerHTML = li(['Edges: $x_j = 0$ in the LP, $s_j = 0$ in the dual', 'Arrows: $-c$ and $b$, the directions in which the two objectives improve', 'Turning one arrow moves the edges of the other picture']);
+  tex($('caption')); tex($('legend'));
+  // once KaTeX has loaded: everything written so far, and the numbers in the Φ formula
+  window.addEventListener('DOMContentLoaded', () => { tex(document.querySelector('.wrap')); texWaiting.forEach(el => tex(el)); texWaiting.clear(); if (S.sol) renderPhi(); });
   loadDefault({ run: false });
   // reference counts for the story (three short runs)
   (function () {
