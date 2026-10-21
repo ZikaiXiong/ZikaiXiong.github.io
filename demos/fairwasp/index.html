@@ -33,13 +33,7 @@
   --accent:#8B1D2C;--accent-soft:#F7EFF0;--on-accent:#ffffff;--card-line:#e2e2df;
   --card-shadow:0 1px 2px rgba(33,37,41,.05),0 4px 14px rgba(33,37,41,.045);
   --ga:#2166ac;--gb:#c47f17;--band:#efe3e5;--grid:#ecebef;--floor:#e9e9e6;
-  --rwc:#5f6670;--rw-soft:#f1f2f4;
-}
-:root[data-theme="dark"]{
-  --bg:#141416;--surface:#1e1e21;--ink:#ececf0;--muted:#a7a5ae;--rule:#35343b;
-  --accent:#E59AA3;--accent-soft:#3A1D22;--on-accent:#1A0B0E;--card-line:#35343b;--card-shadow:none;
-  --ga:#6aa9e0;--gb:#f0b45a;--band:#3a2a2e;--grid:#2a292f;--floor:#34333a;
-  --rwc:#b9bcc4;--rw-soft:#26262b;color-scheme:dark;
+  --rwc:#5f6670;--rw-soft:#f1f2f4;--chg:#e8890c;--base:#cfcfca;
 }
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5}
@@ -78,7 +72,7 @@ input[type=range]{accent-color:var(--accent)}
 .step-btn .txt small{display:block;color:var(--muted);font-size:.85rem;line-height:1.35}
 .step-btn .res{grid-column:2;font:600 .92rem var(--mono);color:var(--accent);min-height:1.25em}
 .step-btn.next{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
-.step-btn.next .num{background:var(--accent);color:var(--on-accent);animation:ring 1.8s ease-in-out infinite}
+.step-btn.next .num{background:var(--accent);color:var(--on-accent);animation:ring 1.8s ease-in-out 2}
 .step-btn.done .num{background:var(--accent-soft)}
 @keyframes ring{0%,100%{box-shadow:0 0 0 0 var(--accent-soft)}50%{box-shadow:0 0 0 8px var(--accent-soft)}}
 .story-out{font:1.04rem/1.55 var(--serif);margin:12px 4px 2px;max-width:115ch}
@@ -142,20 +136,76 @@ svg.bars text{font-family:var(--body)}
 .ratio{font:1rem/1.45 var(--serif);margin:2px 0 6px}
 svg.plot{display:block;width:100%;height:auto}
 svg.plot .gridl{stroke:var(--grid);stroke-width:1;fill:none}
-svg.plot .tk{fill:var(--muted);font:11px var(--mono)}
+svg.plot .tk{fill:var(--muted);font:12px KaTeX_Main,"Times New Roman",serif}
+svg.plot .mi{font-family:KaTeX_Math,"Times New Roman",serif;font-style:italic}
 svg.plot .lbl{fill:var(--muted);font:11px var(--body)}
 .fga{fill:var(--ga)}.fgb{fill:var(--gb)}
 .pulse-card{animation:pc 1.4s ease-in-out 2}
 @keyframes pc{50%{box-shadow:0 0 0 4px var(--accent-soft)}}
 .tip{position:absolute;z-index:40;max-width:min(320px,calc(100vw - 32px));background:var(--surface);color:var(--ink);border:1px solid var(--rule);border-radius:4px;padding:8px 11px;font-size:.84rem;line-height:1.45;box-shadow:0 8px 28px rgba(0,0,0,.16);pointer-events:none}
-.math{font-size:.95rem;margin-top:18px}
-.math h4{font:600 1rem var(--serif);color:var(--accent);margin:16px 0 6px}
-.math h4:first-child{margin-top:0}
-.math p,.math li{max-width:110ch}
-.math ul{padding-left:1.2em;margin:4px 0}
-.math-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:4px 32px}
-.refs li{margin:3px 0}
+/* short lines that build one after another */
+.lede{margin:6px 0 0;font-size:1rem;color:var(--muted);max-width:80ch}
+.takeaways{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.takeaways li{position:relative;padding-left:18px;font:1rem/1.45 var(--body)}
+.takeaways li::before{content:"";position:absolute;left:3px;top:.62em;width:6px;height:6px;border-radius:50%;background:var(--accent)}
+.takeaways b{color:var(--accent);font-weight:600;font-variant-numeric:tabular-nums}
+.ask .takeaways li{font-size:1.02rem}
+#moveList{margin:12px 0 0}
+.takeaways.build li{animation:rise .45s ease-out both;animation-delay:calc(var(--t,0)*1s)}
+.build.movecard,.build.ruleline{animation:rise .5s ease-out both}
+@keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+/* folds inside a card: closed by default */
+details.fold{margin-top:12px;border-top:1px solid var(--rule);padding-top:8px}
+details.fold>summary{cursor:pointer;list-style:none;font-size:.9rem;color:var(--accent)}
+details.fold>summary::-webkit-details-marker{display:none}
+details.fold>summary::before{content:"▸";display:inline-block;width:1em;color:var(--muted)}
+details.fold[open]>summary::before{content:"▾"}
+details.fold+details.fold{margin-top:8px}
+details.fold .note{margin:8px 0 0;font-size:.9rem;color:var(--ink);max-width:110ch}
+details.fold .katex-display{margin:.5em 0;overflow-x:auto;overflow-y:hidden;padding:2px 0}
+html.demo-site .card>details.fold>summary{padding-bottom:0;margin-bottom:0;border-bottom:0}
+.method details.fold{margin:10px 2px 0}
+.katex{font-size:1.05em;white-space:nowrap}
+/* references at the bottom; a citation jumps to its entry and marks it */
+.refs-card{margin-top:18px}
+ol.refs{list-style:none;padding-left:0;margin:0;font-size:.92rem}
+ol.refs li{scroll-margin-top:4.5rem;padding:2px 4px;margin:3px -4px;border-radius:4px}
+ol.refs li.hit{background:#F7EFF0}
 pre.tests{font:12px/1.45 var(--mono);background:var(--bg);border:1px solid var(--rule);border-radius:6px;padding:10px;white-space:pre-wrap;max-height:320px;overflow:auto;margin:8px 0 0}
+.ask{padding:18px clamp(16px,2vw,24px);margin-bottom:18px}
+.ask .q{font:600 clamp(1.25rem,2vw,1.6rem)/1.3 var(--serif);margin:0 0 6px;color:var(--ink)}
+.ask .q b{color:var(--accent)}
+.ask .ctx{margin:0;font-size:1rem;color:var(--ink);max-width:70ch}
+.ask-grid{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:8px 24px;align-items:center;margin-bottom:14px}
+@media (max-width:760px){.ask-grid{grid-template-columns:minmax(0,1fr)}}
+svg.askbars{max-width:420px}
+.go-row{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px}
+.go{border:0;background:var(--accent);color:var(--on-accent);font:600 1.08rem var(--body);padding:12px 22px;border-radius:.35rem;cursor:pointer;box-shadow:0 0 0 0 var(--accent-soft);animation:ring 1.8s ease-in-out 2}
+.go.done{animation:none;background:var(--surface);color:var(--accent);border:1px solid var(--accent);padding:8px 16px;font-size:.95rem}
+.go-hint{font:1rem/1.45 var(--serif);color:var(--ink);max-width:90ch}
+.mres{margin:6px 2px 0;font-size:.95rem;min-height:1.5em}
+.mres b{font-family:var(--mono)}
+.keyrow{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:6px 18px;margin:10px 2px 0}
+.keyrow .legend{margin:0}
+.movecard{margin-top:18px}
+.mbars{display:grid;gap:10px;max-width:1000px}
+.mrow{display:grid;grid-template-columns:7.5em minmax(0,1fr) 4.5em;align-items:center;gap:10px}
+.mname{font:600 1.15rem var(--serif);color:var(--rwc)}
+.mrow.fw .mname{color:var(--accent)}
+.mtrack{height:34px;background:var(--bg);border:1px solid var(--rule);border-radius:4px;overflow:hidden}
+.mfill{display:block;height:100%;width:0;background:var(--rwc);opacity:.8}
+.mrow.fw .mfill{background:var(--accent);opacity:.95}
+.mval{font:600 1.2rem var(--mono);font-variant-numeric:tabular-nums}
+@media (max-width:640px){.mrow{grid-template-columns:6.2em minmax(0,1fr) 3.8em}.mname{font-size:1rem}.mval{font-size:1rem}.mtrack{height:26px}}
+.ratio.big{font:600 1.15rem/1.4 var(--serif)}
+.ruleline{margin-top:18px}
+details.more{margin-top:18px;padding:0}
+details.more>summary{cursor:pointer;list-style:none;padding:14px clamp(14px,1.6vw,20px);font:600 1.05rem var(--serif);color:var(--accent);display:flex;gap:10px;align-items:center}
+details.more>summary::-webkit-details-marker{display:none}
+details.more>summary::before{content:"▸";transition:transform .2s}
+details.more[open]>summary::before{transform:rotate(90deg)}
+details.more>summary small{font:400 .88rem var(--body);color:var(--muted)}
+.more-body{padding:0 clamp(14px,1.6vw,20px) 18px}
 footer{color:var(--muted);font-size:.82rem;margin-top:18px;max-width:110ch}
 @media (max-width:640px){
   .steps{gap:6px}
@@ -167,7 +217,7 @@ footer{color:var(--muted);font-size:.82rem;margin-top:18px;max-width:110ch}
   .step-btn .res{grid-column:auto;font-size:.8rem}
   .seg button{padding:4px 8px;font-size:.8rem}
 }
-@media (prefers-reduced-motion:reduce){.step-btn.next .num,.pulse-card{animation:none}}
+@media (prefers-reduced-motion:reduce){.step-btn.next .num,.pulse-card,.takeaways.build li,.build.movecard,.build.ruleline{animation:none}}
 </style>
 </head>
 <body>
@@ -193,125 +243,115 @@ footer{color:var(--muted);font-size:.82rem;margin-top:18px;max-width:110ch}
   <header class="top">
     <div class="titles">
       <h1>How little must data change to be fair?</h1>
-      <p class="cite">Created by Zikai Xiong · Based on Xiong, Dalmasso, Mishler, Potluru, Balch &amp; Veloso, <a href="https://arxiv.org/abs/2311.00109" target="_blank" rel="noopener">arXiv:2311.00109</a></p>
-      <p class="lede">A bank wants to train a credit model on its past loan decisions (here 1,000 synthetic applications). Those decisions approved group A <span id="ledeA">62%</span> of the time and group B <span id="ledeB">38%</span>, partly because incomes differ a little between the groups and partly because past decisions slightly favored group A. The bank’s rule asks for the two rates to be closer. FairWASP brings them closer without editing anyone’s record: it drops some applications and counts similar ones twice, moving the data as little as possible. On the right, the usual fix does the same job.</p>
+      <p class="cite">Created by <a href="../../index.html">Zikai Xiong</a> · Based on Xiong, Dalmasso, Mishler, Potluru, Balch and Veloso [<a class="cite" href="#ref-1">1</a>]</p>
+      <p class="lede">Pre-processing is one way to make models fairer: it changes the training data, before any model is trained [<a class="cite" href="#ref-1">1</a>].<br>FairWASP edits no data point; it only changes how many times each application counts, and so indirectly affects any model trained on the data.</p>
     </div>
-    <nav class="toplinks">
-      <button class="btn small" id="mathBtn" title="M" aria-expanded="false" aria-controls="math">The math</button>
-      <button class="btn small icon" id="themeBtn" title="Dark theme (D)" aria-label="Toggle dark theme">◐</button>
-    </nav>
   </header>
 
-  <section class="story" aria-label="Start here">
-    <ol class="steps">
-      <li><button class="step-btn next" id="step1"><span class="num">1</span><span class="txt"><b>Make it fairer</b><small id="step1small">Bring each group’s approval rate into 45–55%.</small></span><span class="res" id="res1"></span></button></li>
-      <li><button class="step-btn" id="step2"><span class="num">2</span><span class="txt"><b>See what changed</b><small>Where the data moved, and how far.</small></span><span class="res" id="res2"></span></button></li>
-      <li><button class="step-btn" id="step3"><span class="num">3</span><span class="txt"><b>Try another rule</b><small>Make the rule stricter or looser.</small></span><span class="res" id="res3"></span></button></li>
-    </ol>
-    <p class="story-out" id="storyOut" hidden></p>
+  <section class="card ask" aria-label="The question">
+    <p class="q">Two ways to make a bank’s loan data fairer. <b>Which one changes the data less?</b></p>
+    <div class="ask-grid">
+      <ul class="takeaways ctx" id="ctx"></ul>
+      <svg id="bars" class="bars askbars" viewBox="0 0 420 132" role="img" aria-label="Approval rate of each group before, and the range the rule allows"></svg>
+    </div>
+    <div class="go-row"><button class="go" id="goBtn">▶ Make the data fairer</button></div>
+    <details class="fold">
+      <summary>The data and the rule</summary>
+      <p class="note">500 applications per group, with income and credit score; income is a little higher in group A (mean \(+0.3\) standard deviations, \(-0.3\) in group B), credit score is not. Past decisions approved the half with the highest income \(+\) credit score \(+\) noise, with \(0.3\) subtracted in group B.</p>
+      <p class="note">Rule [<a class="cite" href="#ref-1">1</a>]: \(J\big(p_\theta(y\mid d),\,p_Y(y)\big)\le\varepsilon\) for every group \(d\) and decision \(y\), with \(J(p,q)=\max\{p/q,\,q/p\}-1\). Here \(p_Y(\text{approved})=50\%\), so \(\varepsilon=0.11\) allows approval rates from \(45.0\%\) to \(55.0\%\).</p>
+    </details>
   </section>
 
-  <section class="card" aria-label="The applications in 3D">
-    <div class="rulebar" id="ruleBar">
-      <div class="rb-head"><b>The fairness rule</b><span class="note" style="margin:0" id="epsSmall">ε = 0.00</span></div>
-      <div class="tryrow">
-        <label for="eps" class="note" style="margin:0">strict</label>
-        <input id="eps" type="range" min="0" max="35" step="1" value="11" aria-label="How much the approval rates may differ (epsilon)">
-        <span class="note" style="margin:0">loose</span>
-      </div>
-      <p class="bandtxt" id="bandTxt"></p>
-    </div>
-    <div class="viewbar">
-      <div class="grp">
-        <div class="seg" role="group" aria-label="Before or after">
-          <button id="vBefore" aria-pressed="true">Before</button>
-          <button id="vAfter" aria-pressed="false">After</button>
-        </div>
-      </div>
-      <label class="chk"><input type="checkbox" id="marks" checked> show what changed</label>
-      <span class="spacer"></span>
-      <div class="grp"><span class="lab">Show</span>
-        <div class="seg" role="group" aria-label="Show the distribution or individual applicants">
-          <button id="mBins" aria-pressed="true">Distribution</button>
-          <button id="mPins" aria-pressed="false">Individual applicants</button>
-        </div>
-      </div>
-    </div>
-    <div class="methods">
-      <div class="method fw">
-        <div class="mhead"><h2>FairWASP<small>this paper</small></h2><span class="mdist" id="md-fw"></span><span class="what" id="what-fw">drops some applications, copies similar ones</span></div>
+  <div class="methods">
+      <section class="method fw">
+        <div class="mhead"><h2>FairWASP<small>[<a class="cite" href="#ref-1">1</a>]</small></h2><span class="what">drops some applications and copies similar ones</span></div>
         <div class="mbody">
-          <div class="gl"><b><i class="fga" style="background:var(--ga)"></i>Group A</b><span class="sub" id="sub-fw-0"></span></div>
-          <div class="cv-box"><canvas class="land3d" id="cv-fw-0" role="img" aria-label="FairWASP, group A: applicants by income and credit score; strong color approved, faded denied"></canvas></div>
+          <div class="gl"><b><i style="background:var(--ga)"></i>Group A</b><span class="sub" id="sub-fw-0"></span></div>
+          <div class="cv-box"><canvas class="land3d" id="cv-fw-0" role="img" aria-label="FairWASP, group A: applicants by income and credit score; strong color approved, light denied; after the button, grey squares did not change"></canvas></div>
           <div class="gl"><b><i style="background:var(--gb)"></i>Group B</b><span class="sub" id="sub-fw-1"></span></div>
-          <div class="cv-box"><canvas class="land3d" id="cv-fw-1" role="img" aria-label="FairWASP, group B: applicants by income and credit score; strong color approved, faded denied"></canvas></div>
+          <div class="cv-box"><canvas class="land3d" id="cv-fw-1" role="img" aria-label="FairWASP, group B: applicants by income and credit score; strong color approved, light denied; after the button, grey squares did not change"></canvas></div>
+          <p class="mres" id="res-fw"></p>
+          <details class="fold">
+            <summary>Formulation</summary>
+            \[\begin{aligned}&\min_{\theta}\ W(p_\theta,\,p_e)\\ &\text{s.t. } J\big(p_\theta(y\mid d),\,p_Y(y)\big)\le\varepsilon\quad\forall d,y\end{aligned}\]
+            <p class="note">\(\theta_i\in\{0,1,2,\dots\}\), \(\sum_i\theta_i=n\): how many times application \(i\) counts; \(p_\theta\): the data with these weights, \(p_e\): the original data; \(W\): Wasserstein distance. Problem (4) of [<a class="cite" href="#ref-1">1</a>]; under a mild assumption, whole-number weights are optimal even among real-valued ones [<a class="cite" href="#ref-1">1</a>, Theorem 3]. Solved through the dual of its linear relaxation, which has only \(8\) unknowns.</p>
+          </details>
         </div>
-      </div>
-      <div class="method rw">
-        <div class="mhead"><h2>Reweighing<small>the usual fix</small></h2><span class="mdist" id="md-rw"></span><span class="what" id="what-rw">gives every application a new weight</span></div>
+      </section>
+      <section class="method rw">
+        <div class="mhead"><h2>Reweighing<small>[<a class="cite" href="#ref-2">2</a>]</small></h2><span class="what">gives every application a new weight</span></div>
         <div class="mbody">
-          <div class="gl"><b><i class="fga" style="background:var(--ga)"></i>Group A</b><span class="sub" id="sub-rw-0"></span></div>
-          <div class="cv-box"><canvas class="land3d" id="cv-rw-0" role="img" aria-label="Reweighing, group A: applicants by income and credit score; strong color approved, faded denied"></canvas></div>
+          <div class="gl"><b><i style="background:var(--ga)"></i>Group A</b><span class="sub" id="sub-rw-0"></span></div>
+          <div class="cv-box"><canvas class="land3d" id="cv-rw-0" role="img" aria-label="Reweighing, group A: applicants by income and credit score; strong color approved, light denied; after the button, grey squares did not change"></canvas></div>
           <div class="gl"><b><i style="background:var(--gb)"></i>Group B</b><span class="sub" id="sub-rw-1"></span></div>
-          <div class="cv-box"><canvas class="land3d" id="cv-rw-1" role="img" aria-label="Reweighing, group B: applicants by income and credit score; strong color approved, faded denied"></canvas><span class="hint">drag to turn</span></div>
+          <div class="cv-box"><canvas class="land3d" id="cv-rw-1" role="img" aria-label="Reweighing, group B: applicants by income and credit score; strong color approved, light denied; after the button, grey squares did not change"></canvas><span class="hint">drag to turn</span></div>
+          <p class="mres" id="res-rw"></p>
+          <details class="fold">
+            <summary>Formulation</summary>
+            \[\theta_i=w_{d_iy_i},\qquad w_{dy}=\frac{P(d)\,P(y)}{P(d,y)}\]
+            <p class="note">\(d_i\), \(y_i\): group and decision of application \(i\). These weights make the approval rates exactly equal [<a class="cite" href="#ref-2">2</a>]; for a looser rule the page uses \(1+t\,(w_{dy}-1)\) with the smallest \(t\) that meets it.</p>
+          </details>
+        </div>
+      </section>
+  </div>
+  <div class="keyrow"><ul class="legend" id="legend"></ul></div>
+
+  <section class="card movecard" id="moveCard" hidden>
+    <h3>How much data had to move</h3>
+    <div class="mbars" id="moveBars" role="img" aria-label="Wasserstein distance of the two methods">
+      <div class="mrow fw"><span class="mname">FairWASP</span><span class="mtrack"><span class="mfill" id="mfFw"></span></span><span class="mval" id="mvFw"></span></div>
+      <div class="mrow rw"><span class="mname">Reweighing</span><span class="mtrack"><span class="mfill" id="mfRw"></span></span><span class="mval" id="mvRw"></span></div>
+    </div>
+    <ul class="takeaways" id="moveList"></ul>
+    <details class="fold">
+      <summary>Wasserstein distance</summary>
+      <p class="note">\(W\): the least total weight \(\times\) distance needed to turn one dataset into the other. Two applications are at distance \(\sqrt{\Delta\text{income}^2+\Delta\text{credit}^2+\tfrac1{16}[\text{groups differ}]+[\text{decisions differ}]}\), with income and credit score in standard deviations. The group term's weight is a choice; with weight \(1\) instead of \(\tfrac1{16}\), the ratio at \(\varepsilon=0.11\) is <span id="mxFull">1.05</span>.</p>
+    </details>
+  </section>
+
+  <section class="card ruleline" id="ruleCard" hidden>
+    <h3>Try a stricter or looser rule <span class="nt" id="epsSmall"></span></h3>
+    <div class="tryrow">
+      <label for="eps" class="note" style="margin:0">stricter</label>
+      <input id="eps" type="range" min="0" max="35" step="1" value="11" aria-label="How much the approval rates may differ (epsilon)">
+      <span class="note" style="margin:0">looser</span>
+    </div>
+    <p class="bandtxt" id="bandTxt"></p>
+  </section>
+
+  <details class="card more" id="more">
+    <summary>More details <small>before / after, each applicant, every rule</small></summary>
+    <div class="more-body">
+      <p class="note" style="margin:0 0 8px">These change the pictures above.</p>
+      <div class="viewbar">
+        <div class="grp"><div class="seg" role="group" aria-label="Before or after">
+          <button id="vBefore" aria-pressed="true">Before</button><button id="vAfter" aria-pressed="false">After</button>
+        </div></div>
+        <label class="chk"><input type="checkbox" id="marks" checked> show what changed</label>
+        <span class="spacer"></span>
+        <div class="grp"><span class="lab">Show</span>
+          <div class="seg" role="group" aria-label="Show the distribution or individual applicants">
+            <button id="mBins" aria-pressed="true">Distribution</button><button id="mPins" aria-pressed="false">Individual applicants</button>
+          </div>
         </div>
       </div>
+      <section class="card" style="max-width:720px"><h3>How far the data moved, for every rule</h3><svg id="epsPlot" class="plot" viewBox="0 0 420 170" role="img" aria-label="Wasserstein distance of both methods for every rule"></svg></section>
     </div>
-    <ul class="legend" id="legend"></ul>
-  </section>
+  </details>
 
-  <div class="row2">
-    <section class="card" id="ruleCard">
-      <h3>Approval rates</h3>
-      <svg id="bars" class="bars" viewBox="0 0 420 132" role="img" aria-label="Approval rate of each group before, and the range the rule allows"></svg>
-    </section>
-    <section class="card" id="distCard">
-      <h3>How far the data moved <span class="nt">(Wasserstein distance)</span></h3>
-      <div class="dists">
-        <div><div class="k">FairWASP</div><div class="v fwv" id="dFw">–</div></div>
-        <div><div class="k">Reweighing</div><div class="v" id="dRw">–</div></div>
-      </div>
-      <p class="ratio" id="ratioTxt"></p>
-      <svg id="epsPlot" class="plot" viewBox="0 0 420 170" role="img" aria-label="Wasserstein distance of both methods for every fairness rule"></svg>
-    </section>
-  </div>
-
-  <section class="card math" id="math" hidden>
-    <div class="math-grid">
-      <div>
-        <h4>The problem</h4>
-        <p>Each application $i$ has a group $d_i$, features $x_i$ (income, credit score) and a decision $y_i$. Giving the applications weights $\theta_i$ ($\sum_i\theta_i=n$) changes the data; the original data has all $\theta_i=1$. FairWASP [F] picks whole-number weights, so it only drops ($\theta_i=0$) and copies ($\theta_i\ge2$) applications:</p>
-        <p>$$\min_{\theta}\ W(\text{new data},\ \text{original data})\quad\text{s.t.}\quad \text{each group's approval rate is within the allowed range.}$$</p>
-        <p>The range is $J\big(p_\theta(y\mid d),p_Y(y)\big)\le\varepsilon$ with $J(p,q)=\max\{p/q,q/p\}-1$: for $\varepsilon=0$ both groups get the overall approval rate (50% here).</p>
-        <h4>How far the data moved</h4>
-        <p>$W$ is the Wasserstein (earth mover’s) distance: the least total amount of weight times the distance it travels to turn one dataset into the other. Two applications are at distance $\sqrt{\Delta\text{income}^2+\Delta\text{credit}^2+\tfrac1{16}[\text{groups differ}]+[\text{decisions differ}]}$, with income and credit score in standard deviations. A different decision counts as one standard deviation; a different group counts a quarter as much, since the bank’s model does not use the group. This weight is a choice: the larger it is, the more any change of group costs and the closer the two methods get (with a full weight the gap at the default rule is <span id="mxFull">1.05</span>×). FairWASP’s moves are short: a dropped application’s weight goes to a nearly identical application.</p>
-        <h4>Reweighing at the same rule</h4>
-        <p>Reweighing [KC] gives every application in group $d$ with decision $y$ the weight $w=P(d)P(y)/P(d,y)$, which makes the approval rates exactly equal. For a looser rule the page applies it only as far as the rule needs: weights $1+t\,(w-1)$ with the smallest $t$ that meets it. Its distance is then exactly $t$ times the distance at $t=1$, since the transport problem scales with $t$.</p>
-      </div>
-      <div>
-        <h4>Whole numbers</h4>
-        <p>At $\varepsilon=0$ FairWASP’s distance (<span id="mxW0">–</span>) equals the lower bound from the linear program, so no reweighting with equal approval rates, even with fractional weights, moves the data less. For $\varepsilon>0$ two applications tie at the optimum and are rounded to whole numbers, which can cost a little more than the best fractional weights.</p>
-        <h4>How this page computes</h4>
-        <ul>
-          <li>FairWASP’s weights come from the optimal prices of the linear program (its dual has only 8 unknowns), as in [F]; the paper solves the dual with a cutting-plane method, and in its tests Gurobi and MOSEK could not solve the linear program within an hour once there were more than 10,000 applications.</li>
-          <li>Reweighing’s distance at $t=1$ is a transportation problem with 616 × 384 unknowns, solved offline with HiGHS. Everything else is computed in your browser.</li>
-          <li>The data: 500 applications per group. Income differs a little between the groups (mean +0.3 standard deviations for A, −0.3 for B), credit score does not, as in the paper’s synthetic data. Past decisions approved the half of the applications with the highest income + credit score + noise, with 0.3 subtracted for group B: the same profile was slightly less likely to be approved in group B. The default rule is ε = 0.11, which keeps each group between 45% and 55%.</li>
-        </ul>
-        <h4>Sources</h4>
-        <ul class="refs">
-          <li>[F] Z. Xiong, N. Dalmasso, A. Mishler, V. K. Potluru, T. Balch, M. Veloso. FairWASP: Fast and optimal fair Wasserstein pre-processing. AAAI 2024. <a href="https://arxiv.org/abs/2311.00109">arXiv:2311.00109</a></li>
-          <li>[KC] F. Kamiran, T. Calders. Data preprocessing techniques for classification without discrimination. Knowledge and Information Systems, 2012.</li>
-        </ul>
-        <h4>Self-tests</h4>
-        <button class="btn" id="testBtn">Run self-tests</button>
-        <pre class="tests" id="testOut" hidden></pre>
-      </div>
+  <section class="card refs-card" id="refs" aria-label="References">
+    <h3>References</h3>
+    <ol class="refs">
+      <li id="ref-1">[1] Z. Xiong, N. Dalmasso, A. Mishler, V. K. Potluru, T. Balch, M. Veloso. FairWASP: Fast and optimal fair Wasserstein pre-processing. <em>Proceedings of the AAAI Conference on Artificial Intelligence</em>, 38(14):16120–16128, 2024. <a href="https://doi.org/10.1609/aaai.v38i14.29545" target="_blank" rel="noopener">doi:10.1609/aaai.v38i14.29545</a></li>
+      <li id="ref-2">[2] F. Kamiran, T. Calders. Data preprocessing techniques for classification without discrimination. <em>Knowledge and Information Systems</em>, 33(1):1–33, 2012. <a href="https://doi.org/10.1007/s10115-011-0463-8" target="_blank" rel="noopener">doi:10.1007/s10115-011-0463-8</a></li>
+    </ol>
+    <div id="debug" hidden>
+      <button class="btn" id="testBtn">Run self-tests</button>
+      <pre class="tests" id="testOut" hidden></pre>
     </div>
   </section>
 
-  <footer>Synthetic data. All numbers are computed in your browser, except reweighing’s distance at the strictest rule (a linear program solved offline with HiGHS; for looser rules it scales with t). Keys: 1 2 3 the steps · M the math · D dark theme.</footer>
 </div>
-
 <div class="tip" id="tip" role="tooltip" hidden></div>
 
 <script id="mathcore">
@@ -1128,10 +1168,12 @@ if (typeof module !== 'undefined') module.exports = FWCore;
 </script>
 <script id="ui">
 var FW_DEFAULT = {"data": {"nA": 500, "nB": 500, "seed": 4, "shift": 0.6, "bias": 0.3, "noise": 0.6, "groupWeight": 0.25}, "defaultEps": 0.11, "reweighingW": 0.0522110171, "ratioFullWeight": 1.05};
-// FairWASP demo: page logic.  FairWASP and reweighing side by side, each group as a 3D
-// histogram.  Computed live with FWCore (dev/core.js); FW_DEFAULT (dev/default.json, injected
-// by build.py) fixes the data and holds reweighing's distance at the strictest rule, which
-// HiGHS computes offline (dev/verify_default.py).
+// FairWASP demo: page logic.  One question, one button, one picture per method: each picture
+// is a 3D histogram of all applicants; after the button, the squares whose data changed light
+// up, and two bars compare how far each method moved the data (Wasserstein distance).
+// "More details" keeps the per-group views, individual applicants and the curve over all rules.
+// Computed live with FWCore (dev/core.js); FW_DEFAULT (dev/default.json, injected by build.py)
+// fixes the data and holds reweighing's distance at the strictest rule (HiGHS, offline).
 (function () {
   'use strict';
   const C = FWCore, DEF = FW_DEFAULT;
@@ -1146,9 +1188,27 @@ var FW_DEFAULT = {"data": {"nA": 500, "nB": 500, "seed": 4, "shift": 0.6, "bias"
   const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
   const ease = t => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
   const pct = v => (100 * v).toFixed(1) + '%';
+  const pct0 = v => Math.round(100 * v) + '%';
   const fmt3 = v => v.toFixed(3);
   const int = v => Math.round(v).toLocaleString('en-US');
   const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // formulas: TeX between \( \) or \[ \], typeset by KaTeX once it has loaded
+  const TEXOPT = { delimiters: [{ left: '\\[', right: '\\]', display: true }, { left: '\\(', right: '\\)', display: false }], throwOnError: false, ignoredClasses: ['katex'] };
+  const texWaiting = new Set();
+  const tex = node => { if (window.renderMathInElement) window.renderMathInElement(node, TEXOPT); else texWaiting.add(node); return node; };
+  const texInto = (node, src, plain) => { if (window.katex) window.katex.render(src, node, { throwOnError: false }); else node.textContent = plain; };
+  // a block whose items appear one after another (delays in --t)
+  function build(node, ms) {
+    if (reduceMotion) return;
+    node.classList.remove('build'); void node.getBoundingClientRect(); node.classList.add('build');
+    clearTimeout(node._bt); node._bt = setTimeout(() => node.classList.remove('build'), ms);
+  }
+  // write the lines of a list; if only the numbers changed, update them in place (no rebuild)
+  function setLines(ul, lines) {
+    const li = ul.children;
+    if (li.length !== lines.length) ul.innerHTML = lines.map((h, i) => '<li style="--t:' + (0.15 + 0.4 * i).toFixed(2) + '">' + h + '</li>').join('');
+    else lines.forEach((h, i) => { if (li[i].innerHTML !== h) li[i].innerHTML = h; });
+  }
 
   // ---------- data ----------
   const EPS_MAX = 35, EPS0 = Math.round(DEF.defaultEps * 100);   // slider 0..0.35; the default rule
@@ -1160,13 +1220,14 @@ var FW_DEFAULT = {"data": {"nA": 500, "nB": 500, "seed": 4, "shift": 0.6, "bias"
   const R0 = C.rates(M0);
   const ONES = new Float64Array(N).fill(1);
 
-  // FairWASP for every rule (eps = k/100): k = 0 here, the rest in a worker
+  // FairWASP for every rule (eps = k/100): the default here, the rest in a worker
   const sols = new Map();
   const sol = k => {
     if (!sols.has(k)) sols.set(k, C.fairwaspLP(DATA, NC, k / 100));
     return sols.get(k);
   };
   const S0 = sol(0);
+  sol(EPS0);
 
   // Reweighing (Kamiran & Calders): w_g = P(d)P(y)/P(d,y) per cell makes the rates exactly
   // equal; for a looser rule it is applied only as far as needed: weights 1 + t (w_g - 1) with
@@ -1186,7 +1247,7 @@ var FW_DEFAULT = {"data": {"nA": 500, "nB": 500, "seed": 4, "shift": 0.6, "bias"
   const rwWeights = k => { const w = new Float64Array(N); for (let i = 0; i < N; i++) w[i] = 1 + T[k] * (KC[DATA.cell[i]] - 1); return w; };
 
   // ---------- state ----------
-  const st = { after: false, eps: EPS0, mode: 'bins', marks: true, done: [false, false, false], anim: 0,
+  const st = { after: false, eps: EPS0, mode: 'bins', marks: true, anim: 0, glow: 0, ran: false,
     cur: { fw: Float64Array.from(ONES), rw: Float64Array.from(ONES) } };
   const targets = () => st.after ? { fw: Float64Array.from(sol(st.eps).theta), rw: rwWeights(st.eps) } : { fw: ONES, rw: ONES };
 
@@ -1200,15 +1261,17 @@ var FW_DEFAULT = {"data": {"nA": 500, "nB": 500, "seed": 4, "shift": 0.6, "bias"
   }
   const tot0 = [new Float64Array(B * B), new Float64Array(B * B)], app0 = [new Float64Array(B * B), new Float64Array(B * B)];
   for (let i = 0; i < N; i++) { tot0[DATA.D[i]][binOf[i]]++; if (DATA.Y[i]) app0[DATA.D[i]][binOf[i]]++; }
+  // one height scale per kind of picture, the same before and after and for both methods
   let HMAX = 1;
-  for (const w of [ONES, S0.theta, rwWeights(0)]) for (const g of [0, 1]) {
-    const t = new Float64Array(B * B);
-    for (let i = 0; i < N; i++) if (DATA.D[i] === g) t[binOf[i]] += w[i];
-    for (const v of t) HMAX = Math.max(HMAX, v);
+  for (const w of [ONES, S0.theta, rwWeights(0)]) {
+    const t = [new Float64Array(B * B), new Float64Array(B * B)];
+    for (let i = 0; i < N; i++) t[DATA.D[i]][binOf[i]] += w[i];
+    for (const g of [0, 1]) for (const v of t[g]) HMAX = Math.max(HMAX, v);
   }
   HMAX *= 1.05;
   const PINMAX = Math.max(4, S0.maxCopies + 1);
   const cam = { phi: -0.62, psi: 0.55 };
+  // the four pictures: two methods x two groups
   const VIEWS = [['fw', 0], ['fw', 1], ['rw', 0], ['rw', 1]];
   const canv = VIEWS.map(([m, g]) => $(`cv-${m}-${g}`));
   const hits = VIEWS.map(() => []);
@@ -1224,10 +1287,12 @@ var FW_DEFAULT = {"data": {"nA": 500, "nB": 500, "seed": 4, "shift": 0.6, "bias"
     };
     const surf = rgb('--surface'), mix = (a, b, t) => a.map((v, k) => Math.round(v * (1 - t) + b[k] * t));
     const ga = rgb('--ga'), gb = rgb('--gb');
-    COL = { app: [ga, gb], den: [mix(ga, surf, 0.62), mix(gb, surf, 0.62)], floor: rgb('--floor'), muted: rgb('--muted'), ink: rgb('--ink'), surface: surf };
+    COL = { app: [ga, gb], den: [mix(ga, surf, 0.62), mix(gb, surf, 0.62)], floor: rgb('--floor'), muted: rgb('--muted'), ink: rgb('--ink'),
+      surface: surf, base: rgb('--base'), chg: rgb('--chg') };
   }
   const css = c => `rgb(${c[0]},${c[1]},${c[2]})`;
   const shade = (c, f) => `rgb(${Math.round(c[0] * f)},${Math.round(c[1] * f)},${Math.round(c[2] * f)})`;
+  const mixc = (a, b, t) => a.map((v, k) => Math.round(v * (1 - t) + b[k] * t));
   function fit(cv) {
     const dpr = window.devicePixelRatio || 1, w = cv.clientWidth || 600, h = Math.round(w * 0.56);
     if (cv.width !== Math.round(w * dpr) || cv.height !== Math.round(h * dpr)) { cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr); cv.style.height = h + 'px'; }
@@ -1297,10 +1362,25 @@ var FW_DEFAULT = {"data": {"nA": 500, "nB": 500, "seed": 4, "shift": 0.6, "bias"
     ctx.strokeStyle = css(COL.muted); ctx.fillStyle = css(COL.muted); ctx.lineWidth = 1.3;
     arrow(P(-1.1, yN + sy * off, 0), P(1.1, yN + sy * off, 0));
     arrow(P(xN + sx * off, -1.1, 0), P(xN + sx * off, 1.1, 0));
-    ctx.font = '500 12px "IBM Plex Sans", system-ui, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.font = '500 12px system-ui, -apple-system, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
     let p = P(0, yN + sy * (off + 0.42), 0); ctx.fillText('income', p[0], p[1]);
     p = P(xN + sx * (off + 0.5), 0, 0); ctx.fillText('credit score', p[0], p[1]);
   }
+  function depthOrder(K) {
+    const order = [];
+    for (let b = 0; b < B * B; b++) { const bx = (b / B) | 0, by = b % B; order.push([K.depth(-LIM + (bx + 0.5) * STEP, -LIM + (by + 0.5) * STEP), b]); }
+    return order.sort((a, b) => b[0] - a[0]);
+  }
+  // squares (per group) in which some application's weight differs from 1 (target weights)
+  const noneChanged = () => [new Uint8Array(B * B), new Uint8Array(B * B)];
+  let changedSq = { fw: noneChanged(), rw: noneChanged() };
+  function changedSquares(w) {
+    const ch = noneChanged();
+    for (let i = 0; i < N; i++) if (Math.abs(w[i] - 1) > 1e-9) ch[DATA.D[i]][binOf[i]] = 1;
+    return ch;
+  }
+
+  // one group, approved / denied; after the button, squares that did not change fade
   function drawView(v) {
     const [m, g] = VIEWS[v], wts = st.cur[m];
     const cv = canv[v], { w, h, dpr } = fit(cv), ctx = cv.getContext('2d'), K = camera(w, h);
@@ -1311,15 +1391,13 @@ var FW_DEFAULT = {"data": {"nA": 500, "nB": 500, "seed": 4, "shift": 0.6, "bias"
     if (st.mode === 'bins') {
       const app = new Float64Array(B * B), den = new Float64Array(B * B);
       for (let i = 0; i < N; i++) if (DATA.D[i] === g) (DATA.Y[i] ? app : den)[binOf[i]] += wts[i];
-      const zs = ZMAX / HMAX, order = [];
-      for (let b = 0; b < B * B; b++) { const bx = (b / B) | 0, by = b % B; order.push([K.depth(-LIM + (bx + 0.5) * STEP, -LIM + (by + 0.5) * STEP), b]); }
-      order.sort((a, b) => b[0] - a[0]);
-      const gp = STEP * 0.1;
-      for (const [, b] of order) {
+      const zs = ZMAX / HMAX, gp = STEP * 0.1, fade = 0.72 * st.glow, ch = changedSq[m][g];
+      const cA = mixc(COL.app[g], COL.base, fade), cD = mixc(COL.den[g], COL.base, fade);
+      for (const [, b] of depthOrder(K)) {
         const bx = (b / B) | 0, by = b % B, x0 = -LIM + bx * STEP + gp, x1 = x0 + STEP - 2 * gp, y0 = -LIM + by * STEP + gp, y1 = y0 + STEP - 2 * gp;
         const a = app[b] * zs, top = (app[b] + den[b]) * zs, old = tot0[g][b] * zs;
-        const f1 = box(ctx, K, x0, x1, y0, y1, 0, a, COL.app[g]);
-        const f2 = box(ctx, K, x0, x1, y0, y1, a, top, COL.den[g]);
+        const f1 = box(ctx, K, x0, x1, y0, y1, 0, a, ch[b] ? COL.app[g] : cA);
+        const f2 = box(ctx, K, x0, x1, y0, y1, a, top, ch[b] ? COL.den[g] : cD);
         if (st.marks && Math.abs(top - old) > 0.05 * zs) mark(ctx, K, x0, x1, y0, y1, Math.min(top, old), old, top > old);
         const faces = [].concat(f1 || [], f2 || []);
         if (faces.length) H.push({ faces, bin: b, app: app[b], den: den[b] });
@@ -1338,7 +1416,8 @@ var FW_DEFAULT = {"data": {"nA": 500, "nB": 500, "seed": 4, "shift": 0.6, "bias"
           }
           continue;
         }
-        const f = box(ctx, K, zx[i] - half, zx[i] + half, zy[i] - half, zy[i] + half, 0, wi * zs, DATA.Y[i] ? COL.app[g] : COL.den[g]);
+        const base = DATA.Y[i] ? COL.app[g] : COL.den[g], same = Math.abs(wi - 1) < 1e-9;
+        const f = box(ctx, K, zx[i] - half, zx[i] + half, zy[i] - half, zy[i] + half, 0, wi * zs, same ? mixc(base, COL.base, 0.72 * st.glow) : base);
         if (f) H.push({ faces: f, row: i, w: wi });
       }
     }
@@ -1346,22 +1425,122 @@ var FW_DEFAULT = {"data": {"nA": 500, "nB": 500, "seed": 4, "shift": 0.6, "bias"
     for (let i = 0; i < N; i++) if (DATA.D[i] === g) { tot += wts[i]; if (DATA.Y[i]) ap += wts[i]; }
     $(`sub-${m}-${g}`).innerHTML = `${pct(ap / tot)} <small>approved</small>`;
   }
+  const moreOpen = () => $('more').open;
   function drawAll() { for (let v = 0; v < VIEWS.length; v++) drawView(v); }
-  // squares whose content changed, and those holding applications of both groups
-  function squares(wts) {
-    let changed = 0, nonempty = 0, both = 0;
-    for (const g of [0, 1]) {
-      const t = new Float64Array(B * B);
-      for (let i = 0; i < N; i++) if (DATA.D[i] === g) t[binOf[i]] += wts[i];
-      for (let b = 0; b < B * B; b++) {
-        if (tot0[g][b] > 0) nonempty++;
-        if (Math.abs(t[b] - tot0[g][b]) > 1e-9) { changed++; if (tot0[0][b] > 0 && tot0[1][b] > 0) both++; }
-      }
-    }
-    return { changed, nonempty, both };
+
+  // ---------- the question, the results ----------
+  function updateRule() {
+    const e = st.eps / 100, b = C.band(PY, e);
+    setLines($('ctx'), [
+      `A bank trains its credit model on ${int(N)} past loan decisions (synthetic)`,
+      `They approved <b>${pct0(R0[0])}</b> of group A and <b>${pct0(R0[1])}</b> of group B`,
+      e === 0 ? `Fairness rule: both groups approved exactly <b>${pct0(PY[1])}</b> of the time` : `Fairness rule: each group approved <b>${pct0(b[0])}–${pct0(b[1])}</b> of the time`]);
+    texInto($('epsSmall'), '(\\varepsilon=' + e.toFixed(2) + ')', `(ε = ${e.toFixed(2)})`);
+    $('bandTxt').innerHTML = e === 0 ? `Both groups must be approved exactly <b>${pct(PY[1])}</b> of the time.` :
+      `Allowed: <b>${pct(b[0])}–${pct(b[1])}</b>`;
+    drawBars();
+  }
+  function results(final) {
+    if (!st.after) { $('res-fw').innerHTML = ''; $('res-rw').innerHTML = ''; return; }
+    const s = sol(st.eps);
+    $('res-fw').innerHTML = s.moved ? `<b>${int(s.deleted + s.copied)}</b> of ${int(N)} weights change: ${int(s.deleted)} dropped, ${int(s.copied)} copied` : 'Nothing to change: the data already meet the rule';
+    $('res-rw').innerHTML = T[st.eps] > 0 ? `<b>all ${int(N)}</b> weights change` : 'Nothing to change: the data already meet the rule';
+  }
+  // two bars on one scale
+  let distShown = { fw: 0, rw: 0 };
+  function drawMove() {
+    const mx = rwW(0) * 1.02;
+    $('mfFw').style.width = (100 * distShown.fw / mx).toFixed(2) + '%';
+    $('mfRw').style.width = (100 * distShown.rw / mx).toFixed(2) + '%';
+    $('mvFw').textContent = st.after ? fmt3(distShown.fw) : '';
+    $('mvRw').textContent = st.after ? fmt3(distShown.rw) : '';
+    if (st.after) setLines($('moveList'), moveLines());
   }
 
-  // ---------- the rule card ----------
+  // what the two bars say
+  function moveLines() {
+    const s = sol(st.eps), r = rwW(st.eps);
+    if (s.W < 1e-12 && r < 1e-12) return ['The data already meet this rule: nothing has to move'];
+    return [r >= s.W ? `Reweighing moves the data <b>${(r / s.W).toFixed(2)}×</b> as far as FairWASP` : `FairWASP moves the data ${(s.W / r).toFixed(2)}× as far as reweighing`];
+  }
+
+  // ---------- transitions ----------
+  function transition(opts) {
+    opts = opts || {};
+    cancelAnimationFrame(st.anim);
+    const from = { fw: Float64Array.from(st.cur.fw), rw: Float64Array.from(st.cur.rw) }, to = targets();
+    if (st.after) changedSq = { fw: changedSquares(to.fw), rw: changedSquares(to.rw) };
+    const d0 = { ...distShown }, d1 = st.after ? { fw: sol(st.eps).W, rw: rwW(st.eps) } : { fw: 0, rw: 0 };
+    const g0 = st.glow, g1 = st.after ? 1 : 0;
+    const dur = reduceMotion ? 1 : (opts.dur || 600), t0 = performance.now();
+    const frame = now => {
+      const p = clamp((now - t0) / dur, 0, 1), e = ease(p);
+      for (const m of ['fw', 'rw']) for (let i = 0; i < N; i++) st.cur[m][i] = from[m][i] + (to[m][i] - from[m][i]) * e;
+      st.glow = g0 + (g1 - g0) * e;
+      distShown = { fw: d0.fw + (d1.fw - d0.fw) * e, rw: d0.rw + (d1.rw - d0.rw) * e };
+      drawAll(); drawMove();
+      if (moreOpen()) drawEpsPlot();
+      if (p < 1) st.anim = requestAnimationFrame(frame);
+      else { st.anim = 0; if (!st.after) changedSq = { fw: noneChanged(), rw: noneChanged() }; results(true); drawAll(); if (opts.done) opts.done(); }
+    };
+    st.anim = requestAnimationFrame(frame);
+  }
+  function setAfter(after, opts) {
+    st.after = after;
+    setTimeout(drawLegend, after ? (opts && opts.dur) || 600 : 0);
+    $('vBefore').setAttribute('aria-pressed', String(!after)); $('vAfter').setAttribute('aria-pressed', String(after));
+    if (!after) results(true);
+    transition(opts);
+  }
+  function go() {
+    const b = $('goBtn');
+    if (!st.ran) {
+      st.ran = true;
+      b.classList.add('done'); b.textContent = '↺ Replay';
+      setAfter(true, { dur: 1800, done: () => {
+        // the next slide: how far each method moved the data, then a stricter or looser rule
+        const card = $('moveCard'), list = $('moveList');
+        card.hidden = false; build(card, 600);
+        const d1 = { fw: sol(st.eps).W, rw: rwW(st.eps) }, t0 = performance.now(), dur = reduceMotion ? 1 : 900;
+        distShown = { fw: 0, rw: 0 };
+        list.innerHTML = ''; drawMove(); setLines(list, moveLines());
+        list.querySelectorAll('li').forEach((li, i) => li.style.setProperty('--t', (1.0 + 0.6 * i).toFixed(2)));
+        build(list, 3200);
+        const grow = now => {
+          const e = ease(clamp((now - t0) / dur, 0, 1));
+          distShown = { fw: d1.fw * e, rw: d1.rw * e }; drawMove();
+          if (e < 1) requestAnimationFrame(grow);
+        };
+        requestAnimationFrame(grow);
+        if (card.getBoundingClientRect().top > window.innerHeight * 0.55) card.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'center' });
+        setTimeout(() => { $('ruleCard').hidden = false; build($('ruleCard'), 600); }, reduceMotion ? 0 : 2600);
+      } });
+      return;
+    }
+    setAfter(false, { dur: 450, done: () => setTimeout(() => setAfter(true, { dur: 1800 }), 250) });
+  }
+  $('goBtn').addEventListener('click', go);
+  function setEps(k) {
+    st.eps = k; $('eps').value = k; updateRule();
+    if (st.after) transition({ dur: 260 });
+    else { drawMove(); if (moreOpen()) drawEpsPlot(); }
+  }
+  $('eps').addEventListener('input', e => setEps(+e.target.value));
+
+  // ---------- legends ----------
+  function drawLegend() {
+    const sw = c => `<svg width="14" height="14" viewBox="0 0 14 14"><rect x="1" y="1" width="12" height="12" rx="2" fill="${c}"/></svg>`;
+    let h = `<li>${sw(css(COL.app[0]))}group A approved</li><li>${sw(css(COL.den[0]))}group A denied</li><li>${sw(css(COL.app[1]))}group B approved</li><li>${sw(css(COL.den[1]))}group B denied</li>`;
+    if (st.after) h += `<li>${sw(css(mixc(COL.app[0], COL.base, 0.72)))}grey: did not change</li>`;
+    if (st.marks && st.after) {
+      h += `<li><svg width="22" height="14" viewBox="0 0 22 14"><rect x="5" y="4" width="12" height="10" fill="${css(COL.den[1])}"/><line x1="2" y1="8" x2="20" y2="8" stroke="${css(COL.ink)}" stroke-width="1.5"/></svg>height before (grew)</li>`;
+      h += `<li><svg width="22" height="14" viewBox="0 0 22 14"><rect x="5" y="8" width="12" height="6" fill="${css(COL.den[1])}"/><rect x="5.5" y="1.5" width="11" height="6.5" fill="none" stroke="${css(COL.ink)}" stroke-width="1.2" stroke-dasharray="2.5 2"/></svg>removed</li>`;
+    }
+    h += `<li style="margin-left:auto">${st.mode === 'pins' ? 'height = how much each applicant counts (copies included)' : 'height = number of applicants with that income and credit score'}</li>`;
+    $('legend').innerHTML = h;
+  }
+
+  // ---------- details: approval bars and the curve over all rules ----------
   const bars = $('bars');
   function drawBars() {
     bars.textContent = '';
@@ -1378,29 +1557,6 @@ var FW_DEFAULT = {"data": {"nA": 500, "nB": 500, "seed": 4, "shift": 0.6, "bias"
     el('text', { x: L, y: 126, 'font-size': 11.5, fill: 'var(--muted)' }, bars).textContent = '0%';
     el('text', { x: Rr, y: 126, 'text-anchor': 'end', 'font-size': 11.5, fill: 'var(--muted)' }, bars).textContent = '100%';
   }
-  function updateRule() {
-    const e = st.eps / 100, b = C.band(PY, e);
-    $('epsSmall').textContent = `ε = ${e.toFixed(2)}`;
-    $('bandTxt').innerHTML = e === 0 ? `Each group must be approved exactly <b>${pct(PY[1])}</b> of the time, the overall rate. Before: A ${pct(R0[0])}, B ${pct(R0[1])}.` :
-      `Each group must be approved between <b>${pct(b[0])}</b> and <b>${pct(b[1])}</b> of the time. Before: A ${pct(R0[0])}, B ${pct(R0[1])}.`;
-    drawBars();
-  }
-
-  // ---------- distances ----------
-  let distShown = { fw: 0, rw: 0 };
-  function setDist(fw, rw, final) {
-    $('dFw').textContent = st.after ? fmt3(fw) : '0.000';
-    $('dRw').textContent = st.after ? fmt3(rw) : '0.000';
-    $('md-fw').innerHTML = st.after ? `<small>data moved</small> ${fmt3(fw)}` : '';
-    $('md-rw').innerHTML = st.after ? `<small>data moved</small> ${fmt3(rw)}` : '';
-    if (final) {
-      const s = sol(st.eps), r = rwW(st.eps);
-      $('ratioTxt').innerHTML = !st.after ? 'Press <b>Make it fairer</b> to see how far each method moves the data.' :
-        s.W < 1e-12 && r < 1e-12 ? 'The data already meet this rule: nothing moves.' :
-        r >= s.W ? `Reweighing moves the data <b>${(r / s.W).toFixed(2)}×</b> as far as FairWASP.` :
-        `Under this very loose rule FairWASP changes only ${s.moved} applications; whole copies then move a little more than reweighing’s small fractional changes.`;
-    }
-  }
   const epsPlot = $('epsPlot');
   const PL = { l: 46, r: 12, t: 24, b: 30, w: 420, h: 170 };
   function drawEpsPlot() {
@@ -1413,25 +1569,18 @@ var FW_DEFAULT = {"data": {"nA": 500, "nB": 500, "seed": 4, "shift": 0.6, "bias"
       el('text', { x: PL.l - 6, y: ys(v) + 4, class: 'tk', 'text-anchor': 'end' }, epsPlot).textContent = v.toFixed(2);
     }
     for (let e = 0; e <= EPS_MAX; e += 5) el('text', { x: xs(e), y: PL.h - PL.b + 15, class: 'tk', 'text-anchor': 'middle' }, epsPlot).textContent = (e / 100).toFixed(2);
-    el('text', { x: PL.l, y: PL.h - 2, class: 'lbl' }, epsPlot).textContent = 'strict rule';
-    el('text', { x: PL.w - PL.r, y: PL.h - 2, class: 'lbl', 'text-anchor': 'end' }, epsPlot).textContent = 'loose rule (ε)';
+    el('text', { x: PL.l, y: PL.h - 2, class: 'lbl' }, epsPlot).textContent = 'stricter rule';
+    el('text', { x: PL.w - PL.r, y: PL.h - 2, class: 'lbl', 'text-anchor': 'end' }, epsPlot).innerHTML = 'looser rule (<tspan class="mi">ε</tspan>)';
     el('text', { x: 4, y: 12, class: 'lbl' }, epsPlot).textContent = 'how far the data moved';
-    if (!st.done[0] && !st.after) {
-      el('text', { x: (PL.l + PL.w - PL.r) / 2, y: (PL.t + PL.h - PL.b) / 2, 'text-anchor': 'middle', class: 'lbl' }, epsPlot).textContent = 'Both curves appear after step 1.';
-      return;
-    }
-    // reweighing
     let d = '';
     for (let e = 0; e <= EPS_MAX; e++) d += (e ? 'L' : 'M') + xs(e).toFixed(1) + ',' + ys(rwW(e)).toFixed(1);
     el('path', { d, fill: 'none', stroke: 'var(--rwc)', 'stroke-width': 2, 'stroke-dasharray': '5 3' }, epsPlot);
-    // FairWASP (as far as computed)
     d = ''; let started = false;
     for (let e = 0; e <= EPS_MAX; e++) {
       if (!sols.has(e)) { started = false; continue; }
       d += (started ? 'L' : 'M') + xs(e).toFixed(1) + ',' + ys(sols.get(e).W).toFixed(1); started = true;
     }
     if (d) el('path', { d, fill: 'none', stroke: 'var(--accent)', 'stroke-width': 2.4 }, epsPlot);
-    // legend and the current rule
     el('line', { x1: 250, x2: 270, y1: 9, y2: 9, stroke: 'var(--accent)', 'stroke-width': 2.4 }, epsPlot);
     el('text', { x: 274, y: 13, class: 'lbl' }, epsPlot).textContent = 'FairWASP';
     el('line', { x1: 330, x2: 350, y1: 9, y2: 9, stroke: 'var(--rwc)', 'stroke-width': 2, 'stroke-dasharray': '5 3' }, epsPlot);
@@ -1448,118 +1597,14 @@ var FW_DEFAULT = {"data": {"nA": 500, "nB": 500, "seed": 4, "shift": 0.6, "bias"
     };
     hit.addEventListener('pointermove', evt => {
       const e = pick(evt), t = sol(e), b = C.band(PY, e / 100);
-      tip.innerHTML = `<b>ε = ${(e / 100).toFixed(2)}</b>: approval ${e ? pct(b[0]) + '–' + pct(b[1]) : 'exactly 50%'}<br>FairWASP ${fmt3(t.W)} (${int(t.moved)} applications changed)<br>Reweighing ${fmt3(rwW(e))} (${T[e] > 0 ? 'all ' + int(N) + ' weights' : 'nothing'} changed)<br><span style="color:var(--muted)">click to select</span>`;
-      tip.hidden = false; placeTip(evt);
+      tip.innerHTML = `<b>\\(\\varepsilon=${(e / 100).toFixed(2)}\\)</b>: approval ${e ? pct(b[0]) + '–' + pct(b[1]) : 'exactly 50%'}<br>FairWASP ${fmt3(t.W)} (${int(t.deleted + t.copied)} weights change)<br>Reweighing ${fmt3(rwW(e))} (${T[e] > 0 ? 'all ' + int(N) + ' weights change' : 'nothing changes'})<br><span style="color:var(--muted)">click to select</span>`;
+      tex(tip); tip.hidden = false; placeTip(evt);
     });
     hit.addEventListener('pointerleave', () => { tip.hidden = true; });
     hit.addEventListener('click', evt => setEps(pick(evt)));
   }
 
-  // ---------- transitions ----------
-  function transition(opts) {
-    opts = opts || {};
-    cancelAnimationFrame(st.anim);
-    const from = { fw: Float64Array.from(st.cur.fw), rw: Float64Array.from(st.cur.rw) }, to = targets();
-    const d0 = { ...distShown }, d1 = st.after ? { fw: sol(st.eps).W, rw: rwW(st.eps) } : { fw: 0, rw: 0 };
-    const dur = reduceMotion ? 1 : (opts.dur || 600), t0 = performance.now();
-    const frame = now => {
-      const p = clamp((now - t0) / dur, 0, 1), e = ease(p);
-      for (const m of ['fw', 'rw']) for (let i = 0; i < N; i++) st.cur[m][i] = from[m][i] + (to[m][i] - from[m][i]) * e;
-      drawAll();
-      distShown = { fw: d0.fw + (d1.fw - d0.fw) * e, rw: d0.rw + (d1.rw - d0.rw) * e };
-      setDist(distShown.fw, distShown.rw, p >= 1);
-      if (p < 1) st.anim = requestAnimationFrame(frame);
-      else { st.anim = 0; if (opts.done) opts.done(); }
-    };
-    st.anim = requestAnimationFrame(frame);
-  }
-  function setAfter(after, opts) {
-    st.after = after;
-    $('vBefore').setAttribute('aria-pressed', String(!after)); $('vAfter').setAttribute('aria-pressed', String(after));
-    whatText();
-    transition(opts);
-    drawEpsPlot();
-  }
-  function whatText() {
-    if (!st.after) { $('what-fw').textContent = 'drops some applications, copies similar ones'; $('what-rw').textContent = 'gives every application a new weight'; return; }
-    const s = sol(st.eps);
-    $('what-fw').textContent = s.moved ? `${int(s.moved)} applications dropped and replaced by copies` : 'nothing to change';
-    $('what-rw').textContent = T[st.eps] > 0 ? `all ${int(N)} applications get a new weight` : 'nothing to change';
-  }
-  function setMarks(on) { st.marks = on; $('marks').checked = on; drawLegend(); drawAll(); }
-
-  // ---------- steps ----------
-  function markStep(k) {
-    st.done[k - 1] = true;
-    for (let j = 1; j <= 3; j++) { const b = $('step' + j); b.classList.toggle('done', st.done[j - 1]); b.classList.remove('next'); }
-    const nxt = st.done.indexOf(false);
-    if (nxt >= 0) $('step' + (nxt + 1)).classList.add('next');
-  }
-  function story(html) { const p = $('storyOut'); p.innerHTML = html; p.hidden = false; }
-  function step1() {
-    st.eps = EPS0; $('eps').value = EPS0; updateRule();
-    setAfter(true, { dur: 1700 });
-    markStep(1);
-    const s = sol(st.eps), b = C.band(PY, st.eps / 100), t = T[st.eps], wA1 = 1 + t * (KC[1] - 1), wA0 = 1 + t * (KC[0] - 1);
-    $('res1').textContent = `both within ${Math.round(100 * b[0])}–${Math.round(100 * b[1])}%`;
-    let cross = 0;
-    for (let i = 0; i < N; i++) if (s.dest[i] !== i && DATA.D[s.dest[i]] !== DATA.D[i]) cross++;
-    const like = cross === s.moved ? 'nearly the same income, credit score and decision, from the other group' : 'nearly the same income and credit score, from the other group or with the other decision';
-    story(`Both methods now meet the rule: each group is approved between ${pct(b[0])} and ${pct(b[1])} of the time (before: ${pct(R0[0])} and ${pct(R0[1])}). FairWASP dropped ${int(s.moved)} of the ${int(N)} applications and counted, for each, a very similar application twice: ${like}. Reweighing kept every application but changed every weight: in group A each approved application now counts ${wA1.toFixed(2)} and each denied one ${wA0.toFixed(2)}, and the other way around in group B.`);
-    drawEpsPlot();
-  }
-  function step2() {
-    if (!st.after) setAfter(true, { dur: 900 });
-    setMarks(true);
-    markStep(2);
-    const s = sol(st.eps), qf = squares(s.theta), qr = squares(rwWeights(st.eps));
-    $('res2').textContent = `${fmt3(s.W)} vs ${fmt3(rwW(st.eps))}`;
-    story(`The marks show where the data changed. FairWASP changed ${qf.changed} of the ${qf.nonempty} squares, almost all where both groups have similar applicants; reweighing changed all ${qr.changed}. The Wasserstein distance measures how much data had to move, and how far: ${fmt3(s.W)} for FairWASP, ${fmt3(rwW(st.eps))} for reweighing.` +
-      (s.gap < 1e-9 ? ' No reweighting that meets the rule, even with fractional weights, moves the data less than FairWASP.' : ''));
-    const dc = $('distCard'); dc.classList.remove('pulse-card'); void dc.offsetWidth; dc.classList.add('pulse-card');
-  }
-  function step3() {
-    const target = 5;
-    markStep(3);
-    if (!st.after) setAfter(true, { dur: 600 });
-    animateEps(target, () => {
-      const s = sol(target), s0 = sol(EPS0), q = squares(s.theta), q0 = squares(s0.theta);
-      const b = C.band(PY, target / 100);
-      $('res3').textContent = `${pct(b[0])}–${pct(b[1])}`;
-      story(`A stricter rule: each group between ${pct(b[0])} and ${pct(b[1])}. Both methods have to move more data: FairWASP ${fmt3(s.W)} (${int(s.moved)} applications, ${q.changed} squares instead of ${q0.changed}), reweighing ${fmt3(rwW(target))} (every weight). Drag the slider at the top: under every rule, FairWASP moves the data less.`);
-    });
-    $('ruleBar').scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'nearest' });
-  }
-  function animateEps(target, done) {
-    const dir = Math.sign(target - st.eps);
-    if (!dir) { done && done(); return; }
-    const tick = () => {
-      st.eps += dir; $('eps').value = st.eps; updateRule(); whatText();
-      transition({ dur: 140, done: st.eps === target ? done : () => setTimeout(tick, 15) });
-      drawEpsPlot();
-    };
-    tick();
-  }
-  function setEps(k) {
-    st.eps = k; $('eps').value = k; updateRule(); whatText();
-    transition({ dur: 260 });
-    drawEpsPlot();
-  }
-  $('eps').addEventListener('input', e => setEps(+e.target.value));
-
-  // ---------- legend ----------
-  function drawLegend() {
-    const sw = c => `<svg width="14" height="14" viewBox="0 0 14 14"><rect x="1" y="1" width="12" height="12" rx="2" fill="${c}"/></svg>`;
-    let h = `<li>${sw(css(COL.app[0]))}group A approved</li><li>${sw(css(COL.den[0]))}group A denied</li><li>${sw(css(COL.app[1]))}group B approved</li><li>${sw(css(COL.den[1]))}group B denied</li>`;
-    if (st.marks) {
-      h += `<li><svg width="22" height="14" viewBox="0 0 22 14"><rect x="5" y="4" width="12" height="10" fill="${css(COL.den[1])}"/><line x1="2" y1="8" x2="20" y2="8" stroke="${css(COL.ink)}" stroke-width="1.5"/></svg>height before (grew)</li>`;
-      h += `<li><svg width="22" height="14" viewBox="0 0 22 14"><rect x="5" y="8" width="12" height="6" fill="${css(COL.den[1])}"/><rect x="5.5" y="1.5" width="11" height="6.5" fill="none" stroke="${css(COL.ink)}" stroke-width="1.2" stroke-dasharray="2.5 2"/></svg>removed</li>`;
-    }
-    h += `<li style="margin-left:auto">${st.mode === 'pins' ? 'height = how much each applicant counts (copies included)' : 'height = number of applicants in the square'}</li>`;
-    $('legend').innerHTML = h;
-  }
-
-  // ---------- tooltip ----------
+  // ---------- tooltips and turning ----------
   const tip = $('tip');
   const inPoly = (pt, poly) => {
     let inside = false;
@@ -1577,7 +1622,7 @@ var FW_DEFAULT = {"data": {"nA": 500, "nB": 500, "seed": 4, "shift": 0.6, "bias"
     tip.style.left = Math.max(8, x) + 'px'; tip.style.top = Math.max(8, y) + 'px';
   }
   const fmtW = v => Math.abs(v - Math.round(v)) < 1e-9 ? int(v) : v.toFixed(1);
-  function hoverAt(v, evt) {
+  function hoverView(v, evt) {
     const r = canv[v].getBoundingClientRect(), pt = [evt.clientX - r.left, evt.clientY - r.top];
     const H = hits[v], [m, g] = VIEWS[v], name = (m === 'fw' ? 'FairWASP' : 'Reweighing') + `, group ${g ? 'B' : 'A'}`;
     for (let k = H.length - 1; k >= 0; k--) {
@@ -1586,7 +1631,7 @@ var FW_DEFAULT = {"data": {"nA": 500, "nB": 500, "seed": 4, "shift": 0.6, "bias"
       let html = `<b>${name}</b><br>`;
       if (it.bin != null) {
         const o = tot0[g][it.bin], oa = app0[g][it.bin];
-        html += st.after ? `applications here: ${fmtW(o)} → <b>${fmtW(it.app + it.den)}</b><br>approved: ${fmtW(oa)} → <b>${fmtW(it.app)}</b>` : `${int(o)} applications here, ${int(oa)} approved`;
+        html += st.after ? `applicants here: ${fmtW(o)} → <b>${fmtW(it.app + it.den)}</b><br>approved: ${fmtW(oa)} → <b>${fmtW(it.app)}</b>` : `${int(o)} applicants here, ${int(oa)} approved`;
       } else {
         const i = it.row;
         html += `one application, ${DATA.Y[i] ? 'approved' : 'denied'}: ` + (!st.after ? 'weight 1' : m === 'fw' ? (it.w === 1 ? 'kept as is' : `kept and copied, weight ${it.w}`) : `weight ${it.w.toFixed(2)}`);
@@ -1596,11 +1641,12 @@ var FW_DEFAULT = {"data": {"nA": 500, "nB": 500, "seed": 4, "shift": 0.6, "bias"
     }
     tip.hidden = true;
   }
-  canv.forEach((cv, v) => {
+  const allCanv = canv.map((cv, v) => [cv, e => hoverView(v, e)]);
+  for (const [cv, hover] of allCanv) {
     let drag = null;
     cv.addEventListener('pointerdown', e => { drag = { x: e.clientX, y: e.clientY, phi: cam.phi, psi: cam.psi, moved: false }; cv.setPointerCapture(e.pointerId); });
     cv.addEventListener('pointermove', e => {
-      if (!drag) { hoverAt(v, e); return; }
+      if (!drag) { hover(e); return; }
       const dx = e.clientX - drag.x, dy = e.clientY - drag.y;
       if (!drag.moved && Math.hypot(dx, dy) < 4) return;
       drag.moved = true; cv.classList.add('dragging'); tip.hidden = true;
@@ -1608,12 +1654,12 @@ var FW_DEFAULT = {"data": {"nA": 500, "nB": 500, "seed": 4, "shift": 0.6, "bias"
       cam.psi = clamp(drag.psi + dy * 0.006, 0.14, 1.3);
       drawAll();
     });
-    const end = e => { if (drag && !drag.moved) hoverAt(v, e); drag = null; cv.classList.remove('dragging'); };
+    const end = e => { if (drag && !drag.moved) hover(e); drag = null; cv.classList.remove('dragging'); };
     cv.addEventListener('pointerup', end);
     cv.addEventListener('pointercancel', () => { drag = null; cv.classList.remove('dragging'); });
     cv.addEventListener('pointerleave', () => { if (!drag) tip.hidden = true; });
     cv.addEventListener('dblclick', () => { cam.phi = -0.62; cam.psi = 0.55; drawAll(); });
-  });
+  }
 
   // ---------- worker: FairWASP for every rule, in the background ----------
   const workerSrc = `
@@ -1623,67 +1669,51 @@ var FW_DEFAULT = {"data": {"nA": 500, "nB": 500, "seed": 4, "shift": 0.6, "bias"
     };`;
   try {
     const worker = new Worker(URL.createObjectURL(new Blob([$('mathcore').textContent, workerSrc], { type: 'text/javascript' })));
-    worker.onmessage = e => { const { k, r } = e.data; if (!sols.has(k)) sols.set(k, r); if (k % 5 === 0 || sols.size > EPS_MAX) drawEpsPlot(); };
-    const order = [EPS0, 5];
-    for (let k = 0; k <= EPS_MAX; k++) if (k !== EPS0 && k !== 5) order.push(k);
+    worker.onmessage = e => { const { k, r } = e.data; if (!sols.has(k)) sols.set(k, r); if (moreOpen() && (k % 5 === 0 || sols.size > EPS_MAX)) drawEpsPlot(); };
+    const order = [];
+    for (let k = 0; k <= EPS_MAX; k++) if (!sols.has(k)) order.push(k);
     setTimeout(() => worker.postMessage({ data: DEF.data, order }), 300);
   } catch (err) { /* without workers, each rule is computed when it is selected */ }
 
   // ---------- controls, the math, theme, keys, self-tests ----------
   $('vBefore').addEventListener('click', () => setAfter(false));
-  $('vAfter').addEventListener('click', () => setAfter(true));
-  $('marks').addEventListener('change', e => setMarks(e.target.checked));
+  $('vAfter').addEventListener('click', () => { if (!st.ran) { go(); return; } setAfter(true); });
+  $('marks').addEventListener('change', e => { st.marks = e.target.checked; drawLegend(); drawAll(); });
   for (const [id, mode] of [['mBins', 'bins'], ['mPins', 'pins']]) $(id).addEventListener('click', () => {
     st.mode = mode;
     $('mBins').setAttribute('aria-pressed', String(mode === 'bins')); $('mPins').setAttribute('aria-pressed', String(mode === 'pins'));
     drawLegend(); drawAll();
   });
-  let mathDone = false;
-  function toggleMath() {
-    const m = $('math'), open = m.hidden;
-    m.hidden = !open;
-    $('mathBtn').setAttribute('aria-expanded', String(open));
-    if (open) {
-      $('mxW0').textContent = fmt3(S0.W);
-      if (!mathDone && window.renderMathInElement) {
-        window.renderMathInElement(m, { delimiters: [{ left: '$$', right: '$$', display: true }, { left: '$', right: '$', display: false }], throwOnError: false });
-        mathDone = true;
-      }
-      m.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
-    }
-  }
-  $('mathBtn').addEventListener('click', toggleMath);
-  function toggleTheme() {
-    const root = document.documentElement;
-    const dark = root.getAttribute('data-theme') ? root.getAttribute('data-theme') === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;
-    root.setAttribute('data-theme', dark ? 'light' : 'dark');
-    readColors(); drawLegend(); drawAll();
-  }
-  $('themeBtn').addEventListener('click', toggleTheme);
-  if (window.matchMedia) window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => { readColors(); drawLegend(); drawAll(); });
-  $('step1').addEventListener('click', step1);
-  $('step2').addEventListener('click', step2);
-  $('step3').addEventListener('click', step3);
+  $('more').addEventListener('toggle', () => { if (moreOpen()) drawEpsPlot(); });
+  // a citation jumps to its entry in the references and marks it
+  document.addEventListener('click', e => {
+    const a = e.target.closest && e.target.closest('a.cite');
+    const ref = a && document.querySelector(a.getAttribute('href'));
+    if (!ref) return;
+    e.preventDefault();
+    document.querySelectorAll('.refs li.hit').forEach(li => li.classList.remove('hit'));
+    ref.classList.add('hit');
+    history.replaceState(null, '', a.getAttribute('href'));
+    ref.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'center' });
+  });
+  window.addEventListener('DOMContentLoaded', () => { tex(document.querySelector('.wrap')); texWaiting.forEach(n => tex(n)); texWaiting.clear(); updateRule(); });
+  if (new URLSearchParams(location.search).has('debug')) $('debug').hidden = false;
   document.addEventListener('keydown', e => {
-    if (e.target && /INPUT|TEXTAREA|SELECT/.test(e.target.tagName) && e.target.type !== 'range') return;
+    if (e.target && /INPUT|TEXTAREA|SELECT|BUTTON|SUMMARY/.test(e.target.tagName)) return;
     if (e.metaKey || e.ctrlKey || e.altKey) return;
-    if (e.key === '1') step1();
-    else if (e.key === '2') step2();
-    else if (e.key === '3') step3();
-    else if (e.key === 'm' || e.key === 'M') toggleMath();
-    else if (e.key === 'd' || e.key === 'D') toggleTheme();
+    if (e.key === ' ') { e.preventDefault(); go(); }
   });
   $('testBtn').addEventListener('click', () => {
     const out = [], ok = (c, m) => out.push((c ? 'ok   ' : 'FAIL ') + m);
     ok(S0.status === 'optimal' && S0.gap < 1e-9, `strictest rule: FairWASP changes ${int(S0.moved)} applications; distance ${S0.W.toFixed(4)} = lower bound`);
     ok(Math.abs(T[0] - 1) < 1e-12 && rwW(0) > S0.W, `strictest rule: reweighing (t = 1) distance ${rwW(0).toFixed(4)} > FairWASP`);
-    for (const k of [5, 10, 20, 35, 50, 70]) {
+    for (const k of [0, 5, EPS0, 20, 30, 35]) {
       const s = sol(k), coef = C.fairRows(DATA, k / 100).coef;
       const Mr = [0, 1, 2, 3].map(g => M0[g] * (1 + T[k] * (KC[g] - 1)));
-      ok(C.violation(coef, s.M) <= 1e-9 && C.violation(coef, Mr) <= 1e-9 && s.W >= s.LB - 1e-12,
-        `ε = ${(k / 100).toFixed(2)}: both meet the rule; FairWASP ${s.W.toFixed(4)}, reweighing ${rwW(k).toFixed(4)} (t = ${T[k].toFixed(3)})`);
+      ok(C.violation(coef, s.M) <= 1e-9 && C.violation(coef, Mr) <= 1e-9 && s.W <= rwW(k) + 1e-12,
+        `ε = ${(k / 100).toFixed(2)}: both meet the rule; FairWASP ${s.W.toFixed(4)} ≤ reweighing ${rwW(k).toFixed(4)}`);
     }
-    for (const k of [0, 10]) {
+    for (const k of [0, EPS0]) {
       const coef = C.fairRows(DATA, k / 100).coef, run = C.accpm(NC.c, coef, N, { maxIt: 400 }), s = sol(k);
       ok(Math.abs(run.LB / N - s.LB) <= 1e-9 * (1 + s.LB), `ε = ${(k / 100).toFixed(2)}: the paper's cutting-plane method finds the same lower bound (${run.iters} iterations)`);
     }
@@ -1692,16 +1722,13 @@ var FW_DEFAULT = {"data": {"nA": 500, "nB": 500, "seed": 4, "shift": 0.6, "bias"
   });
 
   // ---------- start ----------
-  $('ledeA').textContent = Math.round(100 * R0[0]) + '%'; $('ledeB').textContent = Math.round(100 * R0[1]) + '%';
   $('eps').max = EPS_MAX; $('eps').value = EPS0;
-  { const b = C.band(PY, EPS0 / 100); $('step1small').textContent = `Bring each group’s approval rate into ${Math.round(100 * b[0])}–${Math.round(100 * b[1])}%.`; }
   if ($('mxFull')) $('mxFull').textContent = DEF.ratioFullWeight.toFixed(2);
   readColors();
   drawLegend();
-  drawAll();
   updateRule();
-  setDist(0, 0, true);
-  drawEpsPlot();
+  drawAll();
+  drawMove();
   if (window.ResizeObserver) { const ro = new ResizeObserver(() => drawAll()); canv.forEach(c => ro.observe(c)); }
   else window.addEventListener('resize', drawAll);
 })();
