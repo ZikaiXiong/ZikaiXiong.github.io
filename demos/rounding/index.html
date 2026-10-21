@@ -30,31 +30,16 @@
   --poly: #ece6f6; --poly-line: #4e2a84; --glow: rgba(78, 42, 132, .38);
   color-scheme: light;
 }
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --bg: #141416; --surface: #1e1e21; --ink: #ececf0; --muted: #a7a5ae; --rule: #35343b;
-    --accent: #c2aef0; --accent-soft: #2c2442; --on-accent: #1b1033;
-    --s-L: #d84a4a; --s-J: #c98500; --s-V: #3987e5; --s-H: #1baf7a;
-    --poly: #2c2442; --poly-line: #c2aef0; --glow: rgba(194, 174, 240, .38);
-    color-scheme: dark;
-  }
-}
-:root[data-theme="dark"] {
-  --bg: #141416; --surface: #1e1e21; --ink: #ececf0; --muted: #a7a5ae; --rule: #35343b;
-  --accent: #c2aef0; --accent-soft: #2c2442; --on-accent: #1b1033;
-  --s-L: #d84a4a; --s-J: #c98500; --s-V: #3987e5; --s-H: #1baf7a;
-  --poly: #2c2442; --poly-line: #c2aef0; --glow: rgba(194, 174, 240, .38);
-  color-scheme: dark;
-}
 * { box-sizing: border-box; }
 body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.5; }
 a { color: var(--accent); }
 .wrap { max-width: 1440px; margin: 0 auto; padding-block: 18px 32px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
-.top { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 16px; margin-bottom: 12px; }
-.head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 16px; }
+.top { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 10px 16px; margin-bottom: 14px; }
+.head { min-width: 0; flex: 1 1 420px; }
 .tools { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
 h1 { font-family: var(--serif); font-weight: 700; font-size: clamp(1.6rem, 2.4vw, 2.2rem); line-height: 1.1; margin: 0; }
-.cite { color: var(--muted); font-size: .86rem; margin: 0; }
+.cite { color: var(--muted); font-size: .86rem; margin: 4px 0 0; }
+.lede { margin: 6px 0 0; font-size: 1rem; color: var(--muted); max-width: 76ch; }
 .toolbar { display: flex; flex-wrap: wrap; gap: 10px 12px; align-items: center; margin-bottom: 14px; }
 .seg { display: inline-flex; border: 1px solid var(--rule); border-radius: 999px; background: var(--surface); padding: 3px; }
 .seg button { border: 0; background: transparent; color: var(--ink); font: 500 .88rem var(--body); padding: 6px 12px; border-radius: 999px; cursor: pointer; }
@@ -73,22 +58,22 @@ h1 { font-family: var(--serif); font-weight: 700; font-size: clamp(1.6rem, 2.4vw
 .play:hover { filter: brightness(1.1); }
 .play .ic { width: 16px; height: 16px; fill: currentColor; flex: 0 0 auto; }
 .play[aria-pressed="true"] .ic-play, .play[aria-pressed="false"] .ic-pause { display: none; }
-.play.pulse { animation: pulse 2.2s ease-out infinite; }
+.play.pulse { animation: pulse 2.2s ease-out 2; }
 @keyframes pulse { 0% { box-shadow: 0 0 0 0 var(--glow); } 70% { box-shadow: 0 0 0 14px transparent; } 100% { box-shadow: 0 0 0 0 transparent; } }
 @media (prefers-reduced-motion: reduce) { .play.pulse { animation: none; } }
 
 /* math typeset inside dynamic text; .rad is the fallback before KaTeX loads */
-.readout .katex, .guar .katex, .tip .katex, .caption .katex, .sym-text .katex, th .katex, .view-note .katex, .legend .katex { font-size: 1.05em; }
+.katex { font-size: 1.05em; white-space: nowrap; }
+.readout .big .katex { font-size: 1em; }
+.rho-val .katex { font-size: .95em; }
+.rho-label .katex, .panel-name .katex { font-size: 1em; }
 .rad { white-space: nowrap; }
-.guar .katex, #bound-line .katex, .caption .katex { white-space: nowrap; }
 .tick-btn .short { display: none; }
 .nw { white-space: nowrap; }
 .rad-in { border-top: 1px solid currentColor; padding: 0 2px; margin-left: 1px; }
 .spacer { flex: 1 1 auto; }
 .card { background: var(--surface); border: 1px solid var(--rule); border-radius: 16px; padding: 16px clamp(14px, 1.6vw, 20px); }
 .card h3 { font: 600 .78rem var(--body); letter-spacing: .09em; text-transform: uppercase; color: var(--muted); margin: 0 0 10px; }
-.lead { font: 1.05rem/1.55 var(--serif); margin: 0 0 14px; max-width: 1060px; }
-.lead .katex { font-size: 1.02em; }
 
 /* slider card */
 .slider-card { margin-bottom: 16px; }
@@ -111,7 +96,14 @@ input[type=range] { width: 100%; accent-color: var(--accent); margin: 6px 0 0; h
 .free-row .hint { color: var(--muted); font-size: .86rem; }
 .view-note { display: none; margin: -4px 0 10px; font-size: .84rem; color: var(--muted); }
 body[data-view="rounded"] .view-note { display: block; }
-.caption { min-height: 3.1em; font: 1.05rem/1.5 var(--serif); border-top: 1px solid var(--rule); padding-top: 10px; margin: 12px 0 0; }
+/* what the current shape shows: a few short lines, built one after another when the situation changes */
+.caption { list-style: none; margin: 12px 0 0; padding: 10px 0 0; border-top: 1px solid var(--rule); display: grid; gap: 6px; min-height: 3.9em; }
+.caption li { position: relative; padding-left: 18px; font: 1rem/1.5 var(--body); }
+.caption li::before { content: ""; position: absolute; left: 3px; top: .62em; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+.caption b { color: var(--accent); font-weight: 600; }
+.caption.build li { animation: rise .45s ease-out both; animation-delay: calc(var(--t, 0) * 1s); }
+@keyframes rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .caption.build li { animation: none; } }
 body[data-mode="free"] .family-only, body[data-mode="family"] .free-only { display: none !important; }
 
 /* layout */
@@ -128,7 +120,11 @@ body[data-mode="free"] .family-only, body[data-mode="family"] .free-only { displ
 .legend svg { flex: 0 0 auto; }
 .panels { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
 .panel { padding: 12px 14px 12px; }
-.panel-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+/* tag and rho on one row, the description below them across the panel */
+.panel-head { display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: 8px; align-items: center; }
+.panel-title { display: contents; }
+.panel-name { grid-column: 1 / -1; grid-row: 2; }
+.panel-rho { grid-column: 2; grid-row: 1; }
 .panel-head h3 { margin: 0 0 2px; }
 .panel-head h3 .tag { text-transform: none; letter-spacing: .02em; }
 .xm { color: var(--accent); font-weight: 600; }
@@ -140,7 +136,7 @@ body[data-mode="free"] .family-only, body[data-mode="family"] .free-only { displ
 .panel-svg { display: block; width: 100%; height: auto; margin-top: 6px; touch-action: none; }
 .panel-foot { display: grid; gap: 4px; margin-top: 4px; }
 .bar { position: relative; height: 6px; background: var(--bg); border: 1px solid var(--rule); border-radius: 3px; margin: 6px 6px 0; }
-.bar::before, .bar::after { position: absolute; top: 6px; font-size: .7rem; color: var(--muted); }
+.bar::before, .bar::after { position: absolute; top: 6px; font: .74rem KaTeX_Main, "Times New Roman", serif; color: var(--muted); }
 .bar::before { content: "1"; left: -3px; }
 .bar::after { content: "2"; right: -3px; }
 .bar-val { position: absolute; top: -4px; width: 12px; height: 12px; border-radius: 50%; transform: translateX(-50%); box-shadow: 0 0 0 2px var(--surface); }
@@ -169,7 +165,12 @@ body[data-mode="free"] .family-only, body[data-mode="family"] .free-only { displ
 #svg-chart { display: block; width: 100%; height: auto; touch-action: none; }
 .grid { stroke: var(--rule); stroke-width: 1; }
 .axis { stroke: var(--muted); stroke-width: 1; }
-.tick { fill: var(--muted); font: 11px var(--body); font-variant-numeric: tabular-nums; }
+.tick { fill: var(--muted); font: 12px KaTeX_Main, "Times New Roman", serif; }
+/* formulas inside the SVG figures: KaTeX's fonts by hand */
+svg .mi { font-family: KaTeX_Math, "Times New Roman", serif; font-style: italic; }
+svg .mn { font-family: KaTeX_Main, "Times New Roman", serif; font-style: normal; }
+svg .tx { font-family: var(--body); font-style: normal; }
+.gopen { fill: var(--surface); stroke: var(--muted); stroke-width: 1.4; }
 .axlab { fill: var(--muted); font: 12px var(--body); }
 .g2 { stroke: var(--muted); stroke-width: 1.4; stroke-dasharray: 2 4; }
 .gb { fill: none; stroke: var(--ink); stroke-width: 1.7; stroke-dasharray: 7 4; }
@@ -182,20 +183,41 @@ body[data-mode="free"] .family-only, body[data-mode="family"] .free-only { displ
 .tip { position: absolute; pointer-events: none; background: var(--surface); border: 1px solid var(--rule); border-radius: 10px; padding: 6px 10px; font-size: .8rem; line-height: 1.45; box-shadow: 0 4px 14px rgba(0,0,0,.12); font-variant-numeric: tabular-nums; white-space: nowrap; }
 .tip .sw { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 6px; vertical-align: 0; }
 .note { color: var(--muted); font-size: .84rem; margin: 6px 0 0; }
-details.tbl { margin-top: 8px; font-size: .86rem; }
-details.tbl summary { cursor: pointer; color: var(--muted); }
 table { border-collapse: collapse; width: 100%; margin-top: 6px; font-variant-numeric: tabular-nums; }
 th, td { padding: 3px 6px; text-align: right; border-bottom: 1px solid var(--rule); }
 th { font-weight: 600; color: var(--muted); }
 
-/* math panel */
-details.math { margin-top: 18px; }
-details.math > summary { cursor: pointer; font: 600 .78rem var(--body); letter-spacing: .09em; text-transform: uppercase; color: var(--muted); }
-.math-body { font: .98rem/1.55 var(--serif); max-width: 980px; }
-.math-body h4 { font: 600 .9rem var(--body); margin: 18px 0 4px; }
-.math-body .katex-display { margin: .6em 0; overflow-x: auto; overflow-y: hidden; }
-.foot { color: var(--muted); font-size: .82rem; margin: 14px 0 0; }
-kbd { font: 500 .76rem var(--mono); border: 1px solid var(--rule); border-bottom-width: 2px; border-radius: 5px; padding: 0 5px; background: var(--surface); }
+/* folds inside a card: closed by default, opened by those who want the details */
+details.fold { margin-top: 12px; border-top: 1px solid var(--rule); padding-top: 8px; }
+details.fold > summary { cursor: pointer; list-style: none; font-size: .9rem; color: var(--accent); }
+details.fold > summary::-webkit-details-marker { display: none; }
+details.fold > summary::before { content: "▸"; display: inline-block; width: 1em; color: var(--muted); }
+details.fold[open] > summary::before { content: "▾"; }
+details.fold + details.fold { margin-top: 8px; }
+details.fold .note { margin: 8px 0 0; font-size: .9rem; color: var(--ink); max-width: 110ch; }
+details.fold .katex-display { margin: .5em 0; overflow-x: auto; overflow-y: hidden; padding: 2px 0; }
+.panel details.fold { margin-top: 10px; }
+.panel details.fold .note { font-size: .84rem; }
+.pf .note .katex { white-space: normal; }   /* narrow panels: a long inline formula may break at its relations */
+.pf { container-type: inline-size; }
+.pf .katex-display > .katex { font-size: 1.05em; }
+.sym-card details.fold .katex-display > .katex { font-size: 1em; }
+@media (max-width: 420px) { .sym-card details.fold .katex-display > .katex { font-size: .92em; } }
+.pf .n3 { display: none; }
+@container (max-width: 300px) { .pf .n2 { display: none; } .pf .n3 { display: block; } .pf .katex-display > .katex { font-size: .8em; } }
+/* the theme rules a card's first summary as a heading; folds are not headings */
+html.demo-site .card > details.fold > summary { padding-bottom: 0; margin-bottom: 0; border-bottom: 0; }
+/* a wide display formula and its two-line version for narrow cards */
+.cf { container-type: inline-size; }
+.cf .narrow { display: none; }
+@container (max-width: 640px) { .cf .wide { display: none; } .cf .narrow { display: block; } }
+@container (max-width: 360px) { .cf .katex-display > .katex { font-size: .9em; } }
+/* references at the bottom; a citation jumps to its entry and marks it */
+.refs-card { margin-top: 18px; }
+ol.refs { list-style: none; padding-left: 0; margin: 0; font-size: .92rem; }
+ol.refs li { scroll-margin-top: 4.5rem; padding: 2px 4px; margin: 3px -4px; border-radius: 4px; }
+ol.refs li.hit { background: #F7EFF0; }
+.foot { color: var(--muted); font-size: .84rem; margin: 14px 0 0; }
 
 @media (max-width: 640px) {
   .sl-row { grid-template-columns: auto minmax(0, 1fr); }
@@ -206,7 +228,8 @@ kbd { font: 500 .76rem var(--mono); border: 1px solid var(--rule); border-bottom
   .tick-btn .short { display: inline; }
   .panels { gap: 10px; }
   .panel { padding: 10px; }
-  .panel-head { flex-direction: column; gap: 2px; }
+  .panel-head { grid-template-columns: minmax(0, 1fr); }
+  .panel-rho { grid-column: 1; grid-row: 3; margin-top: 2px; }
   .panel-name { font-size: .8rem; }
   .rho-val { font-size: 1.1rem; }
   .card h3 { font-size: .7rem; }
@@ -237,7 +260,8 @@ kbd { font: 500 .76rem var(--mono); border: 1px solid var(--rule); border-bottom
   <header class="top">
     <div class="head">
       <h1>Does symmetry help rounding?</h1>
-      <p class="cite">Created by Zikai Xiong · Based on Xiong &amp; Freund, <a href="https://arxiv.org/abs/2608.30876" target="_blank" rel="noopener">arXiv:2608.30876</a></p>
+      <p class="cite">Created by <a href="../../index.html">Zikai Xiong</a> · Based on Xiong and Freund [<a class="cite" href="#ref-1">1</a>]</p>
+      <p class="lede">An ellipse \(c+E\) rounds \(K\) if \(E\subseteq K-c\subseteq\rho E\); smaller \(\rho\) is better.<br>Press Play to turn \(K\) from a triangle into a square.</p>
     </div>
     <div class="tools">
       <div class="seg quiet" id="seg-view" role="group" aria-label="Picture">
@@ -245,11 +269,8 @@ kbd { font: 500 .76rem var(--mono); border: 1px solid var(--rule); border-bottom
         <button data-v="rounded" aria-pressed="false" title="Change coordinates so that each ellipse becomes a circle">Rounded view</button>
       </div>
       <button class="btn quiet" id="btn-draw" aria-pressed="false" title="Drag the corners of your own polygon">Draw your own</button>
-      <button class="btn quiet icon" id="btn-theme" aria-label="Switch light or dark theme" title="Light or dark theme">&#9680;</button>
     </div>
   </header>
-
-  <p class="lead">To <em>round</em> a convex shape \(K\), put an ellipse inside it, then enlarge the same ellipse about the same center by a factor \(\rho\) until it contains \(K\). The smaller \(\rho\), the better the fit; \(\rho=1\) only when \(K\) is itself an ellipse. The two classical choices, the smallest ellipse around \(K\) and the largest ellipse inside \(K\), only guarantee \(\rho\le 2\) in the plane, however symmetric \(K\) is. The paper's center-regularized ellipses pull the center toward the center of symmetry of \(K\) and guarantee \(\rho\le\sqrt{2/\mathrm{sym}(K)}\), which gets smaller as \(K\) gets more symmetric.</p>
 
   <section class="card slider-card">
     <div class="family-only">
@@ -259,104 +280,115 @@ kbd { font: 500 .76rem var(--mono); border: 1px solid var(--rule); border-bottom
           <span id="play-lbl">Play</span>
         </button>
         <div class="sl-mid">
-          <label class="sl-label" for="slider">Symmetry of K</label>
+          <label class="sl-label" for="slider">Symmetry of \(K\)</label>
           <input type="range" id="slider" min="0.5" max="1" step="0.0005" value="0.7072" aria-describedby="caption">
           <div class="ticks">
-            <button class="tick-btn l" data-a="0.5"><b>1/2</b>triangle</button>
-            <button class="tick-btn" data-a="0.707244778" style="left:41.449%"><b>0.707</b><span class="long">Figure 1 example</span><span class="short">Fig. 1</span></button>
-            <button class="tick-btn r" data-a="1"><b>1</b>square</button>
+            <button class="tick-btn l" data-a="0.5"><b>\(1/2\)</b>triangle</button>
+            <button class="tick-btn" data-a="0.707244778" style="left:41.449%"><b>\(0.707\)</b><span class="long">Figure 1 example</span><span class="short">Fig. 1</span></button>
+            <button class="tick-btn r" data-a="1"><b>\(1\)</b>square</button>
           </div>
         </div>
         <div class="readout">
-          <div><span class="sym">sym(<i>K</i>) =</span> <span class="big" id="sym-val">—</span></div>
-          <div class="small" id="bound-line"></div>
+          <div><span class="sym">\(\mathrm{sym}(K)=\)</span> <span class="big" id="sym-val">—</span></div>
         </div>
       </div>
     </div>
     <div class="free-only">
       <div class="free-row">
-        <span class="readout"><span class="sym">sym(<i>K</i>) =</span><span class="big" id="sym-val-free">—</span></span>
+        <span class="readout"><span class="sym">\(\mathrm{sym}(K)=\)</span> <span class="big" id="sym-val-free">—</span></span>
         <button class="btn" id="btn-random">Random polygon</button>
         <button class="btn" id="btn-add">Add a corner</button>
         <button class="btn" id="btn-back">Back to the slider</button>
         <span class="hint">Drag the white corners in any panel. Double-click a corner to delete it.</span>
       </div>
     </div>
-    <p class="caption" id="caption" aria-live="polite"></p>
+    <ul class="caption" id="caption" aria-live="polite"></ul>
   </section>
 
   <div class="main">
     <div>
       <ul class="legend" aria-label="Legend for the four panels">
-        <li><svg width="26" height="10"><line x1="1" y1="5" x2="25" y2="5" stroke="var(--ink)" stroke-width="2.2"/></svg><span>the ellipse each method computes</span></li>
-        <li><svg width="26" height="10"><line x1="1" y1="5" x2="25" y2="5" stroke="var(--ink)" stroke-width="1.8" stroke-dasharray="7 5"/></svg><span>the same ellipse, enlarged or shrunk until it touches <i>K</i></span></li>
-        <li><svg width="12" height="12"><path d="M2 2L10 10M2 10L10 2" stroke="var(--accent)" stroke-width="2.2" stroke-linecap="round"/></svg><span>center of symmetry of <i>K</i></span></li>
-        <li><svg width="12" height="12"><circle cx="6" cy="6" r="4" fill="var(--muted)"/></svg><span>center of the ellipse</span></li>
+        <li><svg width="26" height="10"><line x1="1" y1="5" x2="25" y2="5" stroke="var(--ink)" stroke-width="2.2"/></svg><span>computed ellipse</span></li>
+        <li><svg width="26" height="10"><line x1="1" y1="5" x2="25" y2="5" stroke="var(--ink)" stroke-width="1.8" stroke-dasharray="7 5"/></svg><span>scaled until it touches \(K\)</span></li>
+        <li><svg width="12" height="12"><path d="M2 2L10 10M2 10L10 2" stroke="var(--accent)" stroke-width="2.2" stroke-linecap="round"/></svg><span>Minkowski center of \(K\)</span></li>
+        <li><svg width="12" height="12"><circle cx="6" cy="6" r="4" fill="var(--muted)"/></svg><span>ellipse center</span></li>
       </ul>
-      <p class="view-note">Rounded view: each panel changes coordinates so that its ellipse becomes a circle. Then <i>K</i> lies between the circles of radius 1 and \(\rho\); the dotted circle marks the guarantee.</p>
+      <p class="view-note">Rounded view: each ellipse becomes the unit circle; \(K\) lies between radii \(1\) and \(\rho\).</p>
       <div class="panels" id="panels"></div>
+      <!-- each panel's formulation; the panel code puts a copy at the bottom of its panel -->
+      <template id="form-L">
+        <details class="fold pf">
+          <summary>Formulation</summary>
+          <div class="n2">\[\begin{aligned}&\min_{Q\succ 0,\,c}\ -\log\det Q\\ &\text{s.t. } (v_j-c)^\top Q\,(v_j-c)\le 1\quad\forall j\end{aligned}\]</div>
+          <div class="n3">\[\begin{aligned}&\min_{Q\succ 0,\,c}\ -\log\det Q\\ &\text{s.t. } (v_j-c)^\top Q\,(v_j-c)\le 1\\ &\qquad\forall j\end{aligned}\]</div>
+          <p class="note">\(v_j\): vertices of \(K\). Ellipse: \(\{x:(x-c)^\top Q\,(x-c)\le 1\}\).</p>
+        </details>
+      </template>
+      <template id="form-J">
+        <details class="fold pf">
+          <summary>Formulation</summary>
+          <div class="n2">\[\begin{aligned}&\min_{X\succ 0,\,c}\ -2\log\det X\\ &\text{s.t. } \|Xh_i\|^2\le(1-h_i^\top c)^2,\ \ h_i^\top c\le 1\quad\forall i\end{aligned}\]</div>
+          <div class="n3">\[\begin{aligned}&\min_{X\succ 0,\,c}\ -2\log\det X\\ &\text{s.t. } \|Xh_i\|^2\le(1-h_i^\top c)^2,\\ &\qquad h_i^\top c\le 1\quad\forall i\end{aligned}\]</div>
+          <p class="note">\(K=\{x:h_i^\top x\le 1\}\). Ellipse: \(\{c+Xu:\|u\|\le 1\}\).</p>
+        </details>
+      </template>
+      <template id="form-V">
+        <details class="fold pf">
+          <summary>Formulation</summary>
+          <div class="n2">\[\begin{aligned}&\min_{Q\succ 0,\,c}\ -\log\det Q\\ &\text{s.t. } (v_j-c)^\top Q\,(v_j-c)+\lambda\,c^\top Q\,c\le 1\quad\forall j\end{aligned}\]</div>
+          <div class="n3">\[\begin{aligned}&\min_{Q\succ 0,\,c}\ -\log\det Q\\ &\text{s.t. } (v_j-c)^\top Q\,(v_j-c)\\ &\qquad+\lambda\,c^\top Q\,c\le 1\quad\forall j\end{aligned}\]</div>
+          <p class="note">\((\mathrm P_\lambda)\) in [<a class="cite" href="#ref-1">1</a>]: <span class="xm">×</span> at the origin, \(\lambda=\frac{1+\alpha}{1-\alpha}\), \(\alpha=\mathrm{sym}(K)\).</p>
+        </details>
+      </template>
+      <template id="form-H">
+        <details class="fold pf">
+          <summary>Formulation</summary>
+          <div class="n2">\[\begin{aligned}&\min_{X\succ 0,\,c}\ -2\log\det X\\ &\text{s.t. } \|Xh_i\|^2+\lambda\,(h_i^\top c)^2\le(1-h_i^\top c)^2\quad\forall i\end{aligned}\]</div>
+          <div class="n3">\[\begin{aligned}&\min_{X\succ 0,\,c}\ -2\log\det X\\ &\text{s.t. } \|Xh_i\|^2+\lambda\,(h_i^\top c)^2\\ &\qquad\le(1-h_i^\top c)^2\quad\forall i\end{aligned}\]</div>
+          <p class="note">\((\mathrm J_\lambda)\) in [<a class="cite" href="#ref-1">1</a>], rearranged; \(\lambda\) as in (c).</p>
+        </details>
+      </template>
     </div>
     <div class="side">
       <section class="card sym-card">
-        <h3>What sym(K) measures</h3>
+        <h3>What \(\mathrm{sym}(K)\) measures</h3>
         <div class="sym-body">
-          <svg id="svg-sym" viewBox="0 0 400 270" role="img" aria-label="The polygon, its center of symmetry, and the reflected copy shrunk by sym(K)"></svg>
+          <svg id="svg-sym" viewBox="0 0 400 270" role="img" aria-label="The polygon, its Minkowski center, and the reflected copy shrunk by sym(K)"></svg>
           <p class="sym-text" id="sym-text"></p>
         </div>
+        <details class="fold">
+          <summary>Definition</summary>
+          <p class="note">For a convex body \(K\subset\mathbb R^n\) and \(x\in K\) [<a class="cite" href="#ref-2">2</a>],</p>
+          \[\begin{aligned}\mathrm{sym}(x,K)&=\max\{\alpha\ge 0:\,-\alpha(K-x)\subseteq K-x\},\\ \mathrm{sym}(K)&=\max_{x\in K}\,\mathrm{sym}(x,K),\end{aligned}\]
+          <p class="note">and a maximizer \(x\) is a Minkowski center. \(\mathrm{sym}(K)\in[1/n,1]\), with \(\mathrm{sym}(K)=1/n\) if and only if \(K\) is a simplex, and \(\mathrm{sym}(K)=1\) if and only if \(K\) is centrally symmetric [<a class="cite" href="#ref-1">1</a>].</p>
+        </details>
       </section>
       <section class="card">
         <h3>Rounding factor as symmetry grows</h3>
-        <ul class="legend">
-          <li><svg width="12" height="12"><circle cx="6" cy="6" r="5" fill="var(--s-L)"/></svg><span>(a) smallest around <i>K</i></span></li>
-          <li><svg width="12" height="12"><path d="M6 0.5 11.5 6 6 11.5 0.5 6Z" fill="var(--s-J)"/></svg><span>(b) largest inside <i>K</i></span></li>
-          <li><svg width="12" height="12"><circle cx="6" cy="6" r="5" fill="var(--s-V)"/></svg><span>(c) center-regularized, around</span></li>
-          <li><svg width="12" height="12"><path d="M6 0.5 11.5 6 6 11.5 0.5 6Z" fill="var(--s-H)"/></svg><span>(d) center-regularized, inside</span></li>
-          <li><svg width="26" height="10"><line x1="1" y1="5" x2="25" y2="5" stroke="var(--ink)" stroke-width="1.7" stroke-dasharray="7 4"/></svg><span>guarantee of (c), (d): \(\sqrt{2/\mathrm{sym}(K)}\)</span></li>
-          <li><svg width="26" height="10"><line x1="1" y1="5" x2="25" y2="5" stroke="var(--muted)" stroke-width="1.4" stroke-dasharray="2 4"/></svg><span>guarantee of (a), (b): \(2\)</span></li>
-        </ul>
         <div class="chart-host">
           <svg id="svg-chart" viewBox="0 0 560 330" role="img" aria-label="Rounding factor of the four methods against sym(K), with the two guarantees"></svg>
           <div class="tip" id="tip" hidden></div>
         </div>
         <p class="note" id="chart-note"></p>
-        <details class="tbl"><summary>Table of the four curves</summary><table id="table"></table></details>
+        <details class="fold">
+          <summary>Guarantees</summary>
+          <p class="note">(a), (b): \(\rho\le n\), and \(\rho\le\sqrt n\) if \(K\) is centrally symmetric [<a class="cite" href="#ref-3">3</a>, <a class="cite" href="#ref-4">4</a>]. (c), (d): \(\rho\le\sqrt{n/\mathrm{sym}(K)}\) [<a class="cite" href="#ref-1">1</a>, Theorem 1.1], tight up to the factor \(\sqrt{2/3}\) [<a class="cite" href="#ref-1">1</a>, Theorem 5.1]. Here \(n=2\).</p>
+        </details>
       </section>
     </div>
   </div>
 
-  <details class="card math">
-    <summary>The math</summary>
-    <div class="math-body">
-      <h4>Rounding</h4>
-      <p>For a center \(c\) and an origin-centered ellipse \(E\), the ellipse \(c+E\) is a \(\rho\)-rounding of \(K\) if \(E\subseteq K-c\subseteq \rho E\). Each panel keeps the center and the shape computed by its problem and shows the smallest such \(\rho\). Writing \(E=\{Lu:\|u\|\le 1\}\) for a polygon with vertices \(v\) and facets \(a_i^\top x\le b_i\),
-      \[\rho=\frac{r_{\rm out}}{r_{\rm in}},\qquad r_{\rm out}=\max_{v}\big\|L^{-1}(v-c)\big\|,\qquad r_{\rm in}=\min_i \frac{b_i-a_i^\top c}{\|L a_i\|}.\]
-      The two drawn ellipses are \(c+r_{\rm in}E\) and \(c+r_{\rm out}E\). The rounded view applies \(x\mapsto L^{-1}(x-c)/r_{\rm in}\), which turns them into circles of radius \(1\) and \(\rho\). Figure 1 of the paper draws the companion ellipses of (c) and (d) at the scalings proved in Lemmas 2.1 and 4.1 (factors 1.6679 and 1.6720); this page draws the tightest scaling (1.6317 and 1.6574).</p>
+  <section class="card refs-card" id="refs" aria-label="References">
+    <h3>References</h3>
+    <ol class="refs">
+      <li id="ref-1">[1] Z. Xiong and R. M. Freund. Symmetry-dependence in rounding of a convex body. Under review. <a href="https://arxiv.org/abs/2608.30876" target="_blank" rel="noopener">arXiv:2608.30876</a></li>
+      <li id="ref-2">[2] A. Belloni and R. M. Freund. On the symmetry function of a convex set. <em>Mathematical Programming</em>, 111(1–2):57–93, 2008. <a href="https://doi.org/10.1007/s10107-006-0074-4" target="_blank" rel="noopener">doi:10.1007/s10107-006-0074-4</a></li>
+      <li id="ref-3">[3] F. John. Extremum problems with inequalities as subsidiary conditions. In <em>Studies and Essays Presented to R. Courant on His 60th Birthday</em>, pages 187–204. Interscience, New York, 1948.</li>
+      <li id="ref-4">[4] M. J. Todd. <em>Minimum-Volume Ellipsoids: Theory and Algorithms</em>. MOS–SIAM Series on Optimization 23. SIAM, 2016. <a href="https://doi.org/10.1137/1.9781611974386" target="_blank" rel="noopener">doi:10.1137/1.9781611974386</a></li>
+    </ol>
+  </section>
 
-      <h4>Symmetry</h4>
-      <p>\(\mathrm{sym}(x,K)=\max\{\alpha\ge 0: -\alpha(K-x)\subseteq K-x\}\) and \(\mathrm{sym}(K)=\max_{x}\mathrm{sym}(x,K)\in[1/n,\,1]\); a maximizer is a Minkowski center. The value is \(1/n\) exactly for simplices and \(1\) exactly for centrally symmetric bodies. For a polygon, one linear program gives both (Belloni and Freund, 2008): maximize \(\beta\) subject to \(a_i^\top c+\beta\,(b_i-\min_{y\in K}a_i^\top y)\le b_i\) for all \(i\); then \(\mathrm{sym}(K)=\beta/(1-\beta)\).</p>
-
-      <h4>The four problems</h4>
-      <p>Move a Minkowski center to the origin, set \(\alpha=\mathrm{sym}(K)\) and \(\lambda=\frac{1+\alpha}{1-\alpha}\), and write \(K=\mathrm{conv}\{v_j\}=\{x: h_i^\top x\le 1\}\). Then (a) and (b) are the classical problems, and (c) and (d) add terms that involve \(\lambda\):
-      \[\begin{aligned}
-      &\text{(a) MVCE:} && \min_{Q\succ 0,\,c}\; -\log\det Q && \text{s.t. } (v_j-c)^\top Q (v_j-c)\le 1,\\
-      &\text{(b) MVIE:} && \min_{X\succ 0,\,c}\; -2\log\det X && \text{s.t. } \|Xh_i\|\le 1-h_i^\top c,\\
-      &\text{(c) } (\mathrm P_\lambda): && \min_{Q\succ 0,\,c}\; -\log\det Q && \text{s.t. } (v_j-c)^\top Q (v_j-c)+\lambda\, c^\top Q c\le 1,\\
-      &\text{(d) } (\mathrm J_\lambda): && \min_{X\succ 0,\,c}\; -2\log\det X && \text{s.t. } \|Xh_i\|^2+(\lambda-1)(h_i^\top c)^2+2h_i^\top c\le 1.
-      \end{aligned}\]
-      The ellipse is \(c+\{x: x^\top Qx\le 1\}\) in (a), (c) and \(c+X B\) in (b), (d). The extra terms pull the center toward the Minkowski center, more strongly when \(K\) is more symmetric. At \(\alpha=1\), \(\lambda=\infty\) fixes \(c=0\).</p>
-
-      <h4>Guarantees</h4>
-      <p>(a) and (b) give \(\rho\le n\) for every convex body and \(\rho\le\sqrt n\) for centrally symmetric ones (John, 1948), and these factors are sharp. (c) and (d) give \(\rho\le\sqrt{n/\mathrm{sym}(K)}\) (Theorem 1.1, Lemmas 2.1 and 4.1), as conjectured by Belloni and Freund in 2005. This bound equals \(n\) for a simplex and \(\sqrt n\) for a centrally symmetric body, and Theorem 5.1 shows that it cannot be improved by more than the factor \(\sqrt{2/3}\) for any \(n\) and any symmetry value. All of these quantities are unchanged by linear changes of coordinates. The page draws the example of Figure 1 after such a change, so the picture differs from the printed one while every number agrees.</p>
-
-      <h4>The slider family</h4>
-      <p>From \(\mathrm{sym}=1/2\) to \(0.7072\), the slider cuts two corners off a triangle (dotted in panel (b)) and ends at the polygon of Figure 1. Every polygon on this part lies inside the triangle and contains the triangle's maximum-volume inscribed ellipse and one of its corners, so the MVIE of the polygon is the triangle's inscribed ellipse and (b) stays at exactly \(\rho=2\). From \(0.7072\) to \(1\), a smooth path leads to the unit square. We chose this path numerically: among pentagons that contain three corners of the square, it keeps (c) and (d) as far ahead of (a) and (b) as we could while \(\mathrm{sym}(K)\) increases. Other polygons behave differently; for some, a classical ellipse is the roundest (try <em>Draw your own</em>).</p>
-
-      <h4>Computation</h4>
-      <p>Everything is computed live in the browser. The symmetry LP has three variables, so the page enumerates its vertices. The four log-det problems are solved by one primal barrier method with damped Newton steps in five variables (the shape and the center), in about 1 ms per polygon. The solver was checked against MOSEK on 67 polygons (largest relative difference in \(\rho\) 1.6e-4, within MOSEK's tolerance) and against the exact values for the triangle, the square, and the regular hexagon (error below 1e-15).</p>
-    </div>
-  </details>
-
-  <p class="foot">Keys: <kbd>Space</kbd> play or pause · <kbd>←</kbd> <kbd>→</kbd> move the slider (<kbd>Shift</kbd> for larger steps) · <kbd>F</kbd> Figure 1 example · <kbd>V</kbd> rounded view · <kbd>D</kbd> draw your own · <kbd>T</kbd> theme</p>
+  <p class="foot">Everything is computed in your browser, about 1 ms per polygon.</p>
 </div>
 
 <script>
@@ -857,10 +889,10 @@ var Family = (function () {
   const KEYS = ['L', 'J', 'V', 'H'];
   const X = '<span class="xm">×</span>';
   const META = {
-    L: { tag: '(a)', title: 'Smallest ellipse around <i>K</i> <span class="abbr">(MVCE)</span>', kind: 'cover', group: 'classical' },
-    J: { tag: '(b)', title: 'Largest ellipse inside <i>K</i> <span class="abbr">(MVIE)</span>', kind: 'inscribe', group: 'classical' },
-    V: { tag: '(c)', title: 'Smallest ellipse around <i>K</i>, center pulled toward ' + X, kind: 'cover', group: 'new' },
-    H: { tag: '(d)', title: 'Largest ellipse inside <i>K</i>, center pulled toward ' + X, kind: 'inscribe', group: 'new' }
+    L: { tag: '(a)', title: 'Minimum-volume covering ellipsoid (MVCE)', kind: 'cover', group: 'classical' },
+    J: { tag: '(b)', title: 'Maximum-volume inscribed ellipsoid (MVIE)', kind: 'inscribe', group: 'classical' },
+    V: { tag: '(c)', title: 'MVCE with its center pulled to ' + X, kind: 'cover', group: 'new' },
+    H: { tag: '(d)', title: 'MVIE with its center pulled to ' + X, kind: 'inscribe', group: 'new' }
   };
   const T_FIG1 = 1;
   const PANEL_W = 400, PANEL_H = 300;
@@ -895,6 +927,13 @@ var Family = (function () {
     return fallbackTeX(tex);
   }
   const SQ = '\\sqrt{2/\\mathrm{sym}(K)}';
+  // SVG text in KaTeX's fonts: parts [kind, text], kinds 'i' (variable), 'n' (upright), 't' (words)
+  function svgMath(parts) {
+    return parts.map(([k, t]) => '<tspan class="' + (k === 'i' ? 'mi' : k === 'n' ? 'mn' : 'tx') + '">' + t + '</tspan>').join('');
+  }
+  // the guarantee of each method: (a), (b) give 2 in the plane, and sqrt 2 only for centrally symmetric K
+  const symmetricK = () => state.res.alpha > 1 - 1e-9;
+  function guaranteeOf(k) { return META[k].group === 'classical' ? (symmetricK() ? Math.SQRT2 : 2) : state.res.ell[k].guarantee; }
 
   // ------------------------------------------------------------ geometry helpers
   const nested = S => [[S[0], S[1]], [S[1], S[2]]];
@@ -982,11 +1021,12 @@ var Family = (function () {
         '<div class="panel-name">' + m.title + '</div></div>' +
         '<div class="panel-rho"><svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true">' +
           (m.kind === 'cover' ? '<circle cx="7" cy="7" r="5.2" fill="var(--s-' + k + ')"/>' : '<path d="M7 1.2 12.8 7 7 12.8 1.2 7Z" fill="var(--s-' + k + ')"/>') +
-        '</svg><span class="rho-label">ρ =</span> <span class="rho-val" id="rho-' + k + '">—</span></div>' +
+        '</svg><span class="rho-label">\\(\\rho=\\)</span> <span class="rho-val" id="rho-' + k + '">—</span></div>' +
       '</div>' +
       '<svg class="panel-svg" id="svg-' + k + '" viewBox="0 0 ' + PANEL_W + ' ' + PANEL_H + '" role="img" aria-label="' + m.tag + ' ' + m.title.replace(/<[^>]+>/g, '') + '"></svg>' +
       '<div class="panel-foot"><div class="bar" aria-hidden="true"><div class="bar-guar" id="bg-' + k + '"></div><div class="bar-val" id="bv-' + k + '"></div></div>' +
       '<div class="guar" id="guar-' + k + '"></div></div>';
+    card.appendChild(document.getElementById('form-' + k).content.cloneNode(true));
     panelsEl.appendChild(card);
   });
 
@@ -1027,22 +1067,22 @@ var Family = (function () {
         // rounded coordinates: x -> L^{-1}(x - c) / r_in, so the inner ellipse becomes the unit circle
         const Li = C.sym2.inv(e.L);
         const U = res.P.V.map(v => { const u = C.sym2.apply(Li, [v[0] - e.c[0], v[1] - e.c[1]]); return [u[0] / e.rin, u[1] / e.rin]; });
-        const g = e.guarantee;
+        const g = guaranteeOf(k);
         s += '<path class="guar-ring" d="' + circlePath(view, g) + '"/>';
-        s += '<text class="ring-lab" x="' + (view.X(0) + 4) + '" y="' + (view.Y(g) - 4).toFixed(1) + '">guarantee ' + fmt(g, 2) + '</text>';
+        s += '<text class="ring-lab" x="' + (view.X(0) + 4) + '" y="' + (view.Y(g) - 4).toFixed(1) + '">' + svgMath([['t', 'guarantee '], ['n', fmt(g, 3)]]) + '</text>';
         s += '<path class="poly" d="' + pathOf(view, U) + '"/>';
         s += '<path class="ell ' + (solidOuter ? 'dash' : 'solid') + '" style="stroke:var(--s-' + k + ')" d="' + circlePath(view, 1) + '"/>';
         s += '<path class="ell ' + (solidOuter ? 'solid' : 'dash') + '" style="stroke:var(--s-' + k + ')" d="' + circlePath(view, e.rho) + '"/>';
         s += '<circle class="ctr" cx="' + view.X(0) + '" cy="' + view.Y(0) + '" r="4" style="fill:var(--s-' + k + ')"/>';
       }
       $('#svg-' + k).innerHTML = s;
-      $('#rho-' + k).textContent = fmt(e.rho);
+      $('#rho-' + k).innerHTML = M(fmt(e.rho));
       $('#guar-' + k).innerHTML = meta.group === 'classical'
-        ? 'guaranteed: ' + M('\\rho\\le 2')
-        : 'guaranteed: <span class="nw">' + M('\\rho\\le' + SQ) + ' = ' + fmt(e.guarantee) + '</span>';
+        ? 'guaranteed: ' + M('\\rho\\le ' + (symmetricK() ? '\\sqrt2' : '2'))
+        : 'guaranteed: ' + M('\\rho\\le' + SQ + '=' + fmt(e.guarantee));
       $('#bv-' + k).style.left = (100 * (e.rho - 1)) + '%';
       $('#bv-' + k).style.background = 'var(--s-' + k + ')';
-      $('#bg-' + k).style.left = (100 * (e.guarantee - 1)) + '%';
+      $('#bg-' + k).style.left = (100 * (guaranteeOf(k) - 1)) + '%';
     }
   }
 
@@ -1057,9 +1097,7 @@ var Family = (function () {
     s += '<path class="refl" d="' + pathOf(view, Rf) + '"/>';
     s += '<path class="mk big" d="M' + (x - 7) + ',' + (y - 7) + 'L' + (x + 7) + ',' + (y + 7) + 'M' + (x - 7) + ',' + (y + 7) + 'L' + (x + 7) + ',' + (y - 7) + '"/>';
     $('#svg-sym').innerHTML = s;
-    $('#sym-text').innerHTML = 'Turn <i>K</i> upside down about the point ' + X + ' and shrink the copy by the factor <b>' + fmt(a) +
-      '</b>: the copy (dashed) still fits inside <i>K</i>, and no other point allows a larger factor. So sym(<i>K</i>) = ' + fmt(a) +
-      '. A triangle has sym = 1/2; a shape that is symmetric about a point, such as a square, has sym = 1.';
+    $('#sym-text').innerHTML = 'Dashed: ' + M('x-\\mathrm{sym}(K)\\,(K-x)\\subseteq K') + ', with ' + M('x') + ' the Minkowski center ' + X + '.';
   }
 
   // ------------------------------------------------------------ chart
@@ -1090,11 +1128,14 @@ var Family = (function () {
       s += '<text class="tick" x="' + (CH.ml - 6) + '" y="' + (y + 4) + '" text-anchor="end">' + r.toFixed(1) + '</text>';
     }
     s += '<line class="axis" x1="' + CH.ml + '" y1="' + (CH.H - CH.mb) + '" x2="' + (CH.W - CH.mr) + '" y2="' + (CH.H - CH.mb) + '"/>';
-    s += '<text class="axlab" x="' + ((CH.ml + CH.W - CH.mr) / 2) + '" y="' + (CH.H - 6) + '" text-anchor="middle">symmetry sym(K)   (triangle 1/2 → square 1)</text>';
-    s += '<text class="axlab" transform="translate(13,' + ((CH.mt + CH.H - CH.mb) / 2) + ') rotate(-90)" text-anchor="middle">rounding factor ρ (lower is better)</text>';
-    // guarantees
-    s += '<line class="g2" x1="' + cx(0.5, R) + '" y1="' + cy(2, R) + '" x2="' + cx(1, R) + '" y2="' + cy(2, R) + '"/>';
-    s += '<text class="glab" x="' + (cx(1, R) - 4) + '" y="' + (cy(2, R) - 6) + '" text-anchor="end">guarantee of (a), (b)</text>';
+    s += '<text class="axlab" x="' + ((CH.ml + CH.W - CH.mr) / 2) + '" y="' + (CH.H - 6) + '" text-anchor="middle">' +
+      svgMath([['n', 'sym('], ['i', 'K'], ['n', ')'], ['t', '\u2003(triangle '], ['n', '1/2'], ['t', ' → square '], ['n', '1'], ['t', ')']]) + '</text>';
+    s += '<text class="axlab" transform="translate(13,' + ((CH.mt + CH.H - CH.mb) / 2) + ') rotate(-90)" text-anchor="middle">' +
+      svgMath([['t', 'rounding factor '], ['i', 'ρ'], ['t', ' (lower is better)']]) + '</text>';
+    // guarantees: (a), (b) give 2 while sym(K) < 1 (open end) and sqrt 2 at sym(K) = 1
+    s += '<line class="g2" x1="' + cx(0.5, R) + '" y1="' + cy(2, R) + '" x2="' + (cx(1, R) - 4) + '" y2="' + cy(2, R) + '"/>';
+    s += '<circle class="gopen" cx="' + cx(1, R) + '" cy="' + cy(2, R) + '" r="3.5"/>';
+    s += '<text class="glab" x="' + (cx(1, R) - 10) + '" y="' + (cy(2, R) - 7) + '" text-anchor="end">guarantee of (a), (b)</text>';
     const bpts = [];
     for (let i = 0; i <= 100; i++) { const a = 0.5 + 0.005 * i; bpts.push([cx(a, R), cy(Math.sqrt(2 / a), R)]); }
     s += '<path class="gb" d="' + bpts.map((p, i) => (i ? 'L' : 'M') + p[0].toFixed(2) + ',' + p[1].toFixed(2)).join('') + '"/>';
@@ -1115,8 +1156,8 @@ var Family = (function () {
     s += '<rect class="hit" x="' + CH.ml + '" y="' + CH.mt + '" width="' + (CH.W - CH.ml - CH.mr) + '" height="' + (CH.H - CH.mt - CH.mb) + '"/>';
     $('#svg-chart').innerHTML = s;
     $('#chart-note').textContent = state.mode === 'family'
-      ? 'Each curve follows one method while the slider turns the triangle into a square. Click or drag on the chart to move the slider.'
-      : 'The markers show your polygon. The two guarantee curves hold for every convex shape.';
+      ? 'Click or drag on the chart to move the slider.'
+      : 'The markers show your polygon; the guarantees hold for every convex shape.';
   }
 
   // chart hover and click
@@ -1132,10 +1173,10 @@ var Family = (function () {
     const a = chartAlpha(ev);
     if (a < 0.5 || a > 1) { tip.hidden = true; return; }
     if (chartDown && state.mode === 'family') setAlpha(a);
-    let html = '<b>sym(<i>K</i>) = ' + fmt(a) + '</b><br>' + M(SQ) + ' = ' + fmt(Math.sqrt(2 / a));
+    let html = M('\\mathrm{sym}(K)=' + fmt(a)) + '<br>' + M(SQ + '=' + fmt(Math.sqrt(2 / a)));
     if (state.mode === 'family') {
       const g = GRID[Math.max(0, Math.min(100, Math.round((a - 0.5) / 0.005)))];
-      if (g.done) for (const k of KEYS) html += '<br><span class="sw" style="background:var(--s-' + k + ')"></span>' + META[k].tag + ' ρ = ' + fmt(g.rho[k]);
+      if (g.done) for (const k of KEYS) html += '<br><span class="sw" style="background:var(--s-' + k + ')"></span>' + META[k].tag + ' ' + M('\\rho=' + fmt(g.rho[k]));
     }
     tip.innerHTML = html;
     const r = chartSvg.getBoundingClientRect(), host = chartSvg.parentElement.getBoundingClientRect();
@@ -1152,41 +1193,49 @@ var Family = (function () {
   chartSvg.addEventListener('pointerup', () => { chartDown = false; });
 
   // ------------------------------------------------------------ caption and readouts
+  // A few short lines on what the current shape shows. They are built one after another when the
+  // situation changes (triangle, corners cut, Figure 1, toward the square, square, your polygon);
+  // while the slider moves within one situation, only their numbers change.
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function build(el, ms) {
+    if (reduced) return;
+    el.classList.remove('build'); void el.getBoundingClientRect(); el.classList.add('build');
+    clearTimeout(el._buildTimer);
+    el._buildTimer = setTimeout(() => el.classList.remove('build'), ms);
+  }
+  function situation() {
+    if (state.mode !== 'family') return 'free';
+    const a = state.res.alpha;
+    if (state.t <= 0) return 'triangle';               // exactly the triangle
+    if (state.t === T_FIG1) return 'fig1';             // setAlpha snaps to the Figure 1 polygon
+    if (state.t >= 2) return 'square';                 // exactly the square
+    return state.t < T_FIG1 ? 'cut' : 'upper';
+  }
+  const ref1 = '[<a class="cite" href="#ref-1">1</a>]';
+  let shown = null;
   function renderText() {
     const res = state.res, a = res.alpha, b = res.bound, e = res.ell;
-    $('#sym-val').textContent = fmt(a);
-    $('#sym-val-free').textContent = fmt(a);
-    $('#bound-line').innerHTML = 'guarantee of (c), (d): <span class="nw">' + M(SQ) + ' = ' + fmt(b) + '</span>';
-    const L = fmt(e.L.rho), J = fmt(e.J.rho), V = fmt(e.V.rho), H = fmt(e.H.rho);
-    const within = 'within their guarantee ' + M(SQ) + ' = ' + fmt(b);
-    let cap;
-    if (state.mode === 'family') {
-      if (a < 0.5005) {
-        cap = '<i>K</i> is a triangle, the least symmetric shape: sym(<i>K</i>) = 1/2. All four methods give the same ellipse, with ρ = 2, and no ellipse fits a triangle better. Press Play to make <i>K</i> more symmetric.';
-      } else if (Math.abs(state.t - T_FIG1) < 2e-3) {
-        cap = 'This is the example of Figure 1 in the paper, drawn in other coordinates (which change no number). Although sym(<i>K</i>) = ' + fmt(a) +
-          ', the classical ellipses give ρ = ' + (L === J ? L : L + ' and ' + J) + ', as bad as for a triangle. The center-regularized ellipses give ' + V + ' and ' + H + ', ' + within + '.';
-      } else if (a > 0.9995) {
-        cap = '<i>K</i> is a square, the most symmetric shape: sym(<i>K</i>) = 1. All four methods agree again, with ρ = ' + M('\\sqrt{2}') + ' ≈ 1.414. This equals the guarantee ' + M(SQ) +
-          ', so the guarantee cannot be improved here, just as for the triangle.';
-      } else if (state.t < T_FIG1) {
-        cap = 'Cutting two corners off the dotted triangle makes <i>K</i> more symmetric: sym(<i>K</i>) = ' + fmt(a) + '. The classical ellipses hardly notice: they give ρ = ' + L + ' and ' + J +
-          ', as for a triangle, and (b) is exactly the largest ellipse inside the dotted triangle. The center-regularized ellipses give ' + V + ' and ' + H + ', ' + within + '.';
-      } else {
-        const rel = x => (x > b + 5e-4 ? 'above it' : (x < b - 5e-4 ? 'below it' : 'about equal to it'));
-        const ra = rel(e.L.rho), rb = rel(e.J.rho);
-        const cls = ra === rb ? 'both ' + ra : '(a) ' + ra + ' and (b) ' + rb;
-        cap = '<i>K</i> is turning into a square (sym(<i>K</i>) = ' + fmt(a) + '), and all four methods improve. The center-regularized ellipses give ' + V + ' and ' + H + ', ' + within +
-          '. The classical ellipses give ' + L + ' and ' + J + ', ' + cls + '.';
-      }
-    } else {
-      const best = KEYS.reduce((p, k) => (e[k].rho < e[p].rho ? k : p), 'L');
-      cap = 'Your polygon has sym(<i>K</i>) = ' + fmt(a) + '. The center-regularized ellipses are guaranteed ' + M('\\rho\\le' + SQ) + ' = ' + fmt(b) +
-        '; the classical ones only ' + M('\\rho\\le 2') + '. The best fit here is ' + META[best].tag + ', with ρ = ' + fmt(e[best].rho) + '.';
+    $('#sym-val').innerHTML = M(fmt(a));
+    $('#sym-val-free').innerHTML = M(fmt(a));
+    const two = (p, q) => fmt(e[p].rho) === fmt(e[q].rho) ? fmt(e[p].rho) : fmt(e[p].rho) + ',\\ ' + fmt(e[q].rho);
+    const classical = '(a), (b): ' + M('\\rho=' + two('L', 'J'));
+    const regular = '(c), (d): ' + M('\\rho=' + two('V', 'H') + '\\le' + SQ + '=' + fmt(b));
+    const sit = situation();
+    let lines;
+    if (sit === 'triangle') lines = ['Triangle: all four give ' + M('\\rho=2'), 'No ellipse rounds a triangle better'];
+    else if (sit === 'square') lines = ['Square: all four give ' + M('\\rho=\\sqrt2=' + SQ), '<b>The guarantee of (c), (d) is attained</b>'];
+    else if (sit === 'fig1') lines = ['Figure 1 of ' + ref1 + '. ' + classical + ', <b>as for a triangle</b>', regular];
+    else {
+      lines = [classical, regular];
       const bc = e.L.rho <= e.J.rho ? 'L' : 'J', wn = e.V.rho >= e.H.rho ? 'V' : 'H';
-      if (e[bc].rho < e[wn].rho - 5e-4) cap += ' Here ' + META[bc].tag + ' fits better than ' + META[wn].tag + ': the guarantee is about the worst case, not about every shape.';
+      if (sit === 'free' && e[bc].rho < e[wn].rho - 5e-4) lines.push(META[bc].tag + ' beats ' + META[wn].tag + ' here: a guarantee bounds the worst case');
     }
-    $('#caption').innerHTML = cap;
+    const ul = $('#caption'), li = ul.children;
+    if (sit !== shown || li.length !== lines.length) {
+      ul.innerHTML = lines.map((h, i) => '<li style="--t:' + (0.1 + 0.35 * i).toFixed(2) + '">' + h + '</li>').join('');
+      if (shown !== null && !state.playing && !state.drag) build(ul, 1800);
+      shown = sit;
+    } else lines.forEach((h, i) => { if (li[i].innerHTML !== h) li[i].innerHTML = h; });
   }
 
   // ------------------------------------------------------------ render all
@@ -1324,19 +1373,6 @@ var Family = (function () {
   });
   $('#btn-back').addEventListener('click', () => setMode('family'));
 
-  // theme
-  function currentTheme() {
-    const t = document.documentElement.dataset.theme;
-    if (t) return t;
-    return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-  }
-  try { const saved = localStorage.getItem('rounding-demo-theme'); if (saved) document.documentElement.dataset.theme = saved; } catch (err) {}
-  $('#btn-theme').addEventListener('click', () => {
-    const next = currentTheme() === 'dark' ? 'light' : 'dark';
-    document.documentElement.dataset.theme = next;
-    try { localStorage.setItem('rounding-demo-theme', next); } catch (err) {}
-  });
-
   // keyboard
   document.addEventListener('keydown', ev => {
     if (ev.metaKey || ev.ctrlKey || ev.altKey) return;
@@ -1349,7 +1385,6 @@ var Family = (function () {
     else if (k === 'f' || k === 'F') figure1();
     else if (k === 'v' || k === 'V') setView(state.view === 'ellipses' ? 'rounded' : 'ellipses');
     else if (k === 'd' || k === 'D') setMode(state.mode === 'family' ? 'free' : 'family');
-    else if (k === 't' || k === 'T') $('#btn-theme').click();
     else if (k === 'Home' && state.mode === 'family') { stopPlay(); setAlpha(0.5); ev.preventDefault(); }
     else if (k === 'End' && state.mode === 'family') { stopPlay(); setAlpha(1); ev.preventDefault(); }
   });
@@ -1367,19 +1402,22 @@ var Family = (function () {
       gj++;
     }
     if (gj < GRID.length) { if (gj % 20 === 0) renderChart(); setTimeout(precomputeChunk, 0); }
-    else { FAMILY_BOX = padBox(FAMILY_BOX, 0.03); buildTable(); render(); }
+    else { FAMILY_BOX = padBox(FAMILY_BOX, 0.03); render(); }
   }
-  function buildTable() {
-    if (gj < GRID.length) return;
-    let h = '<thead><tr><th>sym(<i>K</i>)</th><th>' + M(SQ) + '</th>' + KEYS.map(k => '<th>' + META[k].tag + '</th>').join('') + '</tr></thead><tbody>';
-    for (let j = 0; j <= 100; j += 10) {
-      const g = GRID[j];
-      h += '<tr><td>' + fmt(g.alpha, 2) + '</td><td>' + fmt(Math.sqrt(2 / g.alpha)) + '</td>' + KEYS.map(k => '<td>' + fmt(g.rho[k]) + '</td>').join('') + '</tr>';
-    }
-    $('#table').innerHTML = h + '</tbody>';
-  }
-  // re-typeset the dynamic text once KaTeX arrives
-  window.__katexLoaded = () => { TEX.clear(); if (state.res) render(); buildTable(); };
+
+  // re-typeset the dynamic text once KaTeX arrives (the caption is rebuilt silently)
+  window.__katexLoaded = () => { TEX.clear(); shown = null; if (state.res) { render(); build($('#caption'), 1800); } if (document.fonts && document.fonts.load) document.fonts.load('12px KaTeX_Main').then(() => { if (state.res) renderChart(); }); };
+  // a citation jumps to its entry in the references and marks it
+  document.addEventListener('click', ev => {
+    const a = ev.target.closest && ev.target.closest('a.cite');
+    const ref = a && document.querySelector(a.getAttribute('href'));
+    if (!ref) return;
+    ev.preventDefault();
+    document.querySelectorAll('.refs li.hit').forEach(li => li.classList.remove('hit'));
+    ref.classList.add('hit');
+    history.replaceState(null, '', a.getAttribute('href'));
+    ref.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  });
 
   // ------------------------------------------------------------ start
   state.t = T_FIG1;
@@ -1392,7 +1430,7 @@ var Family = (function () {
 </script>
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js" onload="window.__katexLoaded && window.__katexLoaded()"></script>
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"
-  onload="renderMathInElement(document.body, {delimiters: [{left: '\\[', right: '\\]', display: true}, {left: '\\(', right: '\\)', display: false}], ignoredClasses: ['panels', 'caption', 'tip', 'readout', 'sym-text']});"></script>
+  onload="renderMathInElement(document.body, {delimiters: [{left: '\\[', right: '\\]', display: true}, {left: '\\(', right: '\\)', display: false}], ignoredClasses: ['katex', 'caption', 'tip', 'sym-text'], throwOnError: false});"></script>
 <div class="site-foot">&copy; 2026 Zikai Xiong &middot; <a href="../">All interactive demos</a></div>
 <script src="../../assets/js/nav.js"></script>
 </body>
