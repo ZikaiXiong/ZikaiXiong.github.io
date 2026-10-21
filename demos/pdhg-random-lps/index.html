@@ -84,9 +84,9 @@ details.more select{font:inherit;color:var(--ink);background:var(--surface);bord
 .after .btn{font-family:var(--body);margin-top:8px}
 .tipbox{position:fixed;z-index:40;max-width:min(320px,calc(100vw - 24px));background:var(--surface);color:var(--ink);border:1px solid var(--rule);border-radius:10px;padding:7px 10px;font:500 .82rem/1.4 var(--body);box-shadow:0 8px 28px rgba(0,0,0,.16);pointer-events:none}
 .plot{display:block;width:100%;height:auto}
-.plot .ax{stroke:var(--rule);stroke-width:1;fill:none}
+.plot .ax{stroke:var(--rule);stroke-width:1;fill:none;pointer-events:none}
 .plot .gridl{stroke:var(--grid);stroke-width:1;fill:none}
-.plot .tk{fill:var(--muted);font:11px var(--mono)}
+.plot .tk{fill:var(--muted);font:12px KaTeX_Main,"Times New Roman",serif}
 .plot .lbl{fill:var(--muted);font:11px var(--body)}
 .phi-grid{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:8px 24px;align-items:center}
 @media (max-width:860px){.phi-grid{grid-template-columns:minmax(0,1fr)}}
@@ -104,10 +104,32 @@ footer{color:var(--muted);font-size:.82rem;margin-top:4px;max-width:110ch}
 @media (prefers-reduced-motion:reduce){.go.invite{animation:none}}
 </style>
 <style>
-/* citations jump to their entry in "The math"; the entry is marked while it is the target */
-html.demo-pdhg .math ol.refs { list-style: none; padding-left: 0; }
-html.demo-pdhg .math ol.refs li { scroll-margin-top: 4.5rem; padding: 2px 4px; margin: 3px -4px; border-radius: 4px; }
-html.demo-pdhg .math ol.refs li.hit { background: #F7EFF0; }
+/* references at the bottom; a citation jumps to its entry and marks it */
+ol.refs { list-style: none; padding-left: 0; margin: 0; }
+ol.refs li { scroll-margin-top: 4.5rem; padding: 2px 4px; margin: 3px -4px; border-radius: 4px; }
+ol.refs li.hit { background: #F7EFF0; }
+/* folds inside a card: closed by default, opened by those who want the details */
+details.fold { margin-top: 12px; border-top: 1px solid var(--rule); padding-top: 8px; }
+details.fold > summary { cursor: pointer; list-style: none; font-size: .9rem; color: var(--accent); }
+details.fold > summary::-webkit-details-marker { display: none; }
+details.fold > summary::before { content: "▸"; display: inline-block; width: 1em; color: var(--muted); }
+details.fold[open] > summary::before { content: "▾"; }
+/* the theme rules a card's first summary as a heading; these two are not headings */
+html.demo-site .card > details.fold > summary,
+html.demo-site .card > details.more > summary { padding-bottom: 0; margin-bottom: 0; border-bottom: 0; }
+details.fold .note { margin: 8px 0 0; font-size: .9rem; color: var(--ink); max-width: 110ch; }
+/* formulas: KaTeX in the text; in the SVG chart the same fonts by hand */
+.katex { font-size: 1.08em; white-space: nowrap; }
+.nw { white-space: nowrap; }
+.ctl label .katex { font-size: 1em; }
+.plot .mi { font-family: KaTeX_Math, "Times New Roman", serif; font-style: italic; }
+.plot .mn { font-family: KaTeX_Main, "Times New Roman", serif; font-style: normal; }
+.plot .tx { font-family: var(--body); font-style: normal; }
+.cf { container-type: inline-size; }
+.cf .katex-display { margin: .5em 0 .3em; padding: 2px 0; overflow-x: auto; overflow-y: hidden; }
+.cf .narrow { display: none; }
+@container (max-width: 500px) { .cf .wide { display: none; } .cf .narrow { display: block; } }
+@container (max-width: 360px) { .cf .katex-display > .katex { font-size: .92em; } }
 
 /* Results appear one piece at a time, like the builds of a slide; what has appeared stays. */
 .takeaways { list-style: none; margin: 4px 0 14px; padding: 0; display: grid; gap: 8px; }
@@ -120,16 +142,11 @@ html.demo-pdhg .math ol.refs li.hit { background: #F7EFF0; }
 .takeaways.build li, .after.build .go { animation: rise .45s ease-out both; animation-delay: calc(var(--t, 0) * 1s); }
 @keyframes rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
 #phiPlot .pt, #phiPlot .ring { transform-box: fill-box; transform-origin: center; }
+#phiPlot .pt { pointer-events: visible; cursor: default; }
 #phiPlot.build .pt { animation: pt-in .35s ease-out both; animation-delay: var(--d); }
 #phiPlot.build .ring { animation: pt-in .4s ease-out both; animation-delay: 1.9s; }
 @keyframes pt-in { from { opacity: 0; transform: scale(.2); } to { opacity: 1; transform: none; } }
 #phiCard.build { animation: rise .45s ease-out both; }
-/* "The math" is the last thing on the page, so readers know there is more to open */
-.endbar { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; margin: 2px 0 18px; scroll-margin-top: 12px; }
-.endbar .btn { font-size: .95rem; padding: 8px 16px; }
-.endbar .caret { display: inline-block; margin-left: 4px; transition: transform .2s; }
-#mathBtn[aria-expanded="true"] .caret { transform: rotate(180deg); }
-.endnote { color: var(--muted); font-size: .88rem; }
 @media (prefers-reduced-motion: reduce) {
   .takeaways.build li, .after.build .go, #phiPlot.build .pt, #phiPlot.build .ring, #phiCard.build { animation: none; }
 }
@@ -158,7 +175,7 @@ html.demo-pdhg .math ol.refs li.hit { background: #F7EFF0; }
   <header class="top">
     <div class="titles">
       <h1>How hard is a random LP?</h1>
-      <p class="cite">Created by Zikai Xiong · Based on Xiong, <a href="https://arxiv.org/abs/2501.00728" target="_blank" rel="noopener">arXiv:2501.00728</a> and <a href="https://arxiv.org/abs/2410.04043" target="_blank" rel="noopener">arXiv:2410.04043</a></p>
+      <p class="cite">Created by <a href="../../index.html">Zikai Xiong</a> · Based on Xiong [<a class="cite" href="#ref-1">1</a>, <a class="cite" href="#ref-2">2</a>]</p>
       <p class="lede">Restarted PDHG (rPDHG): a first-order method for linear programs.<br>Pick a size and watch it solve random LPs, one dot per LP.</p>
     </div>
     <nav class="toplinks">
@@ -168,8 +185,8 @@ html.demo-pdhg .math ol.refs li.hit { background: #F7EFF0; }
 
   <section class="card" aria-label="Start here">
     <div class="ctl">
-      <label>Variables (n)<input id="inN" type="number" inputmode="numeric" min="4" max="200" step="1" value="30"></label>
-      <label>Constraints (m)<input id="inM" type="number" inputmode="numeric" min="1" max="199" step="1" value="15"></label>
+      <label><span>Variables $n$</span><input id="inN" type="number" inputmode="numeric" min="4" max="200" step="1" value="30"></label>
+      <label><span>Constraints $m$</span><input id="inM" type="number" inputmode="numeric" min="1" max="199" step="1" value="15"></label>
       <label>Random LPs<input id="inK" type="number" inputmode="numeric" min="10" max="2000" step="10" value="200"></label>
       <button class="go invite" id="goBtn">▶ Solve them</button>
       <button class="btn small" id="stopBtn" hidden>Stop</button>
@@ -177,7 +194,11 @@ html.demo-pdhg .math ol.refs li.hit { background: #F7EFF0; }
     <p class="hint" id="hint">The defaults take a few seconds.</p>
     <details class="more">
       <summary>More options</summary>
-      <label>Random matrix A <select id="inDist"><option value="gauss" selected>Gaussian entries</option><option value="pm1">±1 entries</option></select></label>
+      <label><span>Random matrix $A$</span><select id="inDist"><option value="gauss" selected>Gaussian entries</option><option value="pm1">±1 entries</option></select></label>
+    </details>
+    <details class="fold">
+      <summary>The random LPs</summary>
+      <p class="note">Standard form $\min\, c^\top x$ s.t. $Ax=b,\ x\ge 0$, from the model in the experiments of [<a class="cite" href="#ref-1">1</a>, <a class="cite" href="#ref-2">2</a>]: $A\in\mathbb{R}^{m\times n}$ has i.i.d. $N(0,1)$ entries (or $\pm1$ entries); $\hat x=(|u_1|,\dots,|u_m|,0,\dots,0)$ and $\hat s=(0,\dots,0,|u_{m+1}|,\dots,|u_n|)$ with $u\sim N(0,I)$; $b=A\hat x$ and $c=\hat s+A^\top\hat y$, with $\hat y$ chosen so that $Ac=0$. Then $x^\star=\hat x$ and $s^\star=\hat s$ are known, so $\Phi$ follows from its closed form.</p>
     </details>
   </section>
 
@@ -189,6 +210,11 @@ html.demo-pdhg .math ol.refs li.hit { background: #F7EFF0; }
       <ul class="takeaways" id="afterList"></ul>
       <button class="go" id="phiBtn">What makes some LPs slow? →</button>
     </div>
+    <details class="fold">
+      <summary>rPDHG, the stopping rule and what [<a class="cite" href="#ref-1">1</a>] proves</summary>
+      <p class="note">Each LP is solved by rPDHG (Algorithm 1 of [<a class="cite" href="#ref-1">1</a>, <a class="cite" href="#ref-2">2</a>], as on the <a href="../pdhg-lp-hardness/index.html">one-LP page</a>) from $0$ until $\|(x,s)-(x^\star,s^\star)\|_2\le 10^{-4}$, as in the experiments of [<a class="cite" href="#ref-2">2</a>]. A run stops after $\min\{10^6,\max\{10^5,\ 4\cdot10^9/(mn)\}\}$ iterations; such LPs are hollow dots.</p>
+      <p class="note">With probability at least $1-\delta$, rPDHG finds the optimal basis within $\widetilde O(n^{2.5}m^{0.5}/\delta)$ iterations <span class="nw">($\widetilde O(n^{2.5}/\delta)$</span> for Gaussian <span class="nw">$A$),</span> and then an $\varepsilon$-optimal solution within $O\big(\frac{\sqrt{nm}}{\delta}\ln\frac1\varepsilon\big)$ more [<a class="cite" href="#ref-1">1</a>]. This holds for sub-Gaussian $A$ with $n/(n-m+1)$ bounded and $\delta$ not exponentially small.</p>
+    </details>
   </section>
 
   <section class="card" id="phiCard" hidden>
@@ -197,46 +223,25 @@ html.demo-pdhg .math ol.refs li.hit { background: #F7EFF0; }
       <svg id="phiPlot" class="plot" viewBox="0 0 560 300" role="img" aria-label="Iterations against kappa times Phi"></svg>
       <ul class="takeaways" id="phiList"></ul>
     </div>
+    <details class="fold">
+      <summary>$\Phi$ and the iteration bound of [<a class="cite" href="#ref-2">2</a>]</summary>
+      <p class="note">With a unique optimum, rPDHG needs at most $O\big(\kappa\Phi\ln(\kappa\Phi\|w^\star\|/\varepsilon)\big)$ iterations [<a class="cite" href="#ref-2">2</a>], where $w^\star=(x^\star,s^\star)$, $\kappa$ is the condition number of $A$, and, with the optimal basis $B$, the other indices $N$ and $T=B^{-1}N$,</p>
+      <div class="cf"><div class="wide">\[\Phi=\big(\|x^\star\|_1+\|s^\star\|_1\big)\cdot\max\Big\{\max_j\frac{\sqrt{\|T_{:,j}\|^2+1}}{s^\star_{N_j}},\ \max_i\frac{\sqrt{\|T_{i,:}\|^2+1}}{x^\star_{B_i}}\Big\}.\]</div><div class="narrow">\[\begin{aligned}\Phi=\big(\|x^\star\|_1+\|s^\star\|_1\big)\cdot\max\Big\{&\max_j\frac{\sqrt{\|T_{:,j}\|^2+1}}{s^\star_{N_j}},\\ &\max_i\frac{\sqrt{\|T_{i,:}\|^2+1}}{x^\star_{B_i}}\Big\}.\end{aligned}\]</div></div>
+      <p class="note">The bounds of [<a class="cite" href="#ref-1">1</a>] and [<a class="cite" href="#ref-2">2</a>] are $O(\cdot)$ bounds, so the dashed line shows only their slope.</p>
+    </details>
   </section>
 
-  <div class="endbar">
-    <button class="btn" id="mathBtn" type="button" aria-expanded="false" aria-controls="math">The math <span class="caret" aria-hidden="true">▾</span></button>
-    <span class="endnote">Setup, theorems and references</span>
-  </div>
-
-  <section class="card math" id="math" hidden>
-    <div class="math-grid">
-      <div>
-        <h4>The random LPs</h4>
-        <p>Standard form $\min\, c^\top x$ subject to $Ax=b,\ x\ge 0$, from the model used in the experiments of [<a class="cite" href="#ref-1">1</a>, <a class="cite" href="#ref-2">2</a>]:</p>
-        <ul>
-          <li>$A\in\mathbb{R}^{m\times n}$ has i.i.d. $N(0,1)$ entries (or $\pm1$ entries);</li>
-          <li>$\hat x=(|u_1|,\dots,|u_m|,0,\dots,0)$ and $\hat s=(0,\dots,0,|u_{m+1}|,\dots,|u_n|)$ with $u\sim N(0,I)$;</li>
-          <li>$b=A\hat x$, and $c=\hat s+A^\top\hat y$ with $\hat y$ chosen so that $Ac=0$.</li>
-        </ul>
-        <p>Then $x^\star=\hat x$ and $s^\star=\hat s$ are known, so $\Phi$ comes from its closed form.</p>
-        <h4>rPDHG</h4>
-        <p>The method of the <a href="../pdhg-lp-hardness/index.html">one-LP page</a> (Algorithm 1 of [<a class="cite" href="#ref-1">1</a>, <a class="cite" href="#ref-2">2</a>]), started at $0$. An LP counts as solved when $\|(x,s)-(x^\star,s^\star)\|_2\le 10^{-4}$, as in the experiments of [<a class="cite" href="#ref-2">2</a>]. A run stops after $\min\{10^6,\max\{10^5,\ 4\cdot10^9/(mn)\}\}$ iterations; such LPs are hollow dots.</p>
-      </div>
-      <div>
-        <h4>What the papers prove</h4>
-        <ul>
-          <li>With probability at least $1-\delta$, rPDHG finds the optimal basis within $\widetilde O(n^{2.5}m^{0.5}/\delta)$ iterations ($\widetilde O(n^{2.5}/\delta)$ for Gaussian $A$), and then an $\varepsilon$-optimal solution within $O\big(\frac{\sqrt{nm}}{\delta}\ln\frac1\varepsilon\big)$ more [<a class="cite" href="#ref-1">1</a>]; this holds for sub-Gaussian $A$ with $n/(n-m+1)$ bounded and $\delta$ not exponentially small. The factor $1/\delta$ leaves room for a few slow LPs.</li>
-          <li>With a unique optimum, rPDHG needs at most $O\big(\kappa\Phi\ln(\kappa\Phi\|w^\star\|/\varepsilon)\big)$ iterations, where $\kappa$ is the condition number of $A$ and $\Phi=(\|x^\star\|_1+\|s^\star\|_1)\cdot\max\Big\{\max_j \frac{\sqrt{\|T_{:,j}\|^2+1}}{s^\star_{N_j}},\ \max_i \frac{\sqrt{\|T_{i,:}\|^2+1}}{x^\star_{B_i}}\Big\}$ with $T=B^{-1}N$ [<a class="cite" href="#ref-2">2</a>].</li>
-        </ul>
-        <p>Both are $O(\cdot)$ bounds; the dashed line in the chart has only their slope.</p>
-        <h4>References</h4>
-        <ol class="refs">
-          <li id="ref-1">[1] Z. Xiong. High-probability polynomial-time complexity of restarted PDHG for linear programming. Mathematics of Operations Research, forthcoming. <a href="https://arxiv.org/abs/2501.00728">arXiv:2501.00728</a></li>
-          <li id="ref-2">[2] Z. Xiong. Accessible complexity bounds for restarted PDHG on linear programs with a unique optimizer. Mathematics of Operations Research, 2026. <a href="https://arxiv.org/abs/2410.04043">arXiv:2410.04043</a></li>
-        </ol>
+  <section class="card refs-card" id="refs" aria-label="References">
+    <h3>References</h3>
+    <ol class="refs">
+      <li id="ref-1">[1] Z. Xiong. High-probability polynomial-time complexity of restarted PDHG for linear programming. <em>Mathematics of Operations Research</em>, forthcoming. <a href="https://arxiv.org/abs/2501.00728" target="_blank" rel="noopener">arXiv:2501.00728</a></li>
+      <li id="ref-2">[2] Z. Xiong. Accessible complexity bounds for restarted PDHG on linear programs with a unique optimizer. <em>Mathematics of Operations Research</em>, 2026. <a href="https://doi.org/10.1287/moor.2024.0738" target="_blank" rel="noopener">doi:10.1287/moor.2024.0738</a></li>
+    </ol>
         <div id="debug" hidden>
-        <h4>Self-tests</h4>
+        <h3>Self-tests</h3>
         <button class="btn" id="testBtn">Run self-tests</button>
         <pre class="tests" id="testOut" hidden></pre>
         </div>
-      </div>
-    </div>
   </section>
 
   <footer>Everything is computed in your browser, on <span id="nWorkers">several</span> threads. Hover over a dot for its details.</footer>
@@ -712,6 +717,49 @@ html.demo-pdhg .math ol.refs li.hit { background: #F7EFF0; }
     if (a >= 1000) return fmtInt(v);
     return String(Number(v.toPrecision(d)));
   }
+  // ---------- formulas ----------
+  // HTML: TeX between $...$ (or \[...\]) and tex(el); KaTeX loads after this script, so early calls wait for it.
+  const TEX = { delimiters: [{ left: '\\[', right: '\\]', display: true }, { left: '$', right: '$', display: false }], throwOnError: false, ignoredClasses: ['katex'] };
+  const texWaiting = new Set();
+  function tex(el) {
+    if (!el) return el;
+    if (window.renderMathInElement) window.renderMathInElement(el, TEX); else texWaiting.add(el);
+    return el;
+  }
+  // a number in TeX: thousands with {,}, small and large ones as a × 10^k
+  function numT(v) {
+    if (v == null || !isFinite(v)) return '\\text{–}';
+    const a = Math.abs(v);
+    if (a >= 1e5 || a < 1e-3) { const e = Math.floor(Math.log10(a)); return (v / Math.pow(10, e)).toFixed(1) + '\\times 10^{' + e + '}'; }
+    if (a >= 1000) return fmtInt(v).replace(/,/g, '{,}');
+    return String(Number(v.toPrecision(3)));
+  }
+  // SVG: italic letters in KaTeX_Math, digits and signs in KaTeX_Main, real superscripts; parts as [kind, text]
+  function svgMath(fs, parts) {
+    let s = '', shift = 0;
+    for (const [k, txt] of parts) {
+      let dy, cls, size = '';
+      if (k === 'sup') { const to = -0.45 * fs; dy = to - shift; shift = to; size = ' font-size="' + (0.7 * fs).toFixed(1) + '"'; cls = 'mn'; }
+      else { dy = -shift; shift = 0; cls = k === 'i' ? 'mi' : k === 'n' ? 'mn' : 'tx'; }
+      s += '<tspan class="' + cls + '"' + (dy ? ' dy="' + dy.toFixed(1) + '"' : '') + size + '>' + txt + '</tspan>';
+    }
+    return s;
+  }
+  // tick labels: 10^k as a real power from 10^4 on, plain numbers below (and on an axis that also has 3 x 10^k ticks)
+  const isPow = v => v >= 1e4 && Math.abs(v / Math.pow(10, Math.round(Math.log10(v))) - 1) < 1e-9;
+  const tickSvg = v => isPow(v) ? svgMath(12, [['n', '10'], ['sup', String(Math.round(Math.log10(v)))]]) : fmtInt(v);
+  const TEXFONT = 'KaTeX_Main, "Times New Roman", serif';
+  function tickCanvas(ctx, v, x, y, plain) {
+    if (plain || !isPow(v)) { ctx.font = '12px ' + TEXFONT; ctx.fillText(fmtInt(v), x, y); return; }
+    const k = String(Math.round(Math.log10(v))), al = ctx.textAlign;
+    ctx.font = '12px ' + TEXFONT; const wb = ctx.measureText('10').width;
+    ctx.font = '8.5px ' + TEXFONT; const we = ctx.measureText(k).width;
+    const x0 = x - (wb + 1 + we) / 2;
+    ctx.textAlign = 'left';
+    ctx.font = '12px ' + TEXFONT; ctx.fillText('10', x0, y);
+    ctx.font = '8.5px ' + TEXFONT; ctx.fillText(k, x0 + wb + 1, y - 5);
+    ctx.textAlign = al;
+  }
   const tickLabel = v => v < 1e4 ? fmtInt(v) : (Math.abs(v / Math.pow(10, Math.round(Math.log10(v))) - 1) < 1e-9 ? '10' + sup(Math.round(Math.log10(v))) : fmtNum(v, 1));
   const ordinal = k => k + (k % 100 >= 11 && k % 100 <= 13 ? 'th' : ['th', 'st', 'nd', 'rd'][k % 10] || 'th');
   const f1 = v => v.toFixed(1);
@@ -898,16 +946,17 @@ html.demo-pdhg .math ol.refs li.hit { background: #F7EFF0; }
         ctx.globalAlpha = 1;
       }
       // ticks: decades, plus 3 x 10^k when the range is short
-      ctx.font = '500 11px ' + col.mono; ctx.textAlign = 'center';
+      ctx.textAlign = 'center';
       const ticks = [];
       for (let k = Math.ceil(lo); k <= Math.floor(hi); k++) ticks.push([k, true]);
       if (hi - lo <= 3.2) for (let k = Math.floor(lo); k <= Math.ceil(hi); k++) { const v = k + Math.log10(3); if (v > lo && v < hi) ticks.push([v, false]); }
+      const plain = ticks.some(t => !t[1]);   // with 3 x 10^k ticks, all labels as plain numbers
       for (const [v, major] of ticks) {
         const x = Math.round(X(v)) + 0.5;
         ctx.strokeStyle = col.grid; ctx.beginPath(); ctx.moveTo(x, PAD.t); ctx.lineTo(x, base); ctx.stroke();
         ctx.fillStyle = major ? col.muted : col.muted;
         ctx.globalAlpha = major ? 1 : 0.7;
-        ctx.fillText(tickLabel(Math.pow(10, v)), x, base + 15);
+        tickCanvas(ctx, Math.pow(10, v), x, base + 15, plain);
         ctx.globalAlpha = 1;
       }
       ctx.textAlign = 'right'; ctx.font = '11px ' + col.body; ctx.fillStyle = col.muted;
@@ -1102,10 +1151,11 @@ html.demo-pdhg .math ol.refs li.hit { background: #F7EFF0; }
     rain.showBand(st.p10, st.p90);
     const after = $('after'), first = after.hidden;
     $('afterList').innerHTML = items([
-      'Most are fast: median <b>' + fmtInt(st.med) + '</b> iterations; 80% need <b>' + sig2(st.p10) + '–' + sig2(st.p90) + '</b>',
+      'Most are fast: median <b>' + fmtInt(st.med) + '</b> iterations; the middle 80% need <b>' + sig2(st.p10) + '–' + sig2(st.p90) + '</b>',
       'A few are slow: the slowest needs ' + (st.slow.converged ? '' : 'at least ') + '<b>' + ratio + '×</b> the median' + (st.capped ? ' (hollow dots: stopped at ' + fmtInt(S.cap) + ')' : ''),
-      'As [<a class="cite" href="#ref-1">1</a>] proves: polynomial time <em>with high probability</em>, which leaves room for a few slow LPs'
+      'As [<a class="cite" href="#ref-1">1</a>] proves: with probability at least $1-\\delta$, rPDHG needs polynomially many iterations; the factor $1/\\delta$ in the bound leaves room for a few slow LPs'
     ], 0.55, 0.4);
+    tex($('afterList'));
     $('phiBtn').style.setProperty('--t', '1.85');
     $('afterList').classList.toggle('build', false);
     after.hidden = false;
@@ -1121,17 +1171,18 @@ html.demo-pdhg .math ol.refs li.hit { background: #F7EFF0; }
   let phiPending = false;
   function schedulePhi() { if (!phiPending) { phiPending = true; requestAnimationFrame(() => { phiPending = false; drawPhi(); }); } }
   // animate: the dots come in from left to right, then the dashed line is drawn, the slowest LP is circled, and the points appear
+  let phiRecs = [];
   function drawPhi(animate) {
     animate = animate === true && !reduced;
     const svg = $('phiPlot'), Hc = 300, Wc = fitBox(svg, 640, Hc), Lm = 50, Rm = 14, Tm = 24, Bm = 36;
-    const recs = S.recs.slice(0, Math.max(0, rain.shown())).filter(r => isFinite(r.Phi));
+    const recs = phiRecs = S.recs.slice(0, Math.max(0, rain.shown())).filter(r => isFinite(r.Phi));
     if (recs.length < 3) { svg.innerHTML = axisFrame(Wc, Hc, Lm, Rm, Tm, Bm); $('phiList').innerHTML = ''; return; }
     const xs = recs.map(r => L10(r.kappa * r.Phi)), ys = recs.map(r => L10(r.iters));
     const xlo = Math.floor(Math.min.apply(null, xs)), xhi = Math.ceil(Math.max.apply(null, xs)), ylo = Math.floor(Math.min.apply(null, ys)), yhi = Math.ceil(Math.max.apply(null, ys));
     const X = v => Lm + (Wc - Lm - Rm) * (v - xlo) / Math.max(1, xhi - xlo), Y = v => Tm + (Hc - Tm - Bm) * (yhi - v) / Math.max(1, yhi - ylo);
     let s = '';
-    for (let k = xlo; k <= xhi; k++) s += '<line class="gridl" x1="' + f1(X(k)) + '" x2="' + f1(X(k)) + '" y1="' + Tm + '" y2="' + (Hc - Bm) + '"/><text class="tk" x="' + f1(X(k)) + '" y="' + (Hc - Bm + 16) + '" text-anchor="middle">' + tickLabel(Math.pow(10, k)) + '</text>';
-    for (let k = ylo; k <= yhi; k++) s += '<line class="gridl" x1="' + Lm + '" x2="' + (Wc - Rm) + '" y1="' + f1(Y(k)) + '" y2="' + f1(Y(k)) + '"/><text class="tk" x="' + (Lm - 6) + '" y="' + f1(Y(k) + 4) + '" text-anchor="end">' + tickLabel(Math.pow(10, k)) + '</text>';
+    for (let k = xlo; k <= xhi; k++) s += '<line class="gridl" x1="' + f1(X(k)) + '" x2="' + f1(X(k)) + '" y1="' + Tm + '" y2="' + (Hc - Bm) + '"/><text class="tk" x="' + f1(X(k)) + '" y="' + (Hc - Bm + 16) + '" text-anchor="middle">' + tickSvg(Math.pow(10, k)) + '</text>';
+    for (let k = ylo; k <= yhi; k++) s += '<line class="gridl" x1="' + Lm + '" x2="' + (Wc - Rm) + '" y1="' + f1(Y(k)) + '" y2="' + f1(Y(k)) + '"/><text class="tk" x="' + (Lm - 6) + '" y="' + f1(Y(k) + 4) + '" text-anchor="end">' + tickSvg(Math.pow(10, k)) + '</text>';
     const conv = recs.filter(r => r.converged), pts = conv.map(r => [L10(r.kappa * r.Phi), L10(r.iters)]);
     const c0 = pts.reduce((a, p) => a + p[1] - p[0], 0) / Math.max(1, pts.length);
     const pw = Wc - Lm - Rm;
@@ -1141,25 +1192,24 @@ html.demo-pdhg .math ol.refs li.hit { background: #F7EFF0; }
     let slow = recs[0];
     for (const r of recs) if (r.iters > slow.iters) slow = r;
     const byK = recs.slice().sort((a, b) => a.kappa * a.Phi - b.kappa * b.Phi), order = new Map(byK.map((r, i) => [r, i / Math.max(1, recs.length - 1)]));
-    for (const r of recs) {
-      const x = X(L10(r.kappa * r.Phi)), y = Y(L10(r.iters)), d = animate ? ' style="--d:' + (0.05 + 0.85 * order.get(r)).toFixed(3) + 's"' : '';
-      const tip = 'LP ' + (r.idx + 1) + ': ' + (r.converged ? '' : '≥ ') + fmtInt(r.iters) + ' iterations; κΦ = ' + fmtNum(r.kappa * r.Phi);
-      s += r.converged ? '<circle class="pt"' + d + ' cx="' + f1(x) + '" cy="' + f1(y) + '" r="3.2" fill="var(--dot)" fill-opacity=".7"><title>' + tip + '</title></circle>'
-        : '<circle class="pt"' + d + ' cx="' + f1(x) + '" cy="' + f1(y) + '" r="3.2" fill="none" stroke="var(--warn)" stroke-width="1.4"><title>' + tip + '</title></circle>';
-    }
+    recs.forEach((r, j) => {
+      const x = X(L10(r.kappa * r.Phi)), y = Y(L10(r.iters)), d = ' data-j="' + j + '"' + (animate ? ' style="--d:' + (0.05 + 0.85 * order.get(r)).toFixed(3) + 's"' : '');
+      s += r.converged ? '<circle class="pt"' + d + ' cx="' + f1(x) + '" cy="' + f1(y) + '" r="3.2" fill="var(--dot)" fill-opacity=".7"/>'
+        : '<circle class="pt"' + d + ' cx="' + f1(x) + '" cy="' + f1(y) + '" r="3.2" fill="none" stroke="var(--warn)" stroke-width="1.4"/>';
+    });
     s += '<circle class="ring" cx="' + f1(X(L10(slow.kappa * slow.Phi))) + '" cy="' + f1(Y(L10(slow.iters))) + '" r="8" fill="none" stroke="var(--warn)" stroke-width="2"/>';
     s += axisFrame(Wc, Hc, Lm, Rm, Tm, Bm);
-    s += '<text class="lbl" x="' + (Wc - Rm) + '" y="' + (Hc - 4) + '" text-anchor="end">κΦ (log scale)</text>';
+    s += '<text class="lbl" x="' + (Wc - Rm) + '" y="' + (Hc - 4) + '" text-anchor="end">' + svgMath(11, [['i', 'κ'], ['n', 'Φ'], ['t', ' (log scale)']]) + '</text>';
     s += '<text class="lbl" x="' + Lm + '" y="15">iterations of rPDHG (log scale)</text>';
     svg.innerHTML = s;
     const c = corrLog(pts);
     const rank = recs.length - byK.indexOf(slow);
-    const kp = '<i>κ</i>Φ';
     $('phiList').innerHTML = items([
-      'Same LPs, now placed by ' + kp + ': the condition number in the iteration bound of [<a class="cite" href="#ref-2">2</a>]',
-      'Iterations follow ' + kp + ': correlation of the logs <b>' + (isFinite(c) ? c.toFixed(2) : '–') + '</b>; the dashed line has slope 1',
-      'Slowest LP (circled): the <b>' + (rank === 1 ? '' : ordinal(rank) + ' ') + 'largest</b> ' + kp + ' of ' + fmtInt(recs.length)
-    ], 2.2, 0.4) + '<li class="more-link" style="--t:3.4"><a href="../pdhg-lp-hardness/index.html">What makes Φ large? One LP up close →</a></li>';
+      'Same LPs, now placed by $\\kappa\\Phi$: $\\Phi$ is the condition number in the iteration bound of [<a class="cite" href="#ref-2">2</a>], $\\kappa$ that of $A$',
+      'Iterations grow with $\\kappa\\Phi$: correlation <b>' + (isFinite(c) ? c.toFixed(2) : '–') + '</b> between $\\log(\\text{iterations})$ and $\\log(\\kappa\\Phi)$; the dashed line has slope $1$',
+      'The slowest LP (circled) has the <b>' + (rank === 1 ? '' : ordinal(rank) + ' ') + 'largest</b> $\\kappa\\Phi$ of the ' + fmtInt(recs.length)
+    ], 2.2, 0.4) + '<li class="more-link" style="--t:3.4"><a href="../pdhg-lp-hardness/index.html">What makes $\\Phi$ large? One LP up close →</a></li>';
+    tex($('phiList'));
     if (animate) {
       build(svg, 3000); build($('phiList'), 4000);
       // draw the dashed line from left to right once the dots are in
@@ -1183,12 +1233,15 @@ html.demo-pdhg .math ol.refs li.hit { background: #F7EFF0; }
   });
 
   // ---------- tooltips on the dots ----------
-  const tip = $('tip'), cv = $('rain');
+  const tip = $('tip'), cv = $('rain'), phiSvg = $('phiPlot');
   function showDot(e) {
     const r = cv.getBoundingClientRect(), d = rain.hit(e.clientX - r.left, e.clientY - r.top);
     if (!d) { tip.hidden = true; return; }
-    const q = d.rec;
-    tip.textContent = 'LP ' + (q.idx + 1) + ': ' + (q.converged ? '' : '≥ ') + fmtInt(q.iters) + ' iterations' + (q.converged ? '' : ' (stopped at the cap)') + ' · κΦ = ' + fmtNum(q.kappa * q.Phi);
+    showTip(d.rec, e);
+  }
+  function showTip(q, e) {
+    tip.innerHTML = 'LP ' + (q.idx + 1) + ': ' + (q.converged ? '' : '≥ ') + fmtInt(q.iters) + ' iterations' + (q.converged ? '' : ' (stopped at the cap)') + ', $\\kappa\\Phi = ' + numT(q.kappa * q.Phi) + '$';
+    tex(tip);
     tip.hidden = false;
     const tw = tip.offsetWidth, vw = document.documentElement.clientWidth;
     tip.style.left = Math.max(8, Math.min(vw - tw - 8, e.clientX + 12)) + 'px';
@@ -1197,27 +1250,25 @@ html.demo-pdhg .math ol.refs li.hit { background: #F7EFF0; }
   cv.addEventListener('pointermove', showDot);
   cv.addEventListener('pointerdown', showDot);
   cv.addEventListener('pointerleave', () => { tip.hidden = true; });
+  function showPhiDot(e) {
+    const c = e.target.closest && e.target.closest('circle.pt'), q = c && phiRecs[+c.dataset.j];
+    if (q) showTip(q, e); else tip.hidden = true;
+  }
+  phiSvg.addEventListener('pointermove', showPhiDot);
+  phiSvg.addEventListener('pointerdown', showPhiDot);
+  phiSvg.addEventListener('pointerleave', () => { tip.hidden = true; });
+  window.addEventListener('scroll', () => { tip.hidden = true; }, { passive: true });
 
   // ---------- math, tests, keys (light theme only, as on the rest of the site) ----------
-  function renderMath() {
-    if (S.mathRendered || !window.renderMathInElement) return;
-    window.renderMathInElement($('math'), { delimiters: [{ left: '$$', right: '$$', display: true }, { left: '$', right: '$', display: false }], throwOnError: false });
-    S.mathRendered = true;
-  }
-  function toggleMath(scroll) {
-    const el = $('math'), open = el.hidden;
-    el.hidden = !open;
-    $('mathBtn').setAttribute('aria-expanded', String(open));
-    if (open) { renderMath(); if (scroll !== false) document.querySelector('.endbar').scrollIntoView({ behavior: 'smooth', block: 'start' }); }
-  }
-  $('mathBtn').addEventListener('click', toggleMath);
-  // a citation opens "The math", where the references are, and marks its entry
+  // typeset everything once KaTeX has loaded; the rain's tick labels use KaTeX's font too
+  window.addEventListener('DOMContentLoaded', () => { tex(document.querySelector('.wrap')); texWaiting.forEach(el => tex(el)); texWaiting.clear(); });
+  if (document.fonts && document.fonts.load) document.fonts.load('12px KaTeX_Main').then(() => rain.draw());
+  // a citation jumps to its entry in the references and marks it
   document.addEventListener('click', e => {
     const a = e.target.closest && e.target.closest('a.cite');
     const ref = a && document.querySelector(a.getAttribute('href'));
     if (!ref) return;
     e.preventDefault();
-    if ($('math').hidden) toggleMath(false);
     document.querySelectorAll('.refs li.hit').forEach(li => li.classList.remove('hit'));
     ref.classList.add('hit');
     history.replaceState(null, '', a.getAttribute('href'));
@@ -1244,7 +1295,6 @@ html.demo-pdhg .math ol.refs li.hit { background: #F7EFF0; }
     const tag = (e.target && e.target.tagName) || '';
     if (/^(INPUT|SELECT|TEXTAREA|BUTTON)$/.test(tag) || e.metaKey || e.ctrlKey || e.altKey) return;
     if (e.key === 'Enter' || e.key === 's' || e.key === 'S') go();
-    else if (e.key === 'm' || e.key === 'M') toggleMath();
   });
   let resizeTimer = 0;
   window.addEventListener('resize', () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(() => { rain.resize(); if (S.phiOpen) drawPhi(); }, 120); });
